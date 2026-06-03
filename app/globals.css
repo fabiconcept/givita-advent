@@ -1,0 +1,455 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+/* -----------------------------------------------------------
+   Givita Design Tokens
+   ----------------------------------------------------------- */
+:root {
+  /* Brand */
+  --brand: #512ef8;
+  --brand-light: #7a5cfa;
+  --lime: #d6ff5d;
+
+  /* Light surfaces */
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+  --card: #f7f7f8;
+  --card-foreground: #0a0a0a;
+  --popover: #ffffff;
+  --popover-foreground: #0a0a0a;
+  --primary: #512ef8;
+  --primary-foreground: #ffffff;
+  --secondary: #d6ff5d;
+  --secondary-foreground: #0a0a0a;
+  --muted: #f1f1f3;
+  --muted-foreground: #5a5a63;
+  --accent: #d6ff5d;
+  --accent-foreground: #0a0a0a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(10, 10, 10, 0.08);
+  --border-strong: rgba(10, 10, 10, 0.14);
+  --input: #ececef;
+  --ring: #512ef8;
+  --success: #16a34a;
+  --error: #ef4444;
+  --chart-1: #512ef8;
+  --chart-2: #7a5cfa;
+  --chart-3: #d6ff5d;
+  --chart-4: #16a34a;
+  --chart-5: #ef4444;
+  --sidebar: #f7f7f8;
+  --sidebar-foreground: #0a0a0a;
+  --sidebar-primary: #512ef8;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #d6ff5d;
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: rgba(10, 10, 10, 0.08);
+  --sidebar-ring: #512ef8;
+  --radius: 12px;
+
+  /* Givita semantic */
+  --dark: #ffffff;
+  --dark-2: #f7f7f8;
+  --dark-3: #ececef;
+  --dark-4: #d6d6da;
+  --dark-5: #b9b9bf;
+  --text-primary: #0a0a0a;
+  --text-secondary: #4a4a52;
+  --text-muted: #7a7a82;
+  --border-color: rgba(10, 10, 10, 0.14);
+  --purple-icon-bg: #ede9fe;
+  --green-icon-bg: #dcfce7;
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #f0f0f0;
+  --card: #141414;
+  --card-foreground: #f0f0f0;
+  --popover: #141414;
+  --popover-foreground: #f0f0f0;
+  --primary: #512ef8;
+  --primary-foreground: #ffffff;
+  --secondary: #d6ff5d;
+  --secondary-foreground: #0a0a0a;
+  --muted: #1e1e1e;
+  --muted-foreground: #999999;
+  --accent: #d6ff5d;
+  --accent-foreground: #0a0a0a;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.14);
+  --input: #1e1e1e;
+  --ring: #512ef8;
+  --success: #22c55e;
+  --error: #ef4444;
+  --chart-1: #512ef8;
+  --chart-2: #7a5cfa;
+  --chart-3: #d6ff5d;
+  --chart-4: #22c55e;
+  --chart-5: #ef4444;
+  --sidebar: #141414;
+  --sidebar-foreground: #f0f0f0;
+  --sidebar-primary: #512ef8;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #d6ff5d;
+  --sidebar-accent-foreground: #0a0a0a;
+  --sidebar-border: rgba(255, 255, 255, 0.14);
+  --sidebar-ring: #512ef8;
+
+  --dark: #0a0a0a;
+  --dark-2: #141414;
+  --dark-3: #1e1e1e;
+  --dark-4: #2a2a2a;
+  --dark-5: #3f3f3f;
+  --text-primary: #f0f0f0;
+  --text-secondary: #999999;
+  --text-muted: #666666;
+  --border-color: rgba(255, 255, 255, 0.14);
+  --purple-icon-bg: #2a1f5a;
+  --green-icon-bg: #1a3a28;
+}
+
+@theme inline {
+  --font-sans: 'Onest', sans-serif;
+  --font-mono: 'Onest', sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border-color);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  html {
+    @apply bg-background scroll-smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: 'Onest', sans-serif;
+  }
+
+  /* Typography */
+  h1 {
+    @apply text-3xl font-semibold tracking-tight;
+  }
+  h2 {
+    @apply text-2xl font-semibold tracking-tight;
+  }
+  h3 {
+    @apply text-xl font-semibold tracking-tight;
+  }
+
+  /* Interactive elements get pointer by default */
+  button,
+  a,
+  [role='button'],
+  [type='button'],
+  [type='submit'],
+  [type='reset'],
+  label[for],
+  summary {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+
+  /* Givita Components */
+  .card-givita {
+    border: 0.5px solid var(--border-strong);
+    background: var(--dark-2);
+    border-radius: 18px;
+    padding: 20px 22px;
+  }
+
+  .btn-primary {
+    padding: 0 22px;
+    height: 48px;
+    border-radius: 100px;
+    font-weight: 500;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--brand);
+    color: #fff;
+    border: none;
+    transition: all 0.2s;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .btn-primary:hover {
+    background: var(--brand-light);
+  }
+
+  .btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-outline {
+    padding: 0 22px;
+    height: 48px;
+    border-radius: 100px;
+    font-weight: 500;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 0.5px solid var(--border-strong);
+    transition: all 0.2s;
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .btn-outline:hover {
+    border-color: var(--brand);
+    color: var(--brand);
+  }
+
+  .badge-pill {
+    display: inline-block;
+    padding: 3px 12px;
+    border-radius: 100px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.slide-in {
+  animation: slideIn 0.3s ease-in-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.slide-up {
+  animation: slideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes confettiFall {
+  0% {
+    transform: translate3d(0, -20px, 0) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    transform: translate3d(calc(var(--drift, 0px) * 0.08), 20px, 0) rotate(80deg);
+    opacity: 1;
+  }
+  70% {
+    transform: translate3d(calc(var(--drift, 0px) * 0.7), 360px, 0) rotate(520deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--drift, 0px), 520px, 0) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.confetti-piece {
+  position: absolute;
+  top: 0;
+  border-radius: 2px;
+  animation-name: confettiFall;
+  animation-timing-function: cubic-bezier(0.22, 0.6, 0.36, 1);
+  animation-fill-mode: forwards;
+  will-change: transform, opacity;
+}
+
+.confetti-piece:nth-child(3n) {
+  --drift: 36px;
+}
+.confetti-piece:nth-child(3n + 1) {
+  --drift: -48px;
+}
+.confetti-piece:nth-child(3n + 2) {
+  --drift: 14px;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.04) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+@keyframes pulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(81, 46, 248, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(81, 46, 248, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(81, 46, 248, 0);
+  }
+}
+
+.pulse-ring {
+  animation: pulseRing 1.6s cubic-bezier(0.66, 0, 0, 1) infinite;
+}
+
+@keyframes floatY {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+.float {
+  animation: floatY 6s ease-in-out infinite;
+}
+
+/* Aurora background */
+.aurora {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: -1;
+}
+
+.aurora::before,
+.aurora::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.6;
+}
+
+.aurora::before {
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(closest-side, rgba(81, 46, 248, 0.55), transparent 70%);
+  top: -120px;
+  left: -120px;
+  animation: floatY 9s ease-in-out infinite;
+}
+
+.aurora::after {
+  width: 480px;
+  height: 480px;
+  background: radial-gradient(closest-side, rgba(214, 255, 93, 0.45), transparent 70%);
+  bottom: -160px;
+  right: -100px;
+  animation: floatY 11s ease-in-out infinite reverse;
+}
+
+.dark .aurora::before {
+  opacity: 0.4;
+}
+.dark .aurora::after {
+  opacity: 0.25;
+}
+
+@keyframes easterHeart {
+  0% {
+    transform: translate3d(0, 0, 0) scale(0.4) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    transform: translate3d(calc(var(--drift, 0) * 0.3), -40px, 0) scale(1) rotate(8deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(var(--drift, 0), -520px, 0) scale(0.6) rotate(-12deg);
+    opacity: 0;
+  }
+}
