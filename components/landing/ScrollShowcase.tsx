@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { PhoneMockup } from '@/components/landing/PhoneMockup';
+import { HangingFlower } from '@/components/landing/HangingFlower';
 import { cn } from '@/lib/utils';
 import { ArrowRight, GripVertical } from 'lucide-react';
 import {
@@ -50,7 +51,6 @@ const SCREENS: Screen[] = [
   },
 ];
 
-const SWAP_MS = 520;
 
 export function ScrollShowcase() {
   const sectionRef = useRef<HTMLElement>(null);
@@ -96,6 +96,19 @@ export function ScrollShowcase() {
   const keepScrollingOpacity =
     scrollPct < 0.04 ? 1 : Math.max(0, 1 - (scrollPct - 0.04) * 8);
 
+  // ScrollShowcase flower
+  const flowerY = 18 + tabPct * 50;
+  const flowerEntry = Math.min(1, Math.max(0, (scrollPct - 0.02) / 0.1));
+  const flowerExit = Math.min(1, Math.max(0, (1 - scrollPct) / 0.06));
+  const flowerOpacity = flowerEntry * flowerExit;
+  const flowerScale = 0.35 + flowerEntry * 0.65;
+  const glowColors = [
+    'rgba(122, 92, 250, 0.35)',
+    'rgba(214, 255, 93, 0.30)',
+    'rgba(255, 159, 67, 0.30)',
+    'rgba(0, 200, 200, 0.30)',
+  ];
+
   return (
     <section
       ref={sectionRef}
@@ -103,7 +116,7 @@ export function ScrollShowcase() {
       className="relative scroll-mt-16"
       style={{ height: `${Math.max(180, totalTabs * 80) + 100}vh` }}
     >
-      <div className="sticky top-0 flex h-screen flex-col items-center justify-end overflow-hidden md:flex-row md:items-center md:justify-center">
+      <div className="sticky top-0 flex h-screen flex-col items-center justify-end overflow-hidden md:flex-row md:items-center md:justify-center relative">
         <div className="aurora absolute inset-0 -z-10" />
         <div className="relative mx-auto max-sm:-translate-y-1/6 w-full max-w-6xl px-5 sm:px-8">
           <div
@@ -244,6 +257,26 @@ export function ScrollShowcase() {
           </div>
 
           <ProgressDots active={activeIndex} total={totalTabs} scrollPct={scrollPct} className="mt-4 sm:mt-12" />
+        </div>
+
+        <div
+          aria-hidden
+          className="pointer-events-none absolute z-10 hidden lg:block"
+          style={{
+            right: 'clamp(80px, 15%, 180px)',
+            top: `${flowerY}%`,
+            opacity: flowerOpacity,
+            transform: `translateY(-50%) scale(${flowerScale})`,
+            filter: `drop-shadow(0 0 18px ${glowColors[activeIndex]})`,
+            transition: 'filter 500ms ease',
+          }}
+        >
+          <HangingFlower
+            size={72}
+            ropeLength={44}
+            delay={0.1}
+            tone="primary"
+          />
         </div>
       </div>
     </section>

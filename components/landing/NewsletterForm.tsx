@@ -28,9 +28,15 @@ export function NewsletterForm({
     if (!email) return;
     setStatus('loading');
     try {
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Subscription failed');
       setStatus('success');
-      setMessage('You’re on the list. Welcome to the community.');
+      setMessage(data.message || 'You\'re on the list. Welcome to the community.');
       setEmail('');
     } catch {
       setStatus('error');

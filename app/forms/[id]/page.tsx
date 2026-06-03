@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
+import useShortcuts from '@useverse/useshortcuts';
+import { useShortcutGuard } from '@/components/ShortcutGuard';
 import { Form, FormQuestion } from '@/types';
 import { FormShell } from '@/components/form/FormShell';
 import { IntroScreen } from '@/components/form/IntroScreen';
@@ -189,6 +191,28 @@ export default function FormPage() {
   const goBack = () => {
     setIndex((i) => Math.max(0, i - 1));
   };
+
+  const { inputsFocused } = useShortcutGuard();
+
+  const handleShortcut = useCallback((shortcut: { key: string }) => {
+    if (stage !== 'questions') return;
+    switch (shortcut.key) {
+      case 'Enter':
+        goNext();
+        break;
+      case 'Escape':
+        if (!isFirst) goBack();
+        break;
+    }
+  }, [stage, goNext, isFirst]);
+
+  useShortcuts({
+    shortcuts: [
+      { key: 'Enter', enabled: stage === 'questions' && !inputsFocused },
+      { key: 'Escape', enabled: stage === 'questions' && !inputsFocused && !isFirst },
+    ],
+    onTrigger: handleShortcut,
+  }, [handleShortcut, inputsFocused]);
 
   const submit = async () => {
     if (!form) return;

@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
+import useShortcuts from '@useverse/useshortcuts';
+import { useShortcutGuard } from '@/components/ShortcutGuard';
 import { Form, FormQuestion } from '@/types';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
@@ -154,6 +156,31 @@ export default function AdminResponsesPage() {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formId]);
+
+  const { inputsFocused } = useShortcutGuard();
+
+  const handleShortcut = useCallback((shortcut: { key: string }) => {
+    switch (shortcut.key) {
+      case 'S':
+        if (editing) handleSave();
+        break;
+      case 'Escape':
+        if (editing) setEditing(false);
+        break;
+      case 'N':
+        if (editing) addQuestion();
+        break;
+    }
+  }, [editing]);
+
+  useShortcuts({
+    shortcuts: [
+      { key: 'S', ctrlKey: true, enabled: !inputsFocused && editing, platformAware: true },
+      { key: 'Escape', enabled: !inputsFocused && editing },
+      { key: 'N', enabled: !inputsFocused && editing },
+    ],
+    onTrigger: handleShortcut,
+  }, [handleShortcut, inputsFocused]);
 
   async function togglePublished() {
     if (!form) return;

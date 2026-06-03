@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Onest } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
+import { ShortcutGuardProvider } from '@/components/ShortcutGuard'
 import './globals.css'
 
 const onest = Onest({ subsets: ["latin"], weight: ["400", "500", "600"] });
@@ -97,8 +98,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          {process.env.NODE_ENV === 'production' && <Analytics />}
+          <ShortcutGuardProvider>
+            {children}
+            {process.env.NODE_ENV === 'production' && <Analytics />}
+          </ShortcutGuardProvider>
         </ThemeProvider>
       </body>
     </html>

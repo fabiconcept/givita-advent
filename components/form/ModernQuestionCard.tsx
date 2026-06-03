@@ -95,7 +95,11 @@ export function ModernQuestionCard({ question, index, total, value, onChange }: 
           />
         )}
         {question.type === 'email' && (
-          <EmailInput value={(value as string) ?? ''} onChange={(v) => onChange(v)} />
+          <EmailInput
+            value={(value as string) ?? ''}
+            onChange={(v) => onChange(v)}
+            placeholder={question.placeholder}
+          />
         )}
         {question.type === 'number' && (
           <NumberInput

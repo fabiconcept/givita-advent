@@ -22,6 +22,7 @@ interface Particle {
   size: number;
   base: number;
   phase: number;
+  speed: number;
   color: string;
   alpha: number;
 }
@@ -119,16 +120,23 @@ export function LiveBackground({ variant, className, density = 'med' }: LiveBack
     const seed = () => {
       particles = Array.from({ length: count }, () => {
         const size = 1 + Math.random() * 1.8;
+        const tier = Math.random();
+        let speed: number;
+        if (tier < 0.25) speed = 0.0003 + Math.random() * 0.0007;
+        else if (tier < 0.6) speed = 0.0015 + Math.random() * 0.001;
+        else if (tier < 0.85) speed = 0.004 + Math.random() * 0.002;
+        else speed = 0.008 + Math.random() * 0.004;
         return {
           x: Math.random() * width,
           y: Math.random() * height,
-          vx: (Math.random() - 0.5) * 0.08,
-          vy: variant === 'hearts' ? -0.08 - Math.random() * 0.12 : (Math.random() - 0.5) * 0.08,
+          vx: (Math.random() - 0.5) * speed,
+          vy: variant === 'hearts' ? -0.008 - Math.random() * speed * 2 : (Math.random() - 0.5) * speed,
           size,
           base: size,
           phase: Math.random() * Math.PI * 2,
+          speed,
           color: colors[Math.floor(Math.random() * colors.length)],
-          alpha: 0.12 + Math.random() * 0.28,
+          alpha: 0.08 + Math.random() * 0.2,
         };
       });
     };
@@ -144,11 +152,11 @@ export function LiveBackground({ variant, className, density = 'med' }: LiveBack
       for (const p of particles) {
         p.x += p.vx;
         p.y += p.vy;
-        p.phase += 0.004;
+        p.phase += 0.001;
 
-        const wobble = Math.sin(p.phase) * 0.06;
+        const wobble = Math.sin(p.phase) * 0.008;
         p.x += wobble;
-        p.y += Math.cos(p.phase) * 0.04;
+        p.y += Math.cos(p.phase) * 0.006;
 
         if (p.x < -10) p.x = width + 10;
         if (p.x > width + 10) p.x = -10;
@@ -160,13 +168,13 @@ export function LiveBackground({ variant, className, density = 'med' }: LiveBack
         const dy = p.y - mouseY;
         const dist = Math.sqrt(dx * dx + dy * dy);
         if (dist < 160) {
-          const force = (1 - dist / 160) * 0.4;
+          const force = (1 - dist / 160) * 0.05;
           p.x += (dx / dist) * force;
           p.y += (dy / dist) * force;
         }
 
         // Scroll drift
-        p.y += scrollY * 0.0008;
+        p.y += scrollY * 0.0001;
 
         // Draw
         ctx.beginPath();

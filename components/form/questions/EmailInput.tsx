@@ -6,6 +6,7 @@ import { Mail, Check, X } from 'lucide-react';
 interface EmailInputProps {
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
 }
 
 function validateEmail(value: string) {
@@ -14,7 +15,7 @@ function validateEmail(value: string) {
   return { valid: ok, status: ok ? ('valid' as const) : ('invalid' as const) };
 }
 
-export function EmailInput({ value, onChange }: EmailInputProps) {
+export function EmailInput({ value, onChange, placeholder = 'you@example.com' }: EmailInputProps) {
   const { valid, status } = validateEmail(value);
   return (
     <div className="group relative">
@@ -25,7 +26,7 @@ export function EmailInput({ value, onChange }: EmailInputProps) {
         type="email"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="you@example.com"
+        placeholder={placeholder}
         autoComplete="email"
         className={cn(
           'w-full border-0 border-b-2 bg-transparent py-4 pl-8 pr-10 text-2xl font-medium text-foreground',

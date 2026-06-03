@@ -7,11 +7,10 @@ interface RevealProps {
   children: React.ReactNode;
   className?: string;
   delay?: number;
-  y?: number;
   as?: keyof React.JSX.IntrinsicElements;
 }
 
-export function Reveal({ children, className, delay = 0, y = 24, as: Tag = 'div' }: RevealProps) {
+export function Reveal({ children, className, delay = 0, as: Tag = 'div' }: RevealProps) {
   const ref = useRef<HTMLElement | null>(null);
   const [visible, setVisible] = useState(false);
 
@@ -39,16 +38,13 @@ export function Reveal({ children, className, delay = 0, y = 24, as: Tag = 'div'
 
   const Component = Tag as unknown as React.ElementType;
   return (
-    <Component
-      ref={ref}
-      style={{ transitionDelay: `${delay}ms` }}
-      className={cn(
-        'transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]',
-        visible ? 'opacity-100 translate-y-0' : 'opacity-0',
-        className
-      )}
-    >
-      <div style={{ transform: visible ? 'none' : `translateY(${y}px)` }} className="transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]">
+    <Component ref={ref} className={cn(className)}>
+      <div
+        style={{
+          opacity: visible ? 1 : 0,
+          transition: `opacity 900ms cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
+        }}
+      >
         {children}
       </div>
     </Component>

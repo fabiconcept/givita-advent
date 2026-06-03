@@ -1,8 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import useShortcuts from '@useverse/useshortcuts';
+import { useShortcutGuard } from '@/components/ShortcutGuard';
 import { Form } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -63,6 +65,21 @@ export default function AdminPage() {
   useEffect(() => {
     fetchForms();
   }, []);
+
+  const { inputsFocused } = useShortcutGuard();
+
+  const handleShortcut = useCallback((shortcut: { key: string }) => {
+    if (shortcut.key === 'N') setShowCreate(true);
+    if (shortcut.key === 'Escape') setShowCreate(false);
+  }, []);
+
+  useShortcuts({
+    shortcuts: [
+      { key: 'N', enabled: !inputsFocused },
+      { key: 'Escape', enabled: !inputsFocused && showCreate },
+    ],
+    onTrigger: handleShortcut,
+  }, [handleShortcut, showCreate, inputsFocused]);
 
   async function handleLogout() {
     setIsLoggingOut(true);
