@@ -33,79 +33,72 @@ export function FormShell({ children, variant = 'aurora' }: FormShellProps) {
 
       <LiveBackground variant={variant} className="-z-10" density="low" />
 
-      <div aria-hidden className="block md:hidden">
-        <HangingFlower
-          className="left-2 bottom-0"
-          side="left"
-          size={86}
-          ropeLength={48}
-          rotateRange={5}
-          rotateDuration={12}
-          delay={0}
-          tone="primary"
-          flip
-        />
-        <HangingFlower
-          className="right-4 bottom-0"
-          side="right"
-          size={68}
-          ropeLength={40}
-          rotateRange={8}
-          rotateDuration={10}
-          delay={0.7}
-          tone="muted"
-          flip
-        />
+      <div
+        className="transition-opacity duration-500 ease-out"
+        style={{ opacity: contentOpacity }}
+      >
+        <div aria-hidden className="block md:hidden">
+          <HangingFlower
+            className="left-2 bottom-0"
+            side="left"
+            size={86}
+            ropeLength={48}
+            delay={0}
+            tone="primary"
+            flip
+          />
+          <HangingFlower
+            className="right-4 bottom-0"
+            side="right"
+            size={68}
+            ropeLength={40}
+            delay={0.7}
+            tone="muted"
+            flip
+          />
+        </div>
+
+        <div aria-hidden className="hidden md:block">
+          <HangingFlower
+            className="left-3 top-0 sm:left-8 lg:left-14"
+            side="left"
+            size={200}
+            ropeLength={120}
+            delay={0}
+            tone="primary"
+          />
+          <HangingFlower
+            className="right-6 top-0 sm:right-12 lg:right-20"
+            side="right"
+            size={160}
+            ropeLength={90}
+            delay={1.2}
+            tone="muted"
+          />
+          <HangingFlower
+            className="left-10 bottom-0 lg:left-20"
+            side="left"
+            size={130}
+            ropeLength={80}
+            delay={2.2}
+            tone="muted"
+            flip
+          />
+          <HangingFlower
+            className="right-12 bottom-0 lg:right-24"
+            side="right"
+            size={110}
+            ropeLength={70}
+            delay={0.4}
+            tone="primary"
+            flip
+          />
+        </div>
+
+        <DriftingPetals />
+
+        <div className="relative z-0">{children}</div>
       </div>
-
-      <div aria-hidden className="hidden md:block">
-        <HangingFlower
-          className="left-3 top-0 sm:left-8 lg:left-14"
-          side="left"
-          size={200}
-          ropeLength={120}
-          rotateRange={5}
-          rotateDuration={18}
-          delay={0}
-          tone="primary"
-        />
-        <HangingFlower
-          className="right-6 top-0 sm:right-12 lg:right-20"
-          side="right"
-          size={160}
-          ropeLength={90}
-          rotateRange={9}
-          rotateDuration={13}
-          delay={1.2}
-          tone="muted"
-        />
-        <HangingFlower
-          className="left-10 bottom-0 lg:left-20"
-          side="left"
-          size={130}
-          ropeLength={80}
-          rotateRange={7}
-          rotateDuration={15}
-          delay={2.2}
-          tone="muted"
-          flip
-        />
-        <HangingFlower
-          className="right-12 bottom-0 lg:right-24"
-          side="right"
-          size={110}
-          ropeLength={70}
-          rotateRange={8}
-          rotateDuration={16}
-          delay={0.4}
-          tone="primary"
-          flip
-        />
-      </div>
-
-      <DriftingPetals />
-
-      <div className="relative z-0 transition-opacity duration-500 ease-out" style={{ opacity: contentOpacity }}>{children}</div>
     </div>
   );
 }

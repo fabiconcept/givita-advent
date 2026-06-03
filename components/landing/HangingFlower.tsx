@@ -80,15 +80,16 @@ export function HangingFlower({
     const img = imgRef.current;
     if (!img) return;
     img.style.transition = 'none';
+    img.style.transform = 'scale(1.05)';
 
     let last = performance.now();
     function tick(now: number) {
       if (!hoverRef.current) return;
       const dt = now - last;
       last = now;
-      hoverAngleRef.current += dt * 0.0012;
+      hoverAngleRef.current += dt * 0.0006;
       if (imgRef.current) {
-        imgRef.current.style.transform = `rotate(${hoverAngleRef.current}deg)`;
+        imgRef.current.style.transform = `scale(1.05) rotate(${hoverAngleRef.current}deg)`;
       }
       hoverRafRef.current = requestAnimationFrame(tick);
     }
@@ -105,7 +106,7 @@ export function HangingFlower({
     if (!img) return;
     img.style.transition = 'transform 0.6s cubic-bezier(0.22, 1, 0.36, 1)';
     hoverAngleRef.current = 0;
-    img.style.transform = 'rotate(0deg)';
+    img.style.transform = 'scale(1) rotate(0deg)';
   }, []);
 
   const handleClick = useCallback(() => {
