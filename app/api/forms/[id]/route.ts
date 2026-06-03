@@ -44,6 +44,10 @@ export async function PATCH(
           maxLabel: q?.maxLabel || undefined,
           maxScore: q?.maxScore ? Number(q.maxScore) : undefined,
           description: q?.description || undefined,
+          placeholder: q?.placeholder || undefined,
+          min: q?.min !== undefined && q?.min !== null ? Number(q.min) : undefined,
+          max: q?.max !== undefined && q?.max !== null ? Number(q.max) : undefined,
+          unit: q?.unit || undefined,
           order: typeof q?.order === 'number' ? q.order : idx + 1,
         }))
         .sort((a, b) => a.order - b.order);

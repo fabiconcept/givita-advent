@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import { HangingFlower } from '@/components/landing/HangingFlower';
 import { LiveBackground } from '@/components/landing/LiveBackground';
 import { IntroReveal } from '@/components/landing/IntroReveal';
@@ -11,6 +11,13 @@ interface FormShellProps {
 }
 
 export function FormShell({ children, variant = 'aurora' }: FormShellProps) {
+  const [contentOpacity, setContentOpacity] = useState(0);
+
+  useEffect(() => {
+    const t = setTimeout(() => setContentOpacity(1), 1800);
+    return () => clearTimeout(t);
+  }, []);
+
   return (
     <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
       <IntroReveal />
@@ -98,7 +105,7 @@ export function FormShell({ children, variant = 'aurora' }: FormShellProps) {
 
       <DriftingPetals />
 
-      <div className="relative z-0">{children}</div>
+      <div className="relative z-0 transition-opacity duration-500 ease-out" style={{ opacity: contentOpacity }}>{children}</div>
     </div>
   );
 }
