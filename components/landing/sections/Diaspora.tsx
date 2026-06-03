@@ -19,7 +19,7 @@ export function Diaspora() {
           </ScrollInView>
           <ScrollInView delay={180} entrance="slideRight">
             <p className="mt-6 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
-              Millions of Africans around the world want to support people and projects back home. Givita is designed for international donations, seamless currency conversion, and local disbursement - so supporters anywhere can contribute confidently to causes they care about.
+              Millions of <span className="text-primary dark:text-muted-foreground">Africans</span> around the world want to support people and projects back home. <span className="text-primary dark:text-muted-foreground">Givita</span> is designed for international donations, seamless currency conversion, and local disbursement - so supporters anywhere can contribute confidently to causes they care about.
             </p>
           </ScrollInView>
         </div>

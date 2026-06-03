@@ -11,14 +11,6 @@ import { Eyebrow } from '@/components/landing/blocks/Eyebrow';
 export function Future() {
   return (
     <section id="future" className="relative overflow-hidden scroll-mt-16">
-      <div
-        className="absolute inset-0 -z-10"
-        style={{
-          backgroundImage:
-            'radial-gradient(60% 50% at 18% 18%, rgba(81,46,248,0.16) 0%, transparent 60%), radial-gradient(50% 40% at 82% 82%, rgba(214,255,93,0.10) 0%, transparent 70%)',
-        }}
-        aria-hidden
-      />
       <HangingFlower className="right-8 top-0 sm:right-14 lg:right-24" side="right" size={80}  ropeLength={62} delay={0.7} tone="foreground" />
       <HangingFlower className="left-8 top-4 hidden lg:block"           side="left"  size={56}  ropeLength={48} delay={1.4} tone="muted" />
       <div className="relative mx-auto w-full max-w-3xl px-5 py-44 text-center sm:px-8 sm:py-64">

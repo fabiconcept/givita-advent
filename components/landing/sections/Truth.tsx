@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTheme } from 'next-themes';
 import { Eyebrow } from '@/components/landing/blocks/Eyebrow';
 import { HangingFlower } from '@/components/landing/HangingFlower';
 
@@ -32,6 +33,9 @@ export function Truth() {
     });
     return map;
   }, []);
+
+  const { resolvedTheme } = useTheme();
+  const isLight = resolvedTheme === 'light';
 
   const sectionRef = useRef<HTMLElement | null>(null);
   const [progress, setProgress] = useState(0);
@@ -68,7 +72,7 @@ export function Truth() {
   }, [reduced]);
 
   const zoomP = Math.min(Math.max((progress - 0) / 0.15, 0), 1);
-  const scale = reduced ? 1 : 0.5 + zoomP * 0.5;
+  const scale = reduced ? 1 : 0.8 + zoomP * 0.2;
 
   const hlP = reduced ? 1 : Math.min(Math.max((progress - 0.1) / 0.6, 0), 1);
 
@@ -109,24 +113,25 @@ export function Truth() {
           <h2 className="mt-6 text-balance text-4xl font-semibold leading-[1.1] tracking-tight sm:text-6xl">
             Across Africa, communities have always been the backbone of progress.
           </h2>
-          <p className="mt-8 max-w-3xl break-words text-pretty text-lg leading-relaxed sm:text-xl">
+          <p className="mt-8 max-w-3xl wrap-break-words text-pretty text-lg leading-relaxed sm:text-xl">
             {tokens.map((token, i) => {
               const isSpace = /^\s+$/.test(token);
               const b = wordBrightness(i, isSpace);
               const meta = tokenMeta.get(i);
               const isKey = meta?.isKey ?? false;
               const keyLit = isKey && hlP >= (meta!.groupIdx + 0.5) / NUM_GROUPS;
+              const highlightColor = isLight ? '#512ef8' : '#d6ff5d';
               return (
                 <span
                   key={i}
                   style={{
                     color: keyLit
-                      ? '#d6ff5d'
+                      ? highlightColor
                       : b > 0.6
                         ? 'hsl(var(--foreground))'
                         : 'hsl(var(--muted-foreground))',
                     opacity: isSpace ? 0.3 : 0.2 + 0.8 * b,
-                    textDecoration: keyLit ? 'underline wavy #d6ff5d' : 'none',
+                    textDecoration: keyLit ? `underline wavy ${highlightColor}` : 'none',
                     textUnderlineOffset: keyLit ? 4 : 0,
                     transition: 'color 200ms ease, opacity 200ms linear',
                   }}

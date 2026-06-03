@@ -71,7 +71,7 @@ export function Hero() {
 
         <Reveal delay={900}>
           <p className="mx-auto mt-8 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            Givita turns the way African communities already support each other into a modern, trusted digital experience -
+            Givita turns the way <span className="text-primary dark:text-muted-foreground">African communities</span> already support each other into a modern, <span className="text-primary dark:text-muted-foreground">trusted</span> digital experience -
             built for us, by us.
           </p>
         </Reveal>

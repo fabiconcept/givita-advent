@@ -7,13 +7,15 @@ import { Joint } from '@/components/landing/blocks/Joint';
 import { Eyebrow } from '@/components/landing/blocks/Eyebrow';
 import { OdogwuWord } from '@/components/landing/OdogwuWord';
 import { Quote } from 'lucide-react';
+import { useScrollParallax } from '@/lib/useScrollParallax';
 
 export function Odogwu() {
+  const { ref, offset } = useScrollParallax(50);
   return (
     <Section id="odogwu" tone="muted" density="roomy">
-      <div className="grid items-center gap-10 lg:grid-cols-[1.8fr_1fr]">
+      <div ref={ref} className="grid items-center gap-10 lg:grid-cols-[1.8fr_1fr]">
         <ScrollInView entrance="scaleIn">
-          <div>
+          <div style={{ transform: `translateY(${offset * 0.4}px)`, willChange: 'transform' }}>
             <Eyebrow number="06" label="Odogwu" />
             <HoverDepth maxTilt={4} lift={5} scale={1.015}>
               <div className="mt-14 max-w-3xl rounded-3xl border border-border bg-card/60 p-8 backdrop-blur sm:p-12">
@@ -23,14 +25,17 @@ export function Odogwu() {
                   <OdogwuWord /> mentality. Givita embraces this culture and turns it into a modern digital experience.
                 </p>
                 <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-                  People contribute because they believe in someone, want their community to succeed, feel connected to a shared goal, want to make an impact, and want to be remembered as a contributor to something meaningful.
+                  People contribute because they believe in someone, want their <span className="text-primary dark:text-muted-foreground">community</span> to succeed, feel connected to a shared goal, want to make an <span className="text-primary dark:text-muted-foreground">impact</span>, and want to be remembered as a contributor to something meaningful.
                 </p>
               </div>
             </HoverDepth>
           </div>
         </ScrollInView>
         <ScrollInView delay={180} entrance="slideLeft">
-          <div className="relative mx-auto w-full max-w-sm">
+          <div
+            className="relative mx-auto w-full max-w-sm"
+            style={{ transform: `translateY(${offset * 0.8}px)`, willChange: 'transform' }}
+          >
             <div className="absolute inset-0 -z-10 rounded-full bg-primary/10 blur-3xl" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/assets/Self confidence-rafiki 1.png" alt="Confidence and community" className="h-auto w-full object-contain" loading="lazy" />

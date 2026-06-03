@@ -87,7 +87,7 @@ export function Footer() {
               onClick={handleLogoClick}
               className="flex cursor-pointer items-center gap-2.5 text-left transition-opacity hover:opacity-80"
             >
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 p-1">
+              <span className="flex h-10 w-12 items-center justify-center">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/assets/flower 2.png" alt="Givita" className="h-full w-full object-contain" />
               </span>

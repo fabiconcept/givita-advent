@@ -135,15 +135,8 @@ export function IntroReveal() {
 
       <style jsx>{`
         .intro-veil {
-          background:
-            radial-gradient(60% 50% at 50% 50%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0) 70%);
-          backdrop-filter: blur(8px) saturate(110%);
-          -webkit-backdrop-filter: blur(8px) saturate(110%);
+          background: hsl(var(--background));
           animation: veil-pulse 3s ease-out forwards;
-        }
-        :global(.dark) .intro-veil {
-          background:
-            radial-gradient(60% 50% at 50% 50%, rgba(10, 10, 10, 0.55) 0%, rgba(10, 10, 10, 0) 70%);
         }
         .center-flower {
           transform-origin: 50% 50%;
@@ -168,8 +161,7 @@ export function IntroReveal() {
         @keyframes veil-pulse {
           0%   { opacity: 0; }
           10%  { opacity: 1; }
-          78%  { opacity: 1; }
-          100% { opacity: 0; }
+          100% { opacity: 1; }
         }
         @keyframes center-bloom {
           0%   { transform: scale(0) rotate(-12deg); opacity: 0; filter: blur(8px); }
