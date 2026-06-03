@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 600" width="300" height="600">
+  <defs>
+    <linearGradient id="bg-s" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a0a0a"/>
+      <stop offset="1" stop-color="#1a1a1a"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="600" fill="url(#bg-s)"/>
+  <text x="150" y="50" text-anchor="middle" font-family="system-ui" font-size="14" font-weight="500" fill="#f0f0f0">Adaeze’s Bookshop</text>
+  <text x="150" y="75" text-anchor="middle" font-family="system-ui" font-size="11" fill="#999">Lagos · 124 supporters</text>
+  <g transform="translate(30 110)">
+    <rect width="240" height="60" rx="14" fill="#1e1e1e" stroke="rgba(255,255,255,0.08)"/>
+    <text x="20" y="30" font-family="system-ui" font-size="11" fill="#999">RAISED</text>
+    <text x="20" y="50" font-family="system-ui" font-size="18" font-weight="700" fill="#512ef8">₦820,000</text>
+  </g>
+  <g transform="translate(30 185)">
+    <rect width="240" height="10" rx="5" fill="#1e1e1e"/>
+    <rect width="180" height="10" rx="5" fill="#7a5cfa"/>
+    <text y="28" font-family="system-ui" font-size="11" fill="#999">75% of ₦1.1M goal</text>
+  </g>
+  <g transform="translate(30 240)">
+    <text font-family="system-ui" font-size="12" font-weight="500" fill="#f0f0f0">Latest update</text>
+    <g transform="translate(0 14)">
+      <rect width="240" height="80" rx="14" fill="#1e1e1e" stroke="rgba(255,255,255,0.08)"/>
+      <circle cx="24" cy="24" r="10" fill="#512ef8"/>
+      <text x="44" y="28" font-family="system-ui" font-size="11" font-weight="500" fill="#f0f0f0">Adaeze O.</text>
+      <text x="44" y="44" font-family="system-ui" font-size="9" fill="#999">2 hours ago</text>
+      <text x="14" y="68" font-family="system-ui" font-size="10" fill="#ccc">We just hit 75% - thank you all!</text>
+    </g>
+  </g>
+  <g transform="translate(30 360)">
+    <text font-family="system-ui" font-size="12" font-weight="500" fill="#f0f0f0">Top supporters</text>
+    <g transform="translate(0 14)">
+      <circle cx="14" cy="14" r="12" fill="#d6ff5d"/>
+      <circle cx="32" cy="14" r="12" fill="#512ef8"/>
+      <circle cx="50" cy="14" r="12" fill="#7a5cfa"/>
+      <circle cx="68" cy="14" r="12" fill="#22c55e"/>
+      <text x="92" y="18" font-family="system-ui" font-size="11" fill="#999">+ 120 more</text>
+    </g>
+  </g>
+  <text x="150" y="540" text-anchor="middle" font-family="system-ui" font-size="11" fill="#666">Mobile screenshot - replace with export</text>
+</svg>

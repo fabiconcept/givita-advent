@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 600" width="300" height="600">
+  <defs>
+    <linearGradient id="bg-t" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a0a0a"/>
+      <stop offset="1" stop-color="#1a1a1a"/>
+    </linearGradient>
+  </defs>
+  <rect width="300" height="600" fill="url(#bg-t)"/>
+  <text x="150" y="50" text-anchor="middle" font-family="system-ui" font-size="18" font-weight="600" fill="#f0f0f0">Trust &amp; Transparency</text>
+  <g transform="translate(20 90)">
+    <rect width="260" height="64" rx="16" fill="#1a3a28"/>
+    <circle cx="32" cy="32" r="16" fill="#22c55e"/>
+    <text x="58" y="28" font-family="system-ui" font-size="12" font-weight="500" fill="#f0f0f0">Identity verified</text>
+    <text x="58" y="46" font-family="system-ui" font-size="10" fill="#999">BVN &amp; ID check passed</text>
+  </g>
+  <g transform="translate(20 170)">
+    <rect width="260" height="64" rx="16" fill="#1e1e1e" stroke="rgba(255,255,255,0.08)"/>
+    <circle cx="32" cy="32" r="16" fill="#512ef8"/>
+    <text x="58" y="28" font-family="system-ui" font-size="12" font-weight="500" fill="#f0f0f0">Milestones shared</text>
+    <text x="58" y="46" font-family="system-ui" font-size="10" fill="#999">3 of 3 updates posted</text>
+  </g>
+  <g transform="translate(20 250)">
+    <rect width="260" height="64" rx="16" fill="#1e1e1e" stroke="rgba(255,255,255,0.08)"/>
+    <circle cx="32" cy="32" r="16" fill="#d6ff5d"/>
+    <text x="58" y="28" font-family="system-ui" font-size="12" font-weight="500" fill="#f0f0f0">Fund usage report</text>
+    <text x="58" y="46" font-family="system-ui" font-size="10" fill="#999">Last posted 5 days ago</text>
+  </g>
+  <g transform="translate(20 350)">
+    <text font-family="system-ui" font-size="12" font-weight="500" fill="#f0f0f0">Community oversight</text>
+    <g transform="translate(0 14)">
+      <rect width="260" height="100" rx="16" fill="#1e1e1e" stroke="rgba(255,255,255,0.08)"/>
+      <text x="16" y="30" font-family="system-ui" font-size="10" fill="#999">REPORTED BY</text>
+      <text x="16" y="50" font-family="system-ui" font-size="11" fill="#f0f0f0">42 community members</text>
+      <text x="16" y="80" font-family="system-ui" font-size="10" fill="#22c55e">●  All clear</text>
+    </g>
+  </g>
+  <text x="150" y="540" text-anchor="middle" font-family="system-ui" font-size="11" fill="#666">Mobile screenshot - replace with export</text>
+</svg>
