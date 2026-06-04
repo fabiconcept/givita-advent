@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import useShortcuts from '@useverse/useshortcuts';
@@ -12,6 +12,7 @@ import { ShortcutsGuide } from '@/components/admin/ShortcutsGuide';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
+import { NotFoundContent } from '@/components/404/NotFoundContent';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
@@ -115,6 +116,7 @@ export default function AdminResponsesPage() {
   const params = useParams();
   const router = useRouter();
   const formId = params.id as string;
+  const focusedQuestionRef = useRef<string | null>(null);
 
   const [form, setForm] = useState<Form | null>(null);
   const [stats, setStats] = useState<ResponseStats | null>(null);
@@ -166,7 +168,15 @@ export default function AdminResponsesPage() {
 
   const { inputsFocused } = useShortcutGuard();
 
-  const handleShortcut = useCallback((shortcut: { key: string }) => {
+  useEffect(() => {
+    if (focusedQuestionRef.current) {
+      const el = document.querySelector(`[data-question-id="${focusedQuestionRef.current}"] input`);
+      (el as HTMLInputElement)?.focus();
+      focusedQuestionRef.current = null;
+    }
+  }, [editQuestions.length]);
+
+  const handleShortcut = useCallback((shortcut: { key: string; shiftKey?: boolean }) => {
     switch (shortcut.key) {
       case 'S':
         if (editing) handleSave();
@@ -186,8 +196,8 @@ export default function AdminResponsesPage() {
       case 'E':
         if (!editing) { setEditing(true); setActiveTab('editor'); return; }
         break;
-      case '?':
-        setShowGuide((v) => !v);
+      case 'Slash':
+        if (shortcut.shiftKey) setShowGuide((v) => !v);
         break;
     }
   }, [editing]);
@@ -200,7 +210,7 @@ export default function AdminResponsesPage() {
       { key: 'P', enabled: !inputsFocused && !editing },
       { key: 'F', enabled: !inputsFocused && !editing },
       { key: 'E', enabled: !inputsFocused && !editing },
-      { key: '?', enabled: !inputsFocused },
+      { key: 'Slash', shiftKey: true, enabled: !inputsFocused },
     ],
     onTrigger: handleShortcut,
   }, [handleShortcut, inputsFocused]);
@@ -322,8 +332,9 @@ export default function AdminResponsesPage() {
   }
 
   function addQuestion() {
+    const id = `q${Date.now()}`;
+    focusedQuestionRef.current = id;
     setEditQuestions((prev) => {
-      const id = `q${Date.now()}`;
       const order = prev.length + 1;
       return [
         ...prev,
@@ -921,6 +932,7 @@ function SortableQuestionCard({
     <article
       ref={setNodeRef}
       style={style}
+      data-question-id={id}
       className={cn(
         'rounded-3xl border bg-card/40 p-5 backdrop-blur',
         isDragging
@@ -1160,7 +1172,7 @@ function SortableOptions({
           <ul className="space-y-1.5">
             {options.map((opt, optIdx) => (
               <SortableOptionRow
-                key={`${opt}-${optIdx}`}
+                key={optIdx}
                 id={opt}
                 value={opt}
                 onChange={(value) => {
@@ -1262,21 +1274,18 @@ function LoadingShell() {
 
 function NotFoundShell() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="mx-auto flex max-w-6xl flex-col items-center justify-center px-5 py-32 text-center sm:px-8">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-          <FileText className="h-6 w-6 text-muted-foreground" />
-        </div>
-        <h1 className="mt-6 text-2xl font-semibold">Survey not found</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The survey you’re looking for doesn’t exist.
-        </p>
-        <Button asChild className="mt-6 rounded-full" size="lg">
-          <Link href="/admin">
-            <ArrowLeft className="mr-2 h-4 w-4" /> Back to dashboard
-          </Link>
-        </Button>
+    <NotFoundContent
+      title="Survey not found"
+      description="The survey you&apos;re looking for doesn&apos;t exist."
+      showNav={false}
+      noTagline
+    >
+      <div className="flex items-center gap-3">
+        <Link href="/admin" className="btn-primary">
+          <ArrowLeft className="h-4 w-4" />
+          Back to dashboard
+        </Link>
       </div>
-    </div>
+    </NotFoundContent>
   );
 }

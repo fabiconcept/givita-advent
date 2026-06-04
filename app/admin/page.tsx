@@ -73,18 +73,19 @@ export default function AdminPage() {
 
   const { inputsFocused } = useShortcutGuard();
 
-  const handleShortcut = useCallback((shortcut: { key: string }) => {
+  const handleShortcut = useCallback((shortcut: { key: string; shiftKey?: boolean }) => {
     if (shortcut.key === 'N') setShowCreate(true);
     if (shortcut.key === 'Escape') setShowCreate(false);
-    if (shortcut.key === '?') setShowGuide((v) => !v);
+    if (shortcut.key === 'Slash' && shortcut.shiftKey) setShowGuide((v) => !v);
+    if (shortcut.key === 'L') handleLogout();
   }, []);
 
   useShortcuts({
     shortcuts: [
       { key: 'N', enabled: !inputsFocused },
       { key: 'Escape', enabled: !inputsFocused && showCreate },
-      { key: '?', enabled: !inputsFocused },
-      { key: 'L', enabled: !inputsFocused, handler: () => handleLogout() },
+      { key: 'Slash', shiftKey: true, enabled: !inputsFocused },
+      { key: 'L', enabled: !inputsFocused },
     ],
     onTrigger: handleShortcut,
   }, [handleShortcut, showCreate, inputsFocused]);
