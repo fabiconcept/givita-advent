@@ -79,7 +79,7 @@ export function IntroReveal() {
   return (
     <div
       aria-hidden
-      className="intro-overlay fixed inset-0 z-[100] overflow-hidden"
+      className="intro-overlay fixed inset-0 z-100 overflow-hidden"
       style={{ pointerEvents: 'none' }}
     >
       <div className="intro-veil absolute inset-0" />

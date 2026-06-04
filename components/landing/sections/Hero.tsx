@@ -44,12 +44,12 @@ export function Hero() {
         aria-hidden
       />
       <div className="block md:hidden">
-        <HangingFlower className="left-2 bottom-0"   side="left"  size={86}  ropeLength={42} rotateRange={5} rotateDuration={12} delay={0}   tone="primary" />
-        <HangingFlower className="right-4 bottom-0"  side="right" size={68}  ropeLength={36} rotateRange={8} rotateDuration={10} delay={0.7} tone="muted" />
+        <HangingFlower className="left-2 bottom-0" side="left" size={86} ropeLength={42} delay={0} tone="primary" />
+        <HangingFlower className="right-4 bottom-0" side="right" size={68} ropeLength={36} delay={0.7} tone="muted" />
       </div>
       <div className="hidden md:block">
-        <HangingFlower className="left-2 top-0 -translate-x-3 sm:left-6 lg:left-10" side="left"  size={220} ropeLength={130} rotateRange={5} rotateDuration={18} delay={0}   tone="primary" />
-        <HangingFlower className="right-8 top-0 sm:right-14 lg:right-24"             side="right" size={170} ropeLength={95}  rotateRange={9} rotateDuration={13} delay={1.2} tone="muted" />
+        <HangingFlower className="left-2 top-0 -translate-x-3 sm:left-6 lg:left-10" side="left" size={220} ropeLength={130} delay={0} tone="primary" />
+        <HangingFlower className="right-8 top-0 sm:right-14 lg:right-24" side="right" size={170} ropeLength={95} delay={1.2} tone="muted" />
       </div>
       <FloatingPetals />
       <div className="relative mx-auto w-full max-w-3xl px-5 pb-24 pt-28 text-center sm:px-8 sm:pb-32 sm:pt-36">

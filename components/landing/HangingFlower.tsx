@@ -109,6 +109,27 @@ export function HangingFlower({
     img.style.transform = 'scale(1) rotate(0deg)';
   }, []);
 
+  const animateRespawn = useCallback(() => {
+    const img = imgRef.current;
+    if (!img) return;
+    const duration = 500;
+    const start = performance.now();
+
+    function tick(now: number) {
+      const t = Math.min((now - start) / duration, 1);
+      const ease = 1 - Math.pow(1 - t, 3);
+      img.style.transform = `scale(${ease}) rotate(${-360 * (1 - ease)}deg)`;
+      img.style.opacity = String(ease);
+      if (t < 1) {
+        requestAnimationFrame(tick);
+      } else {
+        img.style.transform = '';
+        img.style.opacity = '';
+      }
+    }
+    requestAnimationFrame(tick);
+  }, []);
+
   const handleClick = useCallback(() => {
     const img = imgRef.current;
     const swayEl = swayElRef.current;
@@ -167,12 +188,13 @@ export function HangingFlower({
         setTimeout(() => {
           hiddenRef.current = false;
           swayEl.style.display = '';
+          animateRespawn();
         }, 1500);
       }
     }
 
     requestAnimationFrame(fallTick);
-  }, [src, stopHoverSpin]);
+  }, [src, stopHoverSpin, animateRespawn]);
 
   useEffect(() => {
     return () => {
