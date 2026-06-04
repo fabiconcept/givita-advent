@@ -1,5 +1,6 @@
-import { verifyAdminSession } from '@/lib/adminAuth';
+import { verifyAdminSession } from '@/lib/auth';
 import { redirect } from 'next/navigation';
+import { AdminDecorations } from '@/components/admin/AdminDecorations';
 
 export default async function AdminLayout({
   children,
@@ -12,5 +13,5 @@ export default async function AdminLayout({
     redirect('/login');
   }
 
-  return children;
+  return <AdminDecorations>{children}</AdminDecorations>;
 }
