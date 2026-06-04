@@ -8,11 +8,7 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   const all = await getAllForms();
   const featured = all.find((f) => f.isFeatured);
-  if (!featured) {
-    const first = all.find((f) => f.isPublished) || all[0];
-    if (!first) return NextResponse.json({ form: null }, { status: 404 });
-    return NextResponse.json({ form: first });
-  }
+  if (!featured) return NextResponse.json({ form: null }, { status: 404 });
   return NextResponse.json({ form: featured });
 }
 

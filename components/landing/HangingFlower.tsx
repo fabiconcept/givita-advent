@@ -13,6 +13,7 @@ interface HangingFlowerProps {
   tone?: 'foreground' | 'muted' | 'primary';
   flip?: boolean;
   spin?: number;
+  swayMultiplier?: number;
 }
 
 function randomBetween(a: number, b: number) {
@@ -32,6 +33,7 @@ export function HangingFlower({
   tone = 'foreground',
   flip = false,
   spin: initialSpin = 0,
+  swayMultiplier = 1,
 }: HangingFlowerProps) {
   const swayElRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
@@ -60,10 +62,10 @@ export function HangingFlower({
 
     function tick(now: number) {
       const t = (now - startTime) / 1000;
-      const w1 = Math.sin(t * w.freq1) * w.amp1;
-      const w2 = Math.sin(t * w.freq2 + 1.7) * w.amp2;
-      const w3 = Math.sin(t * w.freq3 + 4.2) * w.amp3;
-      const gust = Math.max(0, Math.sin(t * w.gustFreq)) ** 4 * w.gustAmp;
+      const w1 = Math.sin(t * w.freq1) * w.amp1 * swayMultiplier;
+      const w2 = Math.sin(t * w.freq2 + 1.7) * w.amp2 * swayMultiplier;
+      const w3 = Math.sin(t * w.freq3 + 4.2) * w.amp3 * swayMultiplier;
+      const gust = Math.max(0, Math.sin(t * w.gustFreq)) ** 4 * w.gustAmp * swayMultiplier;
       el.style.transform = `rotate(${w1 + w2 + w3 + gust + initialSpin}deg)`;
       requestAnimationFrame(tick);
     }
