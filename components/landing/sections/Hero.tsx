@@ -1,11 +1,14 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Reveal } from '@/components/landing/Reveal';
 import { WordReveal } from '@/components/landing/WordReveal';
 import { HangingFlower } from '@/components/landing/HangingFlower';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import type { Form } from '@/types';
 
 function FloatingPetals() {
   const petals = Array.from({ length: 6 }, (_, i) => i);
@@ -33,6 +36,18 @@ function FloatingPetals() {
 }
 
 export function Hero() {
+  const [featuredForm, setFeaturedForm] = useState<Form | null>(null);
+  const [featuredLoaded, setFeaturedLoaded] = useState(false);
+  useEffect(() => {
+    fetch('/api/forms/featured')
+      .then((r) => r.json())
+      .then((d) => { if (d.form) setFeaturedForm(d.form); })
+      .catch(() => {})
+      .finally(() => setFeaturedLoaded(true));
+  }, []);
+
+  const surveyHref = featuredForm ? `/forms/${featuredForm.id}` : '#';
+
   return (
     <section id="hero" className="relative overflow-hidden scroll-mt-16">
       <div
@@ -83,7 +98,16 @@ export function Hero() {
               size="lg"
               className="group h-12 w-full rounded-full px-7 text-base shadow-[0_10px_40px_-10px_rgba(81,46,248,0.5)] sm:w-auto"
             >
-              <Link href="/forms/community-fundraising">
+              <Link
+                href={surveyHref}
+                className={cn(
+                  featuredLoaded
+                    ? ''
+                    : 'pointer-events-none opacity-50'
+                )}
+                aria-disabled={!featuredLoaded}
+                tabIndex={featuredLoaded ? undefined : -1}
+              >
                 Add your voice <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>
             </Button>

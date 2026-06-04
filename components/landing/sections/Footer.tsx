@@ -1,9 +1,10 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { HangingFlower } from '@/components/landing/HangingFlower';
 import { ArrowRight } from 'lucide-react';
+import type { Form } from '@/types';
 
 const FLOWER_COUNT = 18;
 
@@ -37,6 +38,15 @@ function createLeaves(baseX: number, baseY: number): FallenLeaf[] {
 
 export function Footer() {
   const [leaves, setLeaves] = useState<{ id: number; items: FallenLeaf[] }[]>([]);
+  const [featuredForm, setFeaturedForm] = useState<Form | null>(null);
+  useEffect(() => {
+    fetch('/api/forms/featured')
+      .then((r) => r.json())
+      .then((d) => { if (d.form) setFeaturedForm(d.form); })
+      .catch(() => {});
+  }, []);
+
+  const surveyHref = featuredForm ? `/forms/${featuredForm.id}` : '#';
 
   const handleLogoClick = useCallback((e: React.MouseEvent) => {
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
@@ -124,7 +134,7 @@ export function Footer() {
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Get involved</p>
             <ul className="mt-5 space-y-3 text-sm">
               <li>
-                <Link href="/forms/community-fundraising" className="group inline-flex items-center gap-1.5 text-foreground transition-colors hover:text-primary">
+                <Link href={surveyHref} className="group inline-flex items-center gap-1.5 text-foreground transition-colors hover:text-primary">
                   Add your voice
                   <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
                 </Link>
