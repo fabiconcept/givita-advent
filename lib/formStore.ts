@@ -51,6 +51,7 @@ function rowToForm(row: Record<string, string | number | boolean | null | undefi
     title: String(row.title ?? ''),
     description: String(row.description ?? ''),
     isPublished: row.ispublished === 'true' || row.ispublished === 'TRUE' || row.ispublished === '1' || row.ispublished === 'yes',
+    isFeatured: row.isfeatured === 'true' || row.isfeatured === 'TRUE' || row.isfeatured === '1' || row.isfeatured === 'yes',
     createdAt: String(row.createdat ?? ''),
     updatedAt: String(row.updatedat ?? ''),
     questions: parseQuestions(typeof row.questionsjson === 'string' ? row.questionsjson : undefined),
@@ -72,6 +73,7 @@ function formToRow(form: Form) {
     title: form.title,
     description: form.description,
     isPublished: form.isPublished ? 'true' : 'false',
+    isFeatured: form.isFeatured ? 'true' : 'false',
     createdAt: form.createdAt,
     updatedAt: form.updatedAt,
     questionsJson: JSON.stringify(form.questions ?? []),
@@ -344,11 +346,14 @@ export async function getResponseStats(formId: string) {
         });
       });
       stats[question.id].distribution = counts;
-    } else if (question.type === 'likert-scale') {
+    } else if (question.type === 'likert-scale' || question.type === 'rating') {
       const numbers = questionResponses.map(Number).filter((n) => !isNaN(n));
       stats[question.id].average =
         numbers.length > 0 ? Number((numbers.reduce((a, b) => a + b, 0) / numbers.length).toFixed(2)) : 0;
       stats[question.id].values = numbers;
+      const counts: Record<string, number> = {};
+      numbers.forEach((n) => { const k = String(n); counts[k] = (counts[k] || 0) + 1; });
+      stats[question.id].distribution = counts;
     }
   });
 

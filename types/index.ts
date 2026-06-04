@@ -39,6 +39,7 @@ export interface Form {
   createdAt: string;
   updatedAt: string;
   isPublished: boolean;
+  isFeatured?: boolean;
   sheetId?: string;
   sheetRange?: string;
 }
