@@ -197,13 +197,23 @@ export default function AdminPage() {
               {forms.map((form) => (
                 <Card
                   key={form.id}
-                  className="group relative flex flex-col rounded-3xl border-border bg-card/50 p-0 transition-all duration-200 hover:border-primary/50 hover:bg-card/80 hover:shadow-[0_10px_30px_-15px_rgba(81,46,248,0.4)]"
+                  className={cn(
+                    'group relative flex flex-col rounded-3xl border bg-card/50 p-0 transition-all duration-200 hover:border-primary/50 hover:bg-card/80 hover:shadow-[0_10px_30px_-15px_rgba(81,46,248,0.4)]',
+                    form.isFeatured
+                      ? 'border-amber-400/60 dark:border-amber-500/40 shadow-[0_0_20px_-8px_rgba(251,191,36,0.5)]'
+                      : 'border-border'
+                  )}
                 >
                   <CardContent className="flex flex-1 flex-col p-5">
                     <Link href={`/admin/${form.id}`} className="flex flex-1 flex-col">
                       <div className="flex items-center justify-between">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                           <FileText className="h-5 w-5" />
+                          {form.isFeatured && (
+                            <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 text-[10px] text-amber-950 shadow-sm">
+                              <Star className="h-3 w-3 fill-current" />
+                            </span>
+                          )}
                         </div>
                         <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
                       </div>

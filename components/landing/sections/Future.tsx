@@ -8,18 +8,21 @@ import { HoverDepth } from '@/components/landing/HoverDepth';
 import { HangingFlower } from '@/components/landing/HangingFlower';
 import { NewsletterForm } from '@/components/landing/NewsletterForm';
 import { Eyebrow } from '@/components/landing/blocks/Eyebrow';
+import { cn } from '@/lib/utils';
 import type { Form } from '@/types';
 
 export function Future() {
   const [featuredForm, setFeaturedForm] = useState<Form | null>(null);
+  const [featuredLoaded, setFeaturedLoaded] = useState(false);
   useEffect(() => {
     fetch('/api/forms/featured')
       .then((r) => r.json())
       .then((d) => { if (d.form) setFeaturedForm(d.form); })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setFeaturedLoaded(true));
   }, []);
 
-  const surveyHref = featuredForm ? `/forms/${featuredForm.id}` : '/forms/community-fundraising';
+  const surveyHref = featuredForm ? `/forms/${featuredForm.id}` : '#';
   const surveyLabel = featuredForm?.title || 'the first survey';
 
   return (
@@ -42,7 +45,17 @@ export function Future() {
         <Reveal delay={420}>
           <p className="mt-8 text-xs text-muted-foreground">
             Or{' '}
-            <Link href={surveyHref} className="text-foreground underline-offset-4 transition-colors hover:text-primary hover:underline">
+            <Link
+              href={surveyHref}
+              className={cn(
+                'underline-offset-4 transition-colors',
+                featuredLoaded
+                  ? 'text-foreground hover:text-primary hover:underline'
+                  : 'pointer-events-none text-muted-foreground/40'
+              )}
+              aria-disabled={!featuredLoaded}
+              tabIndex={featuredLoaded ? undefined : -1}
+            >
               add your voice
             </Link>{' '}
             to {surveyLabel} - it takes a minute.
