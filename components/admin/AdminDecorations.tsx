@@ -6,7 +6,7 @@ export function AdminDecorations({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen bg-background text-foreground">
       <HangingFlower
-        className="right-4 top-0 hidden sm:block lg:right-10"
+        className="right-4 top-16 hidden sm:block lg:right-10"
         side="right"
         size={96}
         ropeLength={60}
@@ -14,7 +14,7 @@ export function AdminDecorations({ children }: { children: React.ReactNode }) {
         tone="muted"
       />
       <HangingFlower
-        className="left-4 top-0 hidden lg:block"
+        className="left-4 top-16 hidden lg:block"
         side="left"
         size={72}
         ropeLength={50}

@@ -51,12 +51,11 @@ export function Hero() {
   return (
     <section id="hero" className="relative overflow-hidden scroll-mt-16">
       <div
-        className="absolute inset-0 -z-10"
+        className="absolute inset-0 z-0"
         style={{
           backgroundImage:
             'radial-gradient(60% 50% at 18% 12%, rgba(81,46,248,0.16) 0%, transparent 60%), radial-gradient(45% 40% at 88% 8%, rgba(214,255,93,0.10) 0%, transparent 60%), radial-gradient(70% 60% at 50% 100%, rgba(81,46,248,0.08) 0%, transparent 60%)',
         }}
-        aria-hidden
       />
       <div className="block md:hidden">
         <HangingFlower className="left-2 bottom-0" side="left" size={86} ropeLength={42} delay={0} tone="primary" />
