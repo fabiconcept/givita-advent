@@ -1,14 +1,24 @@
 'use client';
 
 import { useRef, type ReactNode } from 'react';
-import { GripHorizontal } from 'lucide-react';
+import { GripHorizontal, X } from 'lucide-react';
 
-export function DraggablePanel({ children }: { children: ReactNode }) {
+export function DraggablePanel({
+  children,
+  onClose,
+  onDragChange,
+}: {
+  children: ReactNode;
+  onClose?: () => void;
+  onDragChange?: (dragging: boolean) => void;
+}) {
   const panelRef = useRef<HTMLDivElement>(null);
 
   function handleMouseDown(e: React.MouseEvent) {
     const panel = panelRef.current;
     if (!panel) return;
+
+    onDragChange?.(true);
 
     const rect = panel.getBoundingClientRect();
     const startX = e.clientX;
@@ -30,6 +40,7 @@ export function DraggablePanel({ children }: { children: ReactNode }) {
     }
 
     function onUp() {
+      onDragChange?.(false);
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
     }
@@ -46,10 +57,22 @@ export function DraggablePanel({ children }: { children: ReactNode }) {
       <div className="overflow-hidden rounded-xl border border-border/40 bg-white/20 backdrop-blur-md dark:bg-black/20 shadow-lg">
         <div
           onMouseDown={handleMouseDown}
-          className="flex cursor-grab active:cursor-grabbing items-center justify-center gap-1.5 border-b border-border/20 px-3 py-1.5"
+          className="flex cursor-grab active:cursor-grabbing items-center justify-between gap-1.5 border-b border-border/20 px-3 py-1.5"
         >
-          <GripHorizontal className="h-3 w-3 text-muted-foreground/50" />
-          <span className="text-[10px] font-medium tracking-wider text-muted-foreground/40 uppercase">Drag</span>
+          <div className="flex items-center gap-1.5">
+            <GripHorizontal className="h-3 w-3 text-muted-foreground/50" />
+            <span className="text-[10px] font-medium tracking-wider text-muted-foreground/40 uppercase">Drag</span>
+          </div>
+          {onClose && (
+            <button
+              type="button"
+              onClick={(e) => { e.stopPropagation(); onClose(); }}
+              className="flex h-4 w-4 items-center justify-center rounded text-muted-foreground/50 transition-colors hover:text-destructive"
+              aria-label="Close game"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
         </div>
         {children}
       </div>

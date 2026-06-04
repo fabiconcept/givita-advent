@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTheme } from 'next-themes';
-import { X } from 'lucide-react';
 
 interface Petal {
   x: number;
@@ -51,7 +50,7 @@ function roundRectPath(ctx: CanvasRenderingContext2D, x: number, y: number, w: n
   ctx.closePath();
 }
 
-export function PetalCatch({ onClose }: { onClose?: () => void }) {
+export function PetalCatch({ onClose, paused }: { onClose?: () => void; paused?: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [playing, setPlaying] = useState(false);
   const [score, setScore] = useState(0);
@@ -66,6 +65,7 @@ export function PetalCatch({ onClose }: { onClose?: () => void }) {
   const playingRef = useRef(false);
   const gameOverRef = useRef(false);
   const inputLockedRef = useRef(false);
+  const pausedRef = useRef(false);
   const animRef = useRef<number>(0);
   const keysRef = useRef(new Set<string>());
   const mouseX = useRef<number | null>(null);
@@ -75,6 +75,10 @@ export function PetalCatch({ onClose }: { onClose?: () => void }) {
   useEffect(() => {
     themeRef.current = (resolvedTheme as 'light' | 'dark') || 'light';
   }, [resolvedTheme]);
+
+  useEffect(() => {
+    pausedRef.current = !!paused;
+  }, [paused]);
 
   useEffect(() => {
     const f = new Image();
@@ -91,6 +95,7 @@ export function PetalCatch({ onClose }: { onClose?: () => void }) {
   useEffect(() => {
     if (!playing || gameOver) return;
     const interval = setInterval(() => {
+      if (pausedRef.current) return;
       setTimeLeft((t) => {
         if (t <= 1) {
           clearInterval(interval);
@@ -137,8 +142,9 @@ export function PetalCatch({ onClose }: { onClose?: () => void }) {
     function frame() {
       const now = performance.now();
       const isLight = themeRef.current === 'light';
+      const isPaused = pausedRef.current;
 
-      if (playingRef.current && now - lastSpawn > 700) {
+      if (!isPaused && playingRef.current && now - lastSpawn > 700) {
         spawnPetal();
         if (Math.random() < 0.35) spawnPetal();
         lastSpawn = now;
@@ -151,10 +157,11 @@ export function PetalCatch({ onClose }: { onClose?: () => void }) {
       const bImg = basketImgRef.current;
 
       // Move & collide
-      for (let i = petals.length - 1; i >= 0; i--) {
-        const p = petals[i];
-        p.y += p.speed;
-        p.x += Math.sin(p.y * 0.04 + p.phase) * p.drift;
+      if (!isPaused) {
+        for (let i = petals.length - 1; i >= 0; i--) {
+          const p = petals[i];
+          p.y += p.speed;
+          p.x += Math.sin(p.y * 0.04 + p.phase) * p.drift;
 
         if (
           p.y + p.size > by + 4 &&
@@ -171,6 +178,7 @@ export function PetalCatch({ onClose }: { onClose?: () => void }) {
         if (p.y > CANVAS_H + 30) {
           petals.splice(i, 1);
         }
+      }
       }
 
       // Glass background
@@ -339,17 +347,7 @@ export function PetalCatch({ onClose }: { onClose?: () => void }) {
   }, []);
 
   return (
-    <div className="relative mx-auto">
-      {onClose && (
-        <button
-          type="button"
-          onClick={onClose}
-          className="absolute -right-1.5 -top-1.5 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-muted-foreground/20 text-muted-foreground transition-colors hover:bg-muted-foreground/40 hover:text-foreground"
-          aria-label="Close game"
-        >
-          <X className="h-2.5 w-2.5" />
-        </button>
-      )}
+    <div className="mx-auto">
       <canvas
         ref={canvasRef}
         width={CANVAS_W}

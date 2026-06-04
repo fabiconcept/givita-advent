@@ -21,6 +21,7 @@ interface NotFoundContentProps {
   description?: string;
   children?: ReactNode;
   showNav?: boolean;
+  noTagline?: boolean;
 }
 
 export function NotFoundContent({
@@ -28,9 +29,11 @@ export function NotFoundContent({
   description = "This page doesn't exist. Let's get you back on track.",
   children,
   showNav = true,
+  noTagline = false,
 }: NotFoundContentProps) {
   const [lottieError, setLottieError] = useState(false);
   const [showGame, setShowGame] = useState(false);
+  const [gamePaused, setGamePaused] = useState(false);
   const { active, trigger, pressCount, target } = useEasterEgg(5);
   const [sway] = useState(() => rnd(1.5, 3));
 
@@ -58,8 +61,8 @@ export function NotFoundContent({
       </div>
 
       {showGame && (
-        <DraggablePanel>
-          <PetalCatch onClose={() => setShowGame(false)} />
+        <DraggablePanel onClose={() => setShowGame(false)} onDragChange={setGamePaused}>
+          <PetalCatch paused={gamePaused} />
         </DraggablePanel>
       )}
 
@@ -135,9 +138,11 @@ export function NotFoundContent({
         {children}
       </div>
 
-      <div className="absolute bottom-8 text-center text-xs text-primary dark:text-secondary">
-        Givita &mdash; Africa&rsquo;s Community-Powered Fundraising Platform
-      </div>
+      {!noTagline && (
+        <div className="absolute bottom-8 text-center text-xs text-primary dark:text-secondary">
+          Givita &mdash; Africa&rsquo;s Community-Powered Fundraising Platform
+        </div>
+      )}
     </>
   );
 }
