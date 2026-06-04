@@ -25,6 +25,7 @@ import {
   SearchX,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { NotFoundContent } from '@/components/404/NotFoundContent';
 
 type Stage = 'intro' | 'questions' | 'submitting' | 'success' | 'already-filled' | 'not-found' | 'loading' | 'error';
 
@@ -359,18 +360,17 @@ function LoadingShell() {
 
 function NotFoundShell({ message }: { message: string }) {
   return (
-    <FormShell>
-      <section className="mx-auto w-full max-w-3xl px-5 pt-24 pb-32 sm:pt-28 sm:pb-40">
-        <div className="flex flex-col items-center text-center">
-          <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted text-muted-foreground">
-            <SearchX className="h-6 w-6" />
-          </div>
-          <h1 className="mt-6 text-3xl font-semibold tracking-tight sm:text-4xl">This form isn’t here</h1>
-          <p className="mt-3 max-w-md text-base text-muted-foreground">{message}</p>
+    <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-background px-4">
+      <NotFoundContent
+        title="This form isn't here"
+        description={message}
+        showNav={false}
+      >
+        <div className="mt-6">
+          <AvailableForms formId={null} />
         </div>
-        <AvailableForms formId={null} />
-      </section>
-    </FormShell>
+      </NotFoundContent>
+    </div>
   );
 }
 
