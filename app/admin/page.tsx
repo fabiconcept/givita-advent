@@ -6,6 +6,7 @@ import Link from 'next/link';
 import useShortcuts from '@useverse/useshortcuts';
 import { useShortcutGuard } from '@/components/ShortcutGuard';
 import { Form } from '@/types';
+import { FlowerLogo } from '@/components/admin/FlowerLogo';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -30,7 +31,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { LogOut, FileText, ChevronRight, Plus, ShieldCheck, Sparkles, Trash2 } from 'lucide-react';
+import { LogOut, FileText, ChevronRight, Plus, ShieldCheck, Sparkles, Star, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FormsResponse {
@@ -112,12 +113,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
-          <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-            <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <ShieldCheck className="h-4 w-4" />
-            </span>
-            <span className="text-lg">Givita Admin</span>
-          </Link>
+          <FlowerLogo />
           <div className="flex items-center gap-2">
             <ThemeToggle />
             <Button
@@ -223,9 +219,14 @@ export default function AdminPage() {
                         </span>
                         <span>·</span>
                         <span>{new Date(form.createdAt).toLocaleDateString()}</span>
+                        {form.isFeatured && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                            <Star className="h-2.5 w-2.5 fill-current" /> Featured
+                          </span>
+                        )}
                         <span
                           className={cn(
-                            'ml-auto rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider',
+                            'rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider',
                             form.isPublished
                               ? 'bg-primary/10 text-primary'
                               : 'bg-muted text-muted-foreground'

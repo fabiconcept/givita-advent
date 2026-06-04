@@ -6,11 +6,13 @@ import Link from 'next/link';
 import useShortcuts from '@useverse/useshortcuts';
 import { useShortcutGuard } from '@/components/ShortcutGuard';
 import { Form, FormQuestion } from '@/types';
+import { ImportQuestionsDialog } from '@/components/admin/ImportQuestionsDialog';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
+import { FlowerLogo } from '@/components/admin/FlowerLogo';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
@@ -198,6 +200,22 @@ export default function AdminResponsesPage() {
     }
   }
 
+  async function setFeatured() {
+    if (!form) return;
+    setError(null);
+    const res = await fetch('/api/forms/featured', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ formId }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      setForm((prev) => prev ? { ...prev, isFeatured: data.form.isFeatured } : prev);
+    } else {
+      setError('Failed to set as featured');
+    }
+  }
+
   async function handleSave() {
     if (!editTitle.trim()) {
       setError('Title is required');
@@ -296,6 +314,30 @@ export default function AdminResponsesPage() {
     });
   }
 
+  function importQuestions(imported: FormQuestion[]) {
+    setEditQuestions((prev) => {
+      const next = [...prev];
+      imported.forEach((q, i) => {
+        next.push({ ...q, id: `q${Date.now()}_${i}`, order: next.length + 1 });
+      });
+      return next;
+    });
+  }
+
+  function duplicateQuestion(index: number) {
+    setEditQuestions((prev) => {
+      const next = [...prev];
+      const orig = next[index];
+      next.splice(index + 1, 0, {
+        ...orig,
+        id: `q${Date.now()}`,
+        title: `${orig.title} (copy)`,
+        order: index + 2,
+      });
+      return next.map((q, i) => ({ ...q, order: i + 1 }));
+    });
+  }
+
   if (isLoading) return <LoadingShell />;
   if (!form || !stats) return <NotFoundShell />;
 
@@ -309,12 +351,7 @@ export default function AdminResponsesPage() {
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
-          <Link
-            href="/admin"
-            className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="h-4 w-4" /> All surveys
-          </Link>
+          <FlowerLogo />
           <div className="flex items-center gap-2">
             <ThemeToggle />
             {editing ? (
@@ -342,8 +379,16 @@ export default function AdminResponsesPage() {
             ) : (
               <>
                 <Button variant="outline" size="sm" className="h-9 rounded-full" onClick={togglePublished}>
-                  <Power className="mr-1.5 h-3.5 w-3.5" />
-                  {form.isPublished ? 'Unpublish' : 'Publish'}
+                  {form.isPublished ? 'Unpublished' : 'Draft'}
+                </Button>
+                <Button
+                  variant={form.isFeatured ? 'default' : 'outline'}
+                  size="sm"
+                  className="h-9 rounded-full"
+                  onClick={setFeatured}
+                >
+                  <Star className={`mr-1.5 h-3.5 w-3.5 ${form.isFeatured ? 'fill-current' : ''}`} />
+                  {form.isFeatured ? 'Featured' : 'Set featured'}
                 </Button>
                 <Button
                   variant="outline"
@@ -494,6 +539,7 @@ export default function AdminResponsesPage() {
                       onRemove={() => removeQuestion(idx)}
                       onMoveUp={() => moveQuestion(idx, -1)}
                       onMoveDown={() => moveQuestion(idx, 1)}
+                      onDuplicate={() => duplicateQuestion(idx)}
                     />
                   ))}
                 </SortableContext>
@@ -522,14 +568,17 @@ export default function AdminResponsesPage() {
               ))
             )}
             {editing && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={addQuestion}
-                className="h-12 rounded-3xl border-dashed text-sm font-medium text-muted-foreground hover:text-foreground"
-              >
-                <Plus className="mr-2 h-4 w-4" /> Add question
-              </Button>
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={addQuestion}
+                  className="h-12 rounded-3xl border-dashed text-sm font-medium text-muted-foreground hover:text-foreground"
+                >
+                  <Plus className="mr-2 h-4 w-4" /> Add question
+                </Button>
+                <ImportQuestionsDialog onImport={importQuestions} />
+              </div>
             )}
           </div>
         ) : totalResponses > 0 ? (
@@ -649,27 +698,23 @@ function QuestionStats({
   if (question.type === 'multiple-choice' || question.type === 'checkbox' || question.type === 'yes-no') {
     const dist = qStats.distribution || {};
     const entries = Object.entries(dist).sort((a, b) => b[1] - a[1]);
+    const barColors = ['#512ef8', '#22c55e', '#f59e0b', '#ef4444', '#06b6d4', '#a855f7', '#f97316', '#84cc16', '#ec4899', '#14b8a6'];
     return (
-      <div className="space-y-3">
-        {entries.map(([option, count]) => {
+      <div className="space-y-1.5">
+        {entries.map(([option, count], i) => {
           const pct = totalResponses > 0 ? (count / totalResponses) * 100 : 0;
           return (
-            <div key={option}>
-              <div className="mb-1.5 flex items-center justify-between text-sm">
-                <span className="font-medium capitalize">{option}</span>
-                <span className="font-mono text-xs tabular-nums text-muted-foreground">
-                  {count} · {pct.toFixed(1)}%
-                </span>
-              </div>
-              <div className="h-2 overflow-hidden rounded-full bg-muted">
+            <div key={option} className="flex items-center gap-2">
+              <span className="min-w-0 flex-1 truncate text-xs font-medium">{option}</span>
+              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted">
                 <div
-                  className={cn(
-                    'h-full rounded-full transition-[width] duration-700',
-                    question.type === 'checkbox' ? 'bg-primary/60' : 'bg-primary'
-                  )}
-                  style={{ width: `${pct}%` }}
+                  className="h-full rounded-full transition-[width] duration-700"
+                  style={{ width: `${pct}%`, backgroundColor: barColors[i % barColors.length] }}
                 />
               </div>
+              <span className="w-14 shrink-0 text-right font-mono text-[11px] tabular-nums text-muted-foreground">
+                {count} · {pct.toFixed(0)}%
+              </span>
             </div>
           );
         })}
@@ -776,6 +821,7 @@ function SortableQuestionCard({
   onRemove,
   onMoveUp,
   onMoveDown,
+  onDuplicate,
 }: {
   id: string;
   index: number;
@@ -785,6 +831,7 @@ function SortableQuestionCard({
   onRemove: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
+  onDuplicate?: () => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
   const style: React.CSSProperties = {
@@ -977,6 +1024,18 @@ function SortableQuestionCard({
           >
             <span className="text-xs">▼</span>
           </Button>
+          {onDuplicate && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              onClick={onDuplicate}
+              className="h-7 w-7 rounded-md text-muted-foreground hover:bg-primary/10 hover:text-primary"
+              aria-label="Duplicate question"
+            >
+              <Plus className="h-3.5 w-3.5" />
+            </Button>
+          )}
           <Button
             type="button"
             variant="ghost"
