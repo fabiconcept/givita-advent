@@ -255,13 +255,19 @@ export async function updateForm(id: string, updates: Partial<Form>): Promise<Fo
 
 export async function deleteForm(id: string): Promise<boolean> {
   await ensureSeed();
+
   if (!isSheetsAvailable()) {
+    if (memoryForms.size <= 1) throw new Error('At least one form must exist. Cannot delete the only form.');
     memoryResponses.delete(id);
     return memoryForms.delete(id);
   }
+
   const { rows } = await sheetsRead(FORMS_TAB, { skipCache: true });
   const rowIndex = rows.findIndex((r) => r.id === id);
   if (rowIndex === -1 || isEmptyRow(rows[rowIndex])) return false;
+
+  const nonEmpty = rows.filter((r) => !isEmptyRow(r));
+  if (nonEmpty.length <= 1) throw new Error('At least one form must exist. Cannot delete the only form.');
   try {
     await sheetsDelete(FORMS_TAB, rowIndex + 2);
   } catch (err) {

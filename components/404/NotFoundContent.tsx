@@ -59,7 +59,7 @@ export function NotFoundContent({
 
       {showGame && (
         <DraggablePanel>
-          <PetalCatch />
+          <PetalCatch onClose={() => setShowGame(false)} />
         </DraggablePanel>
       )}
 

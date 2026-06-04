@@ -277,7 +277,10 @@ export default function AdminResponsesPage() {
     setIsDeleting(true);
     try {
       const res = await fetch(`/api/forms/${formId}`, { method: 'DELETE' });
-      if (!res.ok) throw new Error('Delete failed');
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || 'Delete failed');
+      }
       router.push('/admin');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Delete failed');

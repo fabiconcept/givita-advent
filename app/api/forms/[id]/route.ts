@@ -106,6 +106,7 @@ export async function DELETE(
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('[v0] Error deleting form:', error);
-    return NextResponse.json({ error: 'Failed to delete form' }, { status: 500 });
+    const msg = error instanceof Error ? error.message : 'Failed to delete form';
+    return NextResponse.json({ error: msg }, { status: 400 });
   }
 }

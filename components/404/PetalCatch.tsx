@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useTheme } from 'next-themes';
+import { X } from 'lucide-react';
 
 interface Petal {
   x: number;
@@ -50,7 +51,7 @@ function roundRectPath(ctx: CanvasRenderingContext2D, x: number, y: number, w: n
   ctx.closePath();
 }
 
-export function PetalCatch() {
+export function PetalCatch({ onClose }: { onClose?: () => void }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [playing, setPlaying] = useState(false);
   const [score, setScore] = useState(0);
@@ -338,7 +339,17 @@ export function PetalCatch() {
   }, []);
 
   return (
-    <div className="mx-auto">
+    <div className="relative mx-auto">
+      {onClose && (
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute -right-1.5 -top-1.5 z-10 flex h-4 w-4 items-center justify-center rounded-full bg-muted-foreground/20 text-muted-foreground transition-colors hover:bg-muted-foreground/40 hover:text-foreground"
+          aria-label="Close game"
+        >
+          <X className="h-2.5 w-2.5" />
+        </button>
+      )}
       <canvas
         ref={canvasRef}
         width={CANVAS_W}
