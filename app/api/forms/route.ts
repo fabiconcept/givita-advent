@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllForms, createForm } from '@/lib/formStore';
 import { isSheetsAvailable } from '@/lib/google-sheets';
+import { requireAdmin } from '@/lib/auth';
+import { checkRateLimit, apiLimiter } from '@/lib/rateLimit';
 import { Form, FormQuestion } from '@/types';
 
 export const dynamic = 'force-dynamic';
@@ -23,6 +25,20 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const authError = requireAdmin(request);
+    if (authError) return authError;
+
+    const { allowed, remaining } = checkRateLimit(apiLimiter, request);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests.' },
+        {
+          status: 429,
+          headers: { 'X-RateLimit-Remaining': String(remaining) },
+        }
+      );
+    }
+
     const body = (await request.json()) as Partial<Form>;
     if (!body || typeof body !== 'object') {
       return NextResponse.json({ error: 'Invalid form body' }, { status: 400 });

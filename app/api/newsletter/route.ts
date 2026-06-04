@@ -1,10 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { appendRow, isSheetsAvailable } from '@/lib/google-sheets';
+import { checkRateLimit, publicLimiter } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
 export async function POST(request: NextRequest) {
   try {
+    const { allowed, remaining } = checkRateLimit(publicLimiter, request);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please slow down.' },
+        {
+          status: 429,
+          headers: { 'X-RateLimit-Remaining': String(remaining) },
+        }
+      );
+    }
+
     const body = await request.json();
     const { email } = body;
 

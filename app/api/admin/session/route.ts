@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
-import { isAdminSession } from '@/lib/admin';
+import { NextRequest, NextResponse } from 'next/server';
+import { isAdminSession } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET(request: Request) {
-  return NextResponse.json({ isAdmin: isAdminSession(request as never) });
+export async function GET(request: NextRequest) {
+  return NextResponse.json({ isAdmin: isAdminSession(request) });
 }

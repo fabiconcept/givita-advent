@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getForm, addResponse } from '@/lib/formStore';
-import { isAdminSession } from '@/lib/admin';
+import { isAdminSession } from '@/lib/auth';
+import { checkRateLimit, publicLimiter } from '@/lib/rateLimit';
 import { FormResponse } from '@/types';
 
 export const dynamic = 'force-dynamic';
@@ -10,6 +11,17 @@ export async function POST(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { allowed, remaining } = checkRateLimit(publicLimiter, request);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests. Please slow down.' },
+        {
+          status: 429,
+          headers: { 'X-RateLimit-Remaining': String(remaining) },
+        }
+      );
+    }
+
     const { id } = await params;
     const body = await request.json();
 

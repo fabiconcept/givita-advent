@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getForm, updateForm, deleteForm } from '@/lib/formStore';
+import { requireAdmin } from '@/lib/auth';
+import { checkRateLimit, apiLimiter } from '@/lib/rateLimit';
 import { Form } from '@/types';
 
 export const dynamic = 'force-dynamic';
@@ -26,6 +28,20 @@ export async function PATCH(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authError = requireAdmin(request);
+    if (authError) return authError;
+
+    const { allowed, remaining } = checkRateLimit(apiLimiter, request);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests.' },
+        {
+          status: 429,
+          headers: { 'X-RateLimit-Remaining': String(remaining) },
+        }
+      );
+    }
+
     const { id } = await params;
     const body = (await request.json()) as Partial<Form>;
     const updates: Partial<Form> = {};
@@ -64,10 +80,24 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const authError = requireAdmin(request);
+    if (authError) return authError;
+
+    const { allowed, remaining } = checkRateLimit(apiLimiter, request);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Too many requests.' },
+        {
+          status: 429,
+          headers: { 'X-RateLimit-Remaining': String(remaining) },
+        }
+      );
+    }
+
     const { id } = await params;
     const ok = await deleteForm(id);
     if (!ok) {
