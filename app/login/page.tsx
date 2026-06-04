@@ -35,8 +35,7 @@ export default function LoginPage() {
         return;
       }
 
-      router.push('/admin');
-      router.refresh();
+      window.location.href = '/admin';
     } catch (err) {
       console.error('[v0] Login error:', err);
       setError('An error occurred. Please try again.');
