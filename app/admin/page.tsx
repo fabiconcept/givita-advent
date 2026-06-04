@@ -7,6 +7,9 @@ import useShortcuts from '@useverse/useshortcuts';
 import { useShortcutGuard } from '@/components/ShortcutGuard';
 import { Form } from '@/types';
 import { FlowerLogo } from '@/components/admin/FlowerLogo';
+import { ShortcutTooltip } from '@/components/admin/ShortcutTooltip';
+import { ShortcutsGuide } from '@/components/admin/ShortcutsGuide';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -31,7 +34,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { LogOut, FileText, ChevronRight, Plus, ShieldCheck, Sparkles, Star, Trash2 } from 'lucide-react';
+import { LogOut, FileText, ChevronRight, Plus, ShieldCheck, Sparkles, Star, Trash2, Keyboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FormsResponse {
@@ -46,6 +49,7 @@ export default function AdminPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [source, setSource] = useState<'sheets' | 'memory'>('memory');
   const [deleting, setDeleting] = useState<Form | null>(null);
+  const [showGuide, setShowGuide] = useState(false);
   const router = useRouter();
 
   async function fetchForms() {
@@ -72,12 +76,15 @@ export default function AdminPage() {
   const handleShortcut = useCallback((shortcut: { key: string }) => {
     if (shortcut.key === 'N') setShowCreate(true);
     if (shortcut.key === 'Escape') setShowCreate(false);
+    if (shortcut.key === '?') setShowGuide((v) => !v);
   }, []);
 
   useShortcuts({
     shortcuts: [
       { key: 'N', enabled: !inputsFocused },
       { key: 'Escape', enabled: !inputsFocused && showCreate },
+      { key: '?', enabled: !inputsFocused },
+      { key: 'L', enabled: !inputsFocused, handler: () => handleLogout() },
     ],
     onTrigger: handleShortcut,
   }, [handleShortcut, showCreate, inputsFocused]);
@@ -110,21 +117,35 @@ export default function AdminPage() {
   }
 
   return (
+    <TooltipProvider>
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
           <FlowerLogo />
           <div className="flex items-center gap-2">
             <ThemeToggle />
-            <Button
-              onClick={handleLogout}
-              disabled={isLoggingOut}
-              variant="outline"
-              size="sm"
-              className="h-9 rounded-full"
-            >
-              <LogOut className="mr-2 h-3.5 w-3.5" /> Logout
-            </Button>
+            <ShortcutTooltip label="Keyboard shortcuts" shortcut="?">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 rounded-full"
+                onClick={() => setShowGuide((v) => !v)}
+                aria-label="Toggle shortcut guide"
+              >
+                <Keyboard className="h-4 w-4" />
+              </Button>
+            </ShortcutTooltip>
+            <ShortcutTooltip label="Logout" shortcut="L">
+              <Button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                variant="outline"
+                size="sm"
+                className="h-9 rounded-full"
+              >
+                <LogOut className="mr-2 h-3.5 w-3.5" /> Logout
+              </Button>
+            </ShortcutTooltip>
           </div>
         </div>
       </header>
@@ -160,9 +181,11 @@ export default function AdminPage() {
               />
               {source === 'sheets' ? 'Google Sheets' : 'In-memory'}
             </span>
-            <Button onClick={() => setShowCreate(true)} size="sm" className="h-9 rounded-full">
-              <Plus className="mr-1.5 h-3.5 w-3.5" /> New survey
-            </Button>
+            <ShortcutTooltip label="New survey" shortcut="N">
+              <Button onClick={() => setShowCreate(true)} size="sm" className="h-9 rounded-full">
+                <Plus className="mr-1.5 h-3.5 w-3.5" /> New survey
+              </Button>
+            </ShortcutTooltip>
           </div>
         </div>
 
@@ -279,7 +302,24 @@ export default function AdminPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ShortcutsGuide
+        open={showGuide}
+        onOpenChange={setShowGuide}
+        sections={[
+          {
+            title: 'General',
+            shortcuts: [
+              { keys: 'N', label: 'Create new survey' },
+              { keys: 'L', label: 'Logout' },
+              { keys: '?', label: 'Toggle shortcut guide' },
+              { keys: 'Esc', label: 'Close dialog' },
+            ],
+          },
+        ]}
+      />
     </div>
+    </TooltipProvider>
   );
 }
 

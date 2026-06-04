@@ -7,6 +7,9 @@ import useShortcuts from '@useverse/useshortcuts';
 import { useShortcutGuard } from '@/components/ShortcutGuard';
 import { Form, FormQuestion } from '@/types';
 import { ImportQuestionsDialog } from '@/components/admin/ImportQuestionsDialog';
+import { ShortcutTooltip } from '@/components/admin/ShortcutTooltip';
+import { ShortcutsGuide } from '@/components/admin/ShortcutsGuide';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -71,6 +74,7 @@ import {
   X,
   Plus,
   GripVertical,
+  Keyboard,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -122,6 +126,7 @@ export default function AdminResponsesPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
   const [activeTab, setActiveTab] = useState<'analytics' | 'editor'>('analytics');
 
   const sensors = useSensors(
@@ -167,10 +172,22 @@ export default function AdminResponsesPage() {
         if (editing) handleSave();
         break;
       case 'Escape':
-        if (editing) setEditing(false);
+        if (editing) { setEditing(false); return; }
         break;
       case 'N':
         if (editing) addQuestion();
+        break;
+      case 'P':
+        if (!editing) togglePublished();
+        break;
+      case 'F':
+        if (!editing) setFeatured();
+        break;
+      case 'E':
+        if (!editing) { setEditing(true); setActiveTab('editor'); return; }
+        break;
+      case '?':
+        setShowGuide((v) => !v);
         break;
     }
   }, [editing]);
@@ -178,8 +195,12 @@ export default function AdminResponsesPage() {
   useShortcuts({
     shortcuts: [
       { key: 'S', ctrlKey: true, enabled: !inputsFocused && editing, platformAware: true },
-      { key: 'Escape', enabled: !inputsFocused && editing },
+      { key: 'Escape', enabled: !inputsFocused },
       { key: 'N', enabled: !inputsFocused && editing },
+      { key: 'P', enabled: !inputsFocused && !editing },
+      { key: 'F', enabled: !inputsFocused && !editing },
+      { key: 'E', enabled: !inputsFocused && !editing },
+      { key: '?', enabled: !inputsFocused },
     ],
     onTrigger: handleShortcut,
   }, [handleShortcut, inputsFocused]);
@@ -348,64 +369,88 @@ export default function AdminResponsesPage() {
     : [...form.questions].sort((a, b) => a.order - b.order);
 
   return (
+    <TooltipProvider>
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
           <FlowerLogo />
           <div className="flex items-center gap-2">
             <ThemeToggle />
+            <ShortcutTooltip label="Keyboard shortcuts" shortcut="?">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-9 w-9 rounded-full"
+                onClick={() => setShowGuide((v) => !v)}
+                aria-label="Toggle shortcut guide"
+              >
+                <Keyboard className="h-4 w-4" />
+              </Button>
+            </ShortcutTooltip>
             {editing ? (
               <>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-9 rounded-full"
-                  onClick={() => {
-                    setEditing(false);
-                    setEditTitle(form.title);
-                    setEditDescription(form.description);
-                    setEditQuestions([...form.questions].sort((a, b) => a.order - b.order));
-                    setError(null);
-                    setActiveTab('analytics');
-                  }}
-                  disabled={isSaving}
-                >
-                  <X className="mr-1.5 h-3.5 w-3.5" /> Cancel
-                </Button>
-                <Button size="sm" className="h-9 rounded-full" onClick={handleSave} disabled={isSaving}>
-                  <Save className="mr-1.5 h-3.5 w-3.5" /> {isSaving ? 'Saving…' : 'Save'}
-                </Button>
+                <ShortcutTooltip label="Cancel editing" shortcut="Esc">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-9 rounded-full"
+                    onClick={() => {
+                      setEditing(false);
+                      setEditTitle(form.title);
+                      setEditDescription(form.description);
+                      setEditQuestions([...form.questions].sort((a, b) => a.order - b.order));
+                      setError(null);
+                      setActiveTab('analytics');
+                    }}
+                    disabled={isSaving}
+                  >
+                    <X className="mr-1.5 h-3.5 w-3.5" /> Cancel
+                  </Button>
+                </ShortcutTooltip>
+                <ShortcutTooltip label="Save changes" shortcut="⌘S">
+                  <Button size="sm" className="h-9 rounded-full" onClick={handleSave} disabled={isSaving}>
+                    <Save className="mr-1.5 h-3.5 w-3.5" /> {isSaving ? 'Saving…' : 'Save'}
+                  </Button>
+                </ShortcutTooltip>
               </>
             ) : (
               <>
-                <Button variant="outline" size="sm" className="h-9 rounded-full" onClick={togglePublished}>
-                  {form.isPublished ? 'Unpublished' : 'Draft'}
-                </Button>
-                <Button
-                  variant={form.isFeatured ? 'default' : 'outline'}
-                  size="sm"
-                  className="h-9 rounded-full"
-                  onClick={setFeatured}
-                >
-                  <Star className={`mr-1.5 h-3.5 w-3.5 ${form.isFeatured ? 'fill-current' : ''}`} />
-                  {form.isFeatured ? 'Featured' : 'Set featured'}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-9 rounded-full"
-                  onClick={() => {
-                    setEditing(true);
-                    setActiveTab('editor');
-                  }}
-                >
-                  <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
-                </Button>
-                <Button asChild size="sm" className="h-9 rounded-full">
-                  <Link href={`/forms/${formId}`} target="_blank" rel="noopener noreferrer">
-                    Open form <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
-                  </Link>
-                </Button>
+                <ShortcutTooltip label="Toggle publish" shortcut="P">
+                  <Button variant="outline" size="sm" className="h-9 rounded-full" onClick={togglePublished}>
+                    {form.isPublished ? 'Unpublished' : 'Draft'}
+                  </Button>
+                </ShortcutTooltip>
+                <ShortcutTooltip label={form.isFeatured ? 'Remove featured status' : 'Mark as featured'} shortcut="F">
+                  <Button
+                    variant={form.isFeatured ? 'default' : 'outline'}
+                    size="sm"
+                    className="h-9 rounded-full"
+                    onClick={setFeatured}
+                  >
+                    <Star className={`mr-1.5 h-3.5 w-3.5 ${form.isFeatured ? 'fill-current' : ''}`} />
+                    {form.isFeatured ? 'Featured' : 'Set featured'}
+                  </Button>
+                </ShortcutTooltip>
+                <ShortcutTooltip label="Enter edit mode" shortcut="E">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-9 rounded-full"
+                    onClick={() => {
+                      setEditing(true);
+                      setActiveTab('editor');
+                    }}
+                  >
+                    <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Edit
+                  </Button>
+                </ShortcutTooltip>
+                <ShortcutTooltip label="Open public form">
+                  <Button asChild size="sm" className="h-9 rounded-full">
+                    <Link href={`/forms/${formId}`} target="_blank" rel="noopener noreferrer">
+                      Open form <ExternalLink className="ml-1.5 h-3.5 w-3.5" />
+                    </Link>
+                  </Button>
+                </ShortcutTooltip>
               </>
             )}
           </div>
@@ -629,7 +674,37 @@ export default function AdminResponsesPage() {
           </div>
         )}
       </main>
+
+      <ShortcutsGuide
+        open={showGuide}
+        onOpenChange={setShowGuide}
+        sections={[
+          {
+            title: 'Editing',
+            shortcuts: [
+              { keys: '⌘S', label: 'Save changes' },
+              { keys: 'Esc', label: 'Cancel editing' },
+              { keys: 'N', label: 'Add question' },
+            ],
+          },
+          {
+            title: 'Viewing',
+            shortcuts: [
+              { keys: 'P', label: 'Toggle publish' },
+              { keys: 'F', label: 'Toggle featured' },
+              { keys: 'E', label: 'Enter edit mode' },
+            ],
+          },
+          {
+            title: 'General',
+            shortcuts: [
+              { keys: '?', label: 'Toggle shortcut guide' },
+            ],
+          },
+        ]}
+      />
     </div>
+    </TooltipProvider>
   );
 }
 
