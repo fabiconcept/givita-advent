@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { Reveal } from '@/components/landing/Reveal';
 import { ScrollInView } from '@/components/landing/ScrollInView';
@@ -7,8 +8,20 @@ import { HoverDepth } from '@/components/landing/HoverDepth';
 import { HangingFlower } from '@/components/landing/HangingFlower';
 import { NewsletterForm } from '@/components/landing/NewsletterForm';
 import { Eyebrow } from '@/components/landing/blocks/Eyebrow';
+import type { Form } from '@/types';
 
 export function Future() {
+  const [featuredForm, setFeaturedForm] = useState<Form | null>(null);
+  useEffect(() => {
+    fetch('/api/forms/featured')
+      .then((r) => r.json())
+      .then((d) => { if (d.form) setFeaturedForm(d.form); })
+      .catch(() => {});
+  }, []);
+
+  const surveyHref = featuredForm ? `/forms/${featuredForm.id}` : '/forms/community-fundraising';
+  const surveyLabel = featuredForm?.title || 'the first survey';
+
   return (
     <section id="future" className="relative overflow-hidden scroll-mt-16">
       <HangingFlower className="right-8 top-0 sm:right-14 lg:right-24" side="right" size={80}  ropeLength={62} delay={0.7} tone="foreground" />
@@ -29,10 +42,10 @@ export function Future() {
         <Reveal delay={420}>
           <p className="mt-8 text-xs text-muted-foreground">
             Or{' '}
-            <Link href="/forms/community-fundraising" className="text-foreground underline-offset-4 transition-colors hover:text-primary hover:underline">
+            <Link href={surveyHref} className="text-foreground underline-offset-4 transition-colors hover:text-primary hover:underline">
               add your voice
             </Link>{' '}
-            to the first survey - it takes a minute.
+            to {surveyLabel} - it takes a minute.
           </p>
         </Reveal>
         <ScrollInView delay={520} entrance="flipIn">
