@@ -141,7 +141,11 @@ export async function appendRow(tabName: string, data: SheetRow): Promise<void> 
   }
 
   const ensured = await ensureTab(tabName, Object.keys(data));
-  const effectiveHeaders = ensured.headers;
+  let effectiveHeaders = ensured.headers;
+  const missing = Object.keys(lowerData(data)).filter((k) => !effectiveHeaders.includes(k));
+  if (missing.length > 0) {
+    effectiveHeaders = await ensureColumns(tabName, data, effectiveHeaders);
+  }
   const lower = lowerData(data);
 
   const ordered = effectiveHeaders.map((h) => {
@@ -217,6 +221,34 @@ async function tabExists(tabName: string): Promise<boolean> {
   }
 }
 
+async function ensureColumns(
+  tabName: string,
+  data: SheetRow,
+  existingHeaders: string[],
+): Promise<string[]> {
+  const lower = lowerData(data);
+  const newKeys = Object.keys(lower).filter((k) => !existingHeaders.includes(k));
+  if (newKeys.length === 0) return existingHeaders;
+
+  const sheets = getSheetsClient();
+  const spreadsheetId = getSpreadsheetId();
+  if (!sheets || !spreadsheetId) return existingHeaders;
+
+  const newHeaders = [...existingHeaders, ...newKeys];
+  const lastCol = String.fromCharCode(64 + newHeaders.length);
+  const headerRange = `${escapeSheetName(tabName)}!A1:${lastCol}1`;
+
+  await sheets.spreadsheets.values.update({
+    spreadsheetId,
+    range: headerRange,
+    valueInputOption: 'USER_ENTERED',
+    requestBody: { values: [newHeaders] },
+  });
+
+  invalidateCache(tabName);
+  return newHeaders;
+}
+
 export async function updateRow(
   tabName: string,
   rowNumber: number,
@@ -236,8 +268,10 @@ export async function updateRow(
     throw new Error(`Row ${rowNumber} is out of range for tab "${tabName}".`);
   }
 
+  const effectiveHeaders = await ensureColumns(tabName, data, headers);
+
   const lower = lowerData(data);
-  const ordered = headers.map((h) => {
+  const ordered = effectiveHeaders.map((h) => {
     const v = lower[h];
     if (v === undefined || v === null) return '';
     return String(v);
