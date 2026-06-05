@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { HangingFlower } from '@/components/landing/HangingFlower';
+import { ScrollInView } from '@/components/landing/ScrollInView';
 import { ArrowRight } from 'lucide-react';
+import { useScrollParallax } from '@/lib/useScrollParallax';
 import type { Form } from '@/types';
 
 const FLOWER_COUNT = 18;
@@ -37,6 +39,7 @@ function createLeaves(baseX: number, baseY: number): FallenLeaf[] {
 }
 
 export function Footer() {
+  const { ref, offset } = useScrollParallax(40);
   const [leaves, setLeaves] = useState<{ id: number; items: FallenLeaf[] }[]>([]);
   const [featuredForm, setFeaturedForm] = useState<Form | null>(null);
   useEffect(() => {
@@ -61,7 +64,7 @@ export function Footer() {
   }, []);
 
   return (
-    <footer className="relative overflow-hidden border-t border-border/60 bg-muted/20">
+    <footer ref={ref} className="relative overflow-hidden border-t border-border/60 bg-muted/20">
       <HangingFlower className="right-10 top-0 sm:right-16 lg:right-24" side="right" size={72} ropeLength={54} delay={0.2} tone="muted" />
       {leaves.map((batch) =>
         batch.items.map((l) => (
@@ -89,8 +92,12 @@ export function Footer() {
           </span>
         ))
       )}
-      <div className="relative mx-auto w-full max-w-6xl px-5 pb-10 pt-20 sm:px-8 sm:pt-24">
-        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr]">
+        <div
+          className="relative mx-auto w-full max-w-6xl px-5 pb-10 pt-20 sm:px-8 sm:pt-24"
+          style={{ transform: `translateY(${offset * 0.3}px)`, willChange: 'transform' }}
+        >
+          <ScrollInView entrance="flipIn" duration={800}>
+          <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr]">
           <div>
             <button
               type="button"
@@ -146,11 +153,14 @@ export function Footer() {
             <div className="mt-8 h-px w-12 bg-border" />
             <p className="mt-4 text-xs text-muted-foreground">Made with care &middot; Imo State &middot; Abuja &middot; everywhere our people are.</p>
           </div>
-        </div>
-        <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
-          <p>&copy; {new Date().getFullYear()} Givita. Every voice matters.</p>
-          <p className="font-mono">v0.1 &middot; survey edition</p>
-        </div>
+          </div>
+        </ScrollInView>
+        <ScrollInView entrance="fade" delay={300} duration={600}>
+          <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
+            <p>&copy; {new Date().getFullYear()} Givita. Every voice matters.</p>
+            <p className="font-mono">v0.1 &middot; survey edition</p>
+          </div>
+        </ScrollInView>
       </div>
       <style>{`
         @keyframes leafFall {

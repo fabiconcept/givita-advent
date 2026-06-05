@@ -9,9 +9,11 @@ import { HangingFlower } from '@/components/landing/HangingFlower';
 import { NewsletterForm } from '@/components/landing/NewsletterForm';
 import { Eyebrow } from '@/components/landing/blocks/Eyebrow';
 import { cn } from '@/lib/utils';
+import { useScrollParallax } from '@/lib/useScrollParallax';
 import type { Form } from '@/types';
 
 export function Future() {
+  const { ref, offset } = useScrollParallax(70);
   const [featuredForm, setFeaturedForm] = useState<Form | null>(null);
   const [featuredLoaded, setFeaturedLoaded] = useState(false);
   useEffect(() => {
@@ -26,21 +28,27 @@ export function Future() {
   const surveyLabel = featuredForm?.title || 'the first survey';
 
   return (
-    <section id="future" className="relative overflow-hidden scroll-mt-16">
-      <HangingFlower className="right-8 top-0 sm:right-14 lg:right-24" side="right" size={80}  ropeLength={62} delay={0.7} tone="foreground" />
-      <HangingFlower className="left-8 top-4 hidden lg:block"           side="left"  size={56}  ropeLength={48} delay={1.4} tone="muted" />
+    <section id="future" ref={ref} className="relative overflow-hidden scroll-mt-16">
+      <div style={{ transform: `translateY(${offset * 0.9}px)`, willChange: 'transform' }}>
+        <HangingFlower className="right-8 top-0 sm:right-14 lg:right-24" side="right" size={80}  ropeLength={62} delay={0.7} tone="foreground" />
+      </div>
+      <div style={{ transform: `translateY(${offset * 0.7}px)`, willChange: 'transform' }}>
+        <HangingFlower className="left-8 top-4 hidden lg:block"           side="left"  size={56}  ropeLength={48} delay={1.4} tone="muted" />
+      </div>
       <div className="relative mx-auto w-full max-w-3xl px-5 py-44 text-center sm:px-8 sm:py-64">
-        <Reveal><Eyebrow number="09" label="The future we're building" /></Reveal>
-        <Reveal delay={120}>
-          <h2 className="mt-8 text-balance text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
-            A future where generosity is celebrated, trust is visible, and impact is measurable.
-          </h2>
-        </Reveal>
-        <Reveal delay={220}>
-          <p className="mx-auto mt-8 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
-            Be among the first to experience Givita. Get launch updates and a quiet note when something important changes.
-          </p>
-        </Reveal>
+        <div style={{ transform: `translateY(${offset * 0.3}px)`, willChange: 'transform' }}>
+          <Reveal><Eyebrow number="09" label="The future we're building" /></Reveal>
+          <Reveal delay={120}>
+            <h2 className="mt-8 text-balance text-4xl font-semibold leading-[1.05] tracking-tight sm:text-6xl">
+              A future where generosity is celebrated, trust is visible, and impact is measurable.
+            </h2>
+          </Reveal>
+          <Reveal delay={220}>
+            <p className="mx-auto mt-8 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
+              Be among the first to experience Givita. Get launch updates and a quiet note when something important changes.
+            </p>
+          </Reveal>
+        </div>
         <ScrollInView delay={320} entrance="scaleIn"><div className="mt-12 flex justify-center"><NewsletterForm /></div></ScrollInView>
         <Reveal delay={420}>
           <p className="mt-8 text-xs text-muted-foreground">
@@ -62,7 +70,7 @@ export function Future() {
           </p>
         </Reveal>
         <ScrollInView delay={520} entrance="flipIn">
-          <div className="mt-24">
+          <div className="mt-24" style={{ transform: `translateY(${offset * 0.7}px)`, willChange: 'transform' }}>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">The graph</p>
             <div className="mt-5 grid items-end gap-8 sm:grid-cols-[1.4fr_1fr]">
               <HoverDepth maxTilt={4} lift={5} scale={1.015}>

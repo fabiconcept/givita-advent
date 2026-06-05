@@ -10,12 +10,12 @@ import { Quote } from 'lucide-react';
 import { useScrollParallax } from '@/lib/useScrollParallax';
 
 export function Odogwu() {
-  const { ref, offset } = useScrollParallax(50);
+  const { ref, offset } = useScrollParallax(80);
   return (
     <Section id="odogwu" tone="muted" density="roomy">
       <div ref={ref} className="grid items-center gap-10 lg:grid-cols-[1.8fr_1fr]">
         <ScrollInView entrance="scaleIn">
-          <div style={{ transform: `translateY(${offset * 0.4}px)`, willChange: 'transform' }}>
+          <div style={{ transform: `translateY(${offset * 0.6}px)`, willChange: 'transform' }}>
             <Eyebrow number="06" label="Odogwu" />
             <HoverDepth maxTilt={4} lift={5} scale={1.015}>
               <div className="mt-14 max-w-3xl rounded-3xl border border-border bg-card/60 p-8 backdrop-blur sm:p-12">
@@ -34,7 +34,7 @@ export function Odogwu() {
         <ScrollInView delay={180} entrance="slideLeft">
           <div
             className="relative mx-auto w-full max-w-sm"
-            style={{ transform: `translateY(${offset * 0.8}px)`, willChange: 'transform' }}
+            style={{ transform: `translateY(${offset * 1.2}px)`, willChange: 'transform' }}
           >
             <div className="absolute inset-0 -z-10 rounded-full bg-primary/10 blur-3xl" />
             {/* eslint-disable-next-line @next/next/no-img-element */}

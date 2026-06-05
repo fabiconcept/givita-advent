@@ -8,6 +8,7 @@ import { WordReveal } from '@/components/landing/WordReveal';
 import { HangingFlower } from '@/components/landing/HangingFlower';
 import { ArrowRight, ArrowUpRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useScrollParallax } from '@/lib/useScrollParallax';
 import type { Form } from '@/types';
 
 function FloatingPetals() {
@@ -47,26 +48,23 @@ export function Hero() {
   }, []);
 
   const surveyHref = featuredForm ? `/forms/${featuredForm.id}` : '#';
+  const { ref, offset } = useScrollParallax(80);
 
   return (
-    <section id="hero" className="relative overflow-hidden scroll-mt-16">
-      <div
-        className="absolute inset-0 z-0"
-        style={{
-          backgroundImage:
-            'radial-gradient(60% 50% at 18% 12%, rgba(81,46,248,0.16) 0%, transparent 60%), radial-gradient(45% 40% at 88% 8%, rgba(214,255,93,0.10) 0%, transparent 60%), radial-gradient(70% 60% at 50% 100%, rgba(81,46,248,0.08) 0%, transparent 60%)',
-        }}
-      />
+    <section id="hero" ref={ref} className="relative overflow-hidden scroll-mt-16">
       <div className="block md:hidden">
-        <HangingFlower className="left-2 bottom-0" side="left" size={86} ropeLength={42} delay={0} tone="primary" />
-        <HangingFlower className="right-4 bottom-0" side="right" size={68} ropeLength={36} delay={0.7} tone="muted" />
+        <HangingFlower className="left-2 top-0" side="left" size={80} ropeLength={40} delay={0} tone="muted" swayMultiplier={2.2} />
+        <HangingFlower className="right-4 bottom-0" side="right" size={64} ropeLength={36} delay={0.4} tone="primary" flip swayMultiplier={2.2} />
       </div>
       <div className="hidden md:block">
         <HangingFlower className="left-2 top-0 -translate-x-3 sm:left-6 lg:left-10" side="left" size={220} ropeLength={130} delay={0} tone="primary" />
         <HangingFlower className="right-8 top-0 sm:right-14 lg:right-24" side="right" size={170} ropeLength={95} delay={1.2} tone="muted" />
       </div>
       <FloatingPetals />
-      <div className="relative mx-auto w-full max-w-3xl px-5 pb-24 pt-28 text-center sm:px-8 sm:pb-32 sm:pt-36">
+      <div
+        className="relative mx-auto w-full max-w-3xl px-5 pb-24 pt-28 text-center sm:px-8 sm:pb-32 sm:pt-36"
+        style={{ transform: `translateY(${Math.min(0, offset)}px)`, willChange: 'transform' }}
+      >
         <Reveal>
           <p className="inline-flex sm:mt-16 mt-6 items-center gap-2 rounded-full border border-border bg-card/40 px-3 py-1 text-xs text-muted-foreground backdrop-blur">
             <span className="relative flex h-1.5 w-1.5">
