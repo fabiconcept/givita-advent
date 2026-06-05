@@ -47,27 +47,19 @@ export function ScrollInView({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    let wasIn = false;
-    let t: ReturnType<typeof setTimeout>;
 
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          clearTimeout(t);
-          if (!wasIn) { wasIn = true; setVisible(true); }
-        } else {
-          if (wasIn) {
-            wasIn = false;
-            setVisible(false);
-            t = setTimeout(() => {}, duration + delay);
-          }
+          setVisible(true);
+          io.disconnect();
         }
       },
-      { threshold, rootMargin: '-5% 0px -5% 0px' }
+      { threshold, rootMargin: '-5% 0px 0px 0px' }
     );
 
     io.observe(el);
-    return () => { clearTimeout(t); io.disconnect(); };
+    return () => { io.disconnect(); };
   }, [duration, delay, threshold]);
 
   const p = P[entrance] || P.fade;

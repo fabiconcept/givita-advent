@@ -147,9 +147,9 @@ export function HangingFlower({
     const startX = rect.left;
     const startY = rect.top;
 
-    const drift = randomBetween(-140, 140);
-    const spin = randomBetween(-180, 360);
-    const duration = randomBetween(1600, 2800);
+    const drift = randomBetween(-140, 140) * swayMultiplier;
+    const spin = randomBetween(-180, 360) * swayMultiplier;
+    const duration = randomBetween(1600, 2800) / Math.max(swayMultiplier, 0.5);
 
     const leaf = document.createElement('span');
     leaf.className = 'pointer-events-none fixed z-50';

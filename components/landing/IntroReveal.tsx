@@ -58,13 +58,21 @@ function buildShatterFlowers(count: number): ShatterFlower[] {
   return flowers;
 }
 
-const CENTER_SIZE = 460;
 const SHATTER_COUNT = 56;
-const TOTAL_MS = 3000;
+const TOTAL_MS = 2400;
 
 export function IntroReveal() {
   const [mounted, setMounted] = useState(true);
   const [shatter] = useState<ShatterFlower[]>(() => buildShatterFlowers(SHATTER_COUNT));
+  const [centerSize, setCenterSize] = useState(460);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    setCenterSize(mq.matches ? 240 : 460);
+    const handler = (e: MediaQueryListEvent) => setCenterSize(e.matches ? 240 : 460);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => setMounted(false), TOTAL_MS);
@@ -118,10 +126,10 @@ export function IntroReveal() {
         style={{
           left: '50%',
           top: '50%',
-          width: CENTER_SIZE,
-          height: CENTER_SIZE,
-          marginLeft: -CENTER_SIZE / 2,
-          marginTop: -CENTER_SIZE / 2,
+          width: centerSize,
+          height: centerSize,
+          marginLeft: -centerSize / 2,
+          marginTop: -centerSize / 2,
           zIndex: 10,
         }}
       >
@@ -160,8 +168,10 @@ export function IntroReveal() {
         }
         @keyframes veil-pulse {
           0%   { opacity: 0; }
-          10%  { opacity: 1; }
-          100% { opacity: 1; }
+          8%   { opacity: 1; }
+          28%  { opacity: 1; }
+          42%  { opacity: 0; }
+          100% { opacity: 0; }
         }
         @keyframes center-bloom {
           0%   { transform: scale(0) rotate(-12deg); opacity: 0; filter: blur(8px); }

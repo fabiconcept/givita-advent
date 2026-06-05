@@ -21,6 +21,11 @@ export function Reveal({ children, className, delay = 0, as: Tag = 'div' }: Reve
       setVisible(true);
       return;
     }
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      setVisible(true);
+      return;
+    }
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -30,7 +35,7 @@ export function Reveal({ children, className, delay = 0, as: Tag = 'div' }: Reve
           }
         });
       },
-      { rootMargin: '0px 0px -10% 0px', threshold: 0.05 }
+      { rootMargin: '0px 0px -4% 0px', threshold: 0.05 }
     );
     io.observe(el);
     return () => io.disconnect();
