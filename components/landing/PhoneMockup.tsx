@@ -24,7 +24,7 @@ export function PhoneMockup({ src, alt, className, hideMaxWidth }: PhoneMockupPr
     >
       <HoverDepth maxTilt={5} lift={6} scale={1.02}>
         <div
-          className="phone-case relative rounded-[44px] bg-linear-to-b dark:from-zinc-500 dark:via-zinc-600  dark:to-zinc-700 from-zinc-700 via-zinc-800 to-zinc-900 p-[6px] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.05)]"
+          className="phone-case relative rounded-[44px] max-sm:rounded-[28px] bg-linear-to-b dark:from-zinc-500 dark:via-zinc-600  dark:to-zinc-700 from-zinc-700 via-zinc-800 to-zinc-900 p-[6px] shadow-[0_30px_80px_-20px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.05)]"
         >
           <span
             aria-hidden
@@ -41,7 +41,7 @@ export function PhoneMockup({ src, alt, className, hideMaxWidth }: PhoneMockupPr
           <div
             className="absolute top-4 left-1/2 h-5 w-20 -translate-x-1/2 rounded-lg bg-zinc-900"
           />
-          <div className="overflow-hidden rounded-[38px] bg-black">
+          <div className="overflow-hidden rounded-[38px] max-sm:rounded-[22px] bg-black">
             <img
               src={src}
               alt={alt}

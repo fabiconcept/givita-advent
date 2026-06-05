@@ -23,11 +23,11 @@ export function Giving() {
   const { ref, offset } = useScrollParallax(50);
 
   const features = [
-    { icon: Trophy,     Illust: AchievementIcon, title: 'Supporter badges',          body: 'Recognition that travels with the contributor across the platform. Earned, not bought.' },
-    { icon: Users,      Illust: RankingIcon,     title: 'Community rankings',         body: 'Leaderboards by community, cause, or region - making giving visible without making it a competition.' },
-    { icon: Sparkles,   Illust: MilestoneIcon,   title: 'Achievement levels',         body: 'A quiet progression that respects the dignity of the act. Streaks, milestones, and impact scores.' },
-    { icon: HandHeart,  Illust: CommunityIcon,   title: 'Contribution milestones',    body: 'Causes unlock community moments at meaningful thresholds - 25%, 50%, 100% - celebrated together.' },
-    { icon: ShieldCheck,Illust: ShieldCheckIcon, title: 'Identity & verification',    body: 'Campaign organizers are encouraged to verify identity, post milestones, and publish fund-usage reports.' },
+    { icon: Trophy, Illust: AchievementIcon, title: 'Supporter badges', body: 'Recognition that travels with the contributor across the platform. Earned, not bought.' },
+    { icon: Users, Illust: RankingIcon, title: 'Community rankings', body: 'Leaderboards by community, cause, or region - making giving visible without making it a competition.' },
+    { icon: Sparkles, Illust: MilestoneIcon, title: 'Achievement levels', body: 'A quiet progression that respects the dignity of the act. Streaks, milestones, and impact scores.' },
+    { icon: HandHeart, Illust: CommunityIcon, title: 'Contribution milestones', body: 'Causes unlock community moments at meaningful thresholds - 25%, 50%, 100% - celebrated together.' },
+    { icon: ShieldCheck, Illust: ShieldCheckIcon, title: 'Identity & verification', body: 'Campaign organizers are encouraged to verify identity, post milestones, and publish fund-usage reports.' },
   ];
   return (
     <Section id="giving" variant="sparkle">
