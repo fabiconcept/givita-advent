@@ -10,17 +10,17 @@ export function Truth() {
     'When someone wants to start a business, pursue a dream, solve a local problem, support a cultural movement, pay for education, fund a creative project, or overcome a difficult season - people come together. Family contributes. Friends contribute. Neighbors contribute.';
 
   const GROUPS: [number, number, boolean][] = [
-    [4,  6,  true],   // start a business
-    [7,  9,  false],  // pursue a dream
-    [10, 13, true],   // solve a local problem
-    [14, 17, false],  // support a cultural movement
-    [18, 20, false],  // pay for education
-    [21, 24, true],   // fund a creative project
-    [26, 29, true],   // overcome a difficult season
-    [31, 33, true],   // people come together
-    [34, 35, true],   // Family contributes
-    [36, 37, true],   // Friends contribute
-    [38, 39, true],   // Neighbors contribute
+    [8,  12, true],   // start a business
+    [14, 18, false],  // pursue a dream
+    [20, 26, true],   // solve a local problem
+    [28, 34, false],  // support a cultural movement
+    [36, 40, false],  // pay for education
+    [42, 48, true],   // fund a creative project
+    [52, 58, true],   // overcome a difficult season
+    [62, 66, true],   // people come together
+    [68, 70, true],   // Family contributes
+    [72, 74, true],   // Friends contribute
+    [76, 78, true],   // Neighbors contribute
   ];
   const NUM_GROUPS = GROUPS.length;
 
