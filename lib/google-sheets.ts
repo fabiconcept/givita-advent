@@ -14,10 +14,12 @@ interface CacheEntry {
 const cache = new Map<string, CacheEntry>();
 
 function isSheetsConfigured() {
+  const isProd = process.env.NODE_ENV === 'production';
   return Boolean(
     process.env.GOOGLE_SHEET_ID &&
-      (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON ||
-        process.env.GOOGLE_APPLICATION_CREDENTIALS)
+      (isProd
+        ? process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
+        : process.env.GOOGLE_APPLICATION_CREDENTIALS)
   );
 }
 
@@ -38,9 +40,11 @@ export function getSheetsClient(): sheets_v4.Sheets | null {
   if (!isSheetsConfigured()) return null;
   if (sheetsClient) return sheetsClient;
 
+  const isProd = process.env.NODE_ENV === 'production';
+
   const auth = new google.auth.GoogleAuth({
-    credentials: parseServiceAccountKey() ?? undefined,
-    keyFile: process.env.GOOGLE_APPLICATION_CREDENTIALS,
+    credentials: isProd ? parseServiceAccountKey() ?? undefined : undefined,
+    keyFile: isProd ? undefined : process.env.GOOGLE_APPLICATION_CREDENTIALS,
     scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
 
