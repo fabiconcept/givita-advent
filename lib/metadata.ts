@@ -17,7 +17,7 @@ export const KEYWORDS = [
   'campaign platform',
 ]
 export const FAVICON = '/assets/flower 2.png'
-export const OG_IMAGE = '/assets/Flyer 4.jpg'
+export const OG_IMAGE = 'https://secret-room.sirv.com/og-image.jpg'
 
 export function createMetadata(overrides?: Partial<Metadata>): Metadata {
   const base: Metadata = {
@@ -53,7 +53,7 @@ export function createMetadata(overrides?: Partial<Metadata>): Metadata {
       title: TITLE,
       description: DESCRIPTION,
       url: SITE_URL,
-      images: [{ url: OG_IMAGE, width: 1200, height: 776, alt: SITE_NAME }],
+      images: [{ url: OG_IMAGE, width: 1200, height: 630, alt: SITE_NAME }],
       locale: 'en_NG',
     },
     twitter: {
