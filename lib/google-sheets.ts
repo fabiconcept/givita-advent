@@ -1,5 +1,6 @@
 import { google, sheets_v4 } from 'googleapis';
 import type { JWT } from 'google-auth-library';
+import { logger } from '@/lib/logger';
 
 export type SheetRow = Record<string, string | number | boolean | null | undefined>;
 
@@ -15,21 +16,24 @@ const cache = new Map<string, CacheEntry>();
 
 function isSheetsConfigured() {
   const isProd = process.env.NODE_ENV === 'production';
-  return Boolean(
-    process.env.GOOGLE_SHEET_ID &&
-      (isProd
-        ? process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
-        : process.env.GOOGLE_APPLICATION_CREDENTIALS)
-  );
+  const sheetId = process.env.GOOGLE_SHEET_ID;
+  const prodCred = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+  const devCred = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  const result = Boolean(sheetId && (isProd ? prodCred : devCred));
+  logger.debug('sheets', `isSheetsConfigured: NODE_ENV=${isProd ? 'prod' : 'dev'} sheetId=${!!sheetId} credential=${isProd ? `json(${prodCred?.length ?? 0}chars)` : `file(${devCred ?? 'unset'})`} → ${result}`);
+  return result;
 }
 
 function parseServiceAccountKey(): Record<string, unknown> | null {
   const raw = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
   if (!raw) return null;
   try {
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    logger.debug('sheets', `parseServiceAccountKey OK — email: ${parsed.client_email}`);
+    return parsed;
   } catch (err) {
-    console.error('[google-sheets] Failed to parse GOOGLE_APPLICATION_CREDENTIALS_JSON:', err);
+    const firstFew = raw.slice(0, 80);
+    logger.error('sheets', `Failed to parse GOOGLE_APPLICATION_CREDENTIALS_JSON (first 80 chars: ${firstFew}...):`, err);
     return null;
   }
 }
@@ -37,18 +41,33 @@ function parseServiceAccountKey(): Record<string, unknown> | null {
 let sheetsClient: sheets_v4.Sheets | null = null;
 
 export function getSheetsClient(): sheets_v4.Sheets | null {
-  if (!isSheetsConfigured()) return null;
-  if (sheetsClient) return sheetsClient;
+  if (!isSheetsConfigured()) {
+    logger.debug('sheets', 'getSheetsClient: not configured — returning null');
+    return null;
+  }
+  if (sheetsClient) {
+    logger.debug('sheets', 'getSheetsClient: returning cached client');
+    return sheetsClient;
+  }
 
   const isProd = process.env.NODE_ENV === 'production';
+  logger.debug('sheets', `getSheetsClient: creating new client (${isProd ? 'prod' : 'dev'})`);
 
-  const auth = new google.auth.GoogleAuth({
-    credentials: isProd ? parseServiceAccountKey() ?? undefined : undefined,
-    keyFile: isProd ? undefined : process.env.GOOGLE_APPLICATION_CREDENTIALS,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
-  });
+  let auth;
+  try {
+    auth = new google.auth.GoogleAuth({
+      credentials: isProd ? parseServiceAccountKey() ?? undefined : undefined,
+      keyFile: isProd ? undefined : process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+    logger.debug('sheets', 'GoogleAuth created successfully');
+  } catch (err) {
+    logger.error('sheets', 'Failed to create GoogleAuth:', err);
+    return null;
+  }
 
   sheetsClient = google.sheets({ version: 'v4', auth });
+  logger.debug('sheets', 'Sheets client created');
   return sheetsClient;
 }
 
@@ -88,26 +107,31 @@ export async function readRows(tabName: string, opts: { skipCache?: boolean } = 
 }> {
   const cached = cache.get(tabName);
   if (!opts.skipCache && cached && cached.expiresAt > Date.now()) {
+    logger.debug('sheets', `readRows(${tabName}) cache hit — ${cached.rows.length} rows`);
     return { headers: cached.headers, rows: cached.rows };
   }
 
   const sheets = getSheetsClient();
   const spreadsheetId = getSpreadsheetId();
   if (!sheets || !spreadsheetId) {
+    logger.warn('sheets', `readRows(${tabName}): sheets=${!!sheets} spreadsheetId=${!!spreadsheetId} → returning empty`);
     return { headers: [], rows: [] };
   }
 
   try {
+    logger.debug('sheets', `readRows(${tabName}): fetching from API`);
     const res = await sheets.spreadsheets.values.get({
       spreadsheetId,
       range: fullRange(tabName),
     });
     const values = res.data.values || [];
+    logger.debug('sheets', `readRows(${tabName}): API returned ${values.length} rows`);
     if (values.length === 0) {
       cache.set(tabName, { headers: [], rows: [], expiresAt: Date.now() + CACHE_TTL_MS });
       return { headers: [], rows: [] };
     }
     const headers = (values[0] as string[]).map((h) => h.trim().toLowerCase());
+    logger.debug('sheets', `readRows(${tabName}): headers=[${headers.join(',')}]`);
     const rows: SheetRow[] = values.slice(1).map((rawRow) => {
       const row: SheetRow = {};
       headers.forEach((h, i) => {
@@ -116,14 +140,11 @@ export async function readRows(tabName: string, opts: { skipCache?: boolean } = 
       return row;
     });
     cache.set(tabName, { headers, rows, expiresAt: Date.now() + CACHE_TTL_MS });
+    logger.debug('sheets', `readRows(${tabName}): ${rows.length} data rows cached`);
     return { headers, rows };
   } catch (err) {
-    // Any error reading the tab (missing tab, invalid range, permission
-    // boundary) is treated as "no data" so callers can still try to create
-    // the tab. We swallow and log.
-    if (process.env.NODE_ENV !== 'production') {
-      console.warn(`[google-sheets] readRows(${tabName}) returned empty:`, err instanceof Error ? err.message : err);
-    }
+    const msg = err instanceof Error ? err.message : String(err);
+    logger.error('sheets', `readRows(${tabName}) API error: ${msg}`);
     cache.set(tabName, { headers: [], rows: [], expiresAt: Date.now() + CACHE_TTL_MS });
     return { headers: [], rows: [] };
   }

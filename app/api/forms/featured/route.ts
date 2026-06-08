@@ -2,13 +2,23 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getAllForms, updateForm } from '@/lib/formStore';
 import { requireAdmin } from '@/lib/auth';
 import { checkRateLimit, apiLimiter } from '@/lib/rateLimit';
+import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
+  logger.debug('featured', 'GET /api/forms/featured — fetching all forms');
   const all = await getAllForms();
+  logger.debug('featured', `getAllForms returned ${all.length} forms`);
+  for (const f of all) {
+    logger.debug('featured', `  form id=${f.id} isFeatured=${f.isFeatured}`);
+  }
   const featured = all.find((f) => f.isFeatured);
-  if (!featured) return NextResponse.json({ form: null }, { status: 404 });
+  if (!featured) {
+    logger.warn('featured', 'No featured form found — returning 404');
+    return NextResponse.json({ form: null }, { status: 404 });
+  }
+  logger.info('featured', `Found featured form: id=${featured.id} title=${featured.title}`);
   return NextResponse.json({ form: featured });
 }
 

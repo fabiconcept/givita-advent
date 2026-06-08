@@ -7,6 +7,7 @@ import {
   isSheetsAvailable,
   invalidateCache as invalidateSheetsCache,
 } from '@/lib/google-sheets';
+import { logger } from '@/lib/logger';
 
 const FORMS_TAB = 'Forms';
 const RESPONSES_TAB = 'Responses';
@@ -172,51 +173,72 @@ function sampleForm(): Form {
 let seedPromise: Promise<void> | null = null;
 
 async function ensureSeed(): Promise<void> {
-  if (!isSheetsAvailable()) {
+  const sheetsAvail = isSheetsAvailable();
+  logger.debug('formStore', `ensureSeed: sheetsAvailable=${sheetsAvail} memoryForms.size=${memoryForms.size}`);
+  if (!sheetsAvail) {
     if (memoryForms.size === 0) {
       const sf = sampleForm();
+      logger.info('formStore', 'Seeding in-memory fallback form (sheets not available)');
       memoryForms.set(sf.id, sf);
       memoryResponses.set(sf.id, []);
     }
     return;
   }
-  if (seedPromise) return seedPromise;
+  if (seedPromise) {
+    logger.debug('formStore', 'Seed already in progress, awaiting');
+    return seedPromise;
+  }
   seedPromise = (async () => {
     try {
       const { rows } = await sheetsRead(FORMS_TAB);
+      logger.debug('formStore', `Sheets read ${FORMS_TAB}: ${rows.length} rows returned`);
       const hasSample = rows.some((r) => !isEmptyRow(r) && r.id === 'community-fundraising');
+      logger.debug('formStore', `Has sample form: ${hasSample}`);
       if (!hasSample) {
         try {
+          logger.info('formStore', 'Seeding sample form to Google Sheets');
           await sheetsAppend(FORMS_TAB, formToRow(sampleForm()));
         } catch (err) {
-          console.error('[formStore] Failed to seed sample form:', err);
+          logger.error('formStore', 'Failed to seed sample form:', err);
         }
       }
     } catch (err) {
-      console.error('[formStore] Failed to read forms for seed:', err);
+      logger.error('formStore', 'Failed to read forms for seed:', err);
     }
   })();
   return seedPromise;
 }
 
 export async function getForm(id: string): Promise<Form | null> {
+  logger.debug('formStore', `getForm(${id})`);
   await ensureSeed();
   if (!isSheetsAvailable()) {
-    return memoryForms.get(id) || null;
+    const f = memoryForms.get(id) || null;
+    logger.debug('formStore', `getForm(${id}) from memory: ${f ? 'found' : 'not found'}`);
+    return f;
   }
   const { rows } = await sheetsRead(FORMS_TAB);
   const match = rows.find((r) => r.id === id);
-  if (!match || isEmptyRow(match)) return null;
+  if (!match || isEmptyRow(match)) {
+    logger.debug('formStore', `getForm(${id}) not found in sheets`);
+    return null;
+  }
+  logger.debug('formStore', `getForm(${id}) found in sheets`);
   return rowToForm(match);
 }
 
 export async function getAllForms(): Promise<Form[]> {
+  logger.debug('formStore', 'getAllForms()');
   await ensureSeed();
   if (!isSheetsAvailable()) {
-    return Array.from(memoryForms.values());
+    const result = Array.from(memoryForms.values());
+    logger.debug('formStore', `getAllForms() from memory: ${result.length} forms`);
+    return result;
   }
   const { rows } = await sheetsRead(FORMS_TAB);
-  return rows.filter((r) => !isEmptyRow(r)).map(rowToForm);
+  const result = rows.filter((r) => !isEmptyRow(r)).map(rowToForm);
+  logger.debug('formStore', `getAllForms() from sheets: ${result.length} forms (${rows.length} raw rows)`);
+  return result;
 }
 
 export async function createForm(form: Form): Promise<Form> {
