@@ -48,6 +48,12 @@ export function ScrollInView({
     const el = ref.current;
     if (!el) return;
 
+    const rect = el.getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      setVisible(true);
+      return;
+    }
+
     const io = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
@@ -55,7 +61,7 @@ export function ScrollInView({
           io.disconnect();
         }
       },
-      { threshold, rootMargin: '-5% 0px 0px 0px' }
+      { threshold, rootMargin: '0px 0px -2% 0px' }
     );
 
     io.observe(el);
