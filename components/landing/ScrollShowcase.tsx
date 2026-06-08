@@ -56,6 +56,15 @@ export function ScrollShowcase() {
   const sectionRef = useRef<HTMLElement>(null);
   const [scrollPct, setScrollPct] = useState(0);
   const [userPinned, setUserPinned] = useState<number | null>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   useEffect(() => {
     let raf = 0;
@@ -114,7 +123,7 @@ export function ScrollShowcase() {
       ref={sectionRef}
       id="app"
       className="relative scroll-mt-16"
-      style={{ height: `${Math.max(180, totalTabs * 80) + 100}vh` }}
+      style={{ height: `${isMobile ? Math.max(80, totalTabs * 30) + 80 : Math.max(180, totalTabs * 80) + 100}vh` }}
     >
       <div className="sticky top-0 flex h-screen flex-col items-center justify-end overflow-hidden md:flex-row md:items-center md:justify-center relative">
         <div className="aurora absolute inset-0 -z-10" />

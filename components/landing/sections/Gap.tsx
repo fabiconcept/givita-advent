@@ -36,6 +36,12 @@ const FLOWER_CONFIG = [
   { side: 'right',         vMode: 'center',          size: 224, rotStart: 22, scaleStart: 0.4 },
 ];
 
+const MOBILE_FLOWER = [
+  { side: 'right',         vMode: 'overflow-top',    size: 160 },
+  { side: 'bottom-center', vMode: 'overflow-top',    size: 140 },
+  { side: 'left',          vMode: 'overflow-top',    size: 160 },
+];
+
 const CARD_CONFIG = [
   {
     entranceFrom:
@@ -269,6 +275,14 @@ export function Gap() {
           0%, 100% { transform: translateY(0); opacity: 0.15; }
           50% { transform: translateY(4px); opacity: 0.5; }
         }
+        @keyframes flowerSpin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+        @keyframes watermarkGrow {
+          0% { opacity: 0; transform: scale(0.6); }
+          100% { opacity: 0.25; transform: scale(1); }
+        }
         .gap-watermark {
           opacity: 0.25;
           transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
@@ -347,18 +361,42 @@ export function Gap() {
                   }}
                 >
                   {(() => {
+                    if (isMobile || isLowPower) {
+                      const mf = MOBILE_FLOWER[i];
+                      return (
+                        <div
+                          className="absolute z-[-1] pointer-events-none"
+                          style={{
+                            width: `${mf.size}px`,
+                            height: `${mf.size}px`,
+                            top: 0,
+                            left: i === 0 ? 'auto' : i === 1 ? '50%' : 0,
+                            right: i === 0 ? 0 : 'auto',
+                            transform: i === 1 ? 'translateX(-50%)' : 'none',
+                            opacity: entranceDone[i] ? 0.25 : 0,
+                            transition: 'opacity 1s ease-out 0.5s',
+                          }}
+                        >
+                          <img
+                            src="/assets/flower 2.png"
+                            alt=""
+                            aria-hidden
+                            className="h-full w-full object-contain"
+                            style={{
+                              animation: entranceDone[i] ? `flowerSpin ${6 + i * 2}s linear infinite` : 'none',
+                            }}
+                          />
+                        </div>
+                      );
+                    }
                     const flCfg = FLOWER_CONFIG[i];
-                    const effSide = isMobile ? 'bottom-center' : flCfg.side;
-                    const size = isMobile ? Math.round(flCfg.size * 0.5) : flCfg.size;
                     return (
                       <div
                         className="transition-all duration-700"
                         style={{
-                          transform: (isMobile || isLowPower)
-                            ? 'scale(0.25) rotate(0deg)'
-                            : hoveredCard === i
-                              ? 'scale(1) rotate(0deg)'
-                              : `scale(${flCfg.scaleStart}) rotate(${flCfg.rotStart}deg)`,
+                          transform: hoveredCard === i
+                            ? 'scale(1) rotate(0deg)'
+                            : `scale(${flCfg.scaleStart}) rotate(${flCfg.rotStart}deg)`,
                           transitionTimingFunction: hoveredCard === i
                             ? 'cubic-bezier(0.34, 1.56, 0.64, 1)'
                             : 'ease-out',
@@ -370,13 +408,13 @@ export function Gap() {
                           src="/assets/flower 2.png"
                           alt=""
                           aria-hidden
-                          className={`absolute z-[-1] pointer-events-none object-contain transition-opacity duration-500 ease-out ${effSide === 'right' ? 'right-0' : effSide === 'bottom-center' ? 'left-1/2' : 'left-0'} ${isMobile ? 'bottom-0' : flCfg.vMode === 'overflow-top' ? 'top-0' : flCfg.vMode === 'overflow-bottom' ? 'bottom-0' : ''}`}
+                          className={`absolute z-[-1] pointer-events-none object-contain transition-opacity duration-500 ease-out ${flCfg.side === 'right' ? 'right-0' : flCfg.side === 'bottom-center' ? 'left-1/2' : 'left-0'} ${flCfg.vMode === 'overflow-top' ? 'top-0' : flCfg.vMode === 'overflow-bottom' ? 'bottom-0' : ''}`}
                           style={{
-                            width: `${size}px`,
-                            height: `${size}px`,
-                            ...(effSide === 'bottom-center' || (isMobile && flCfg.vMode === 'center') ? { top: isMobile ? undefined : '50%', bottom: isMobile ? 0 : undefined } : {}),
-                            opacity: (isMobile || isLowPower) ? 0.2 : (hoveredCard === i ? 1 : 0),
-                            transitionDelay: (isMobile || isLowPower) ? '0s' : (hoveredCard === i ? '0s' : '0.25s'),
+                            width: `${flCfg.size}px`,
+                            height: `${flCfg.size}px`,
+                            ...(flCfg.side === 'bottom-center' ? { top: flCfg.vMode === 'overflow-top' ? 0 : '50%' } : {}),
+                            opacity: hoveredCard === i ? 1 : 0,
+                            transitionDelay: hoveredCard === i ? '0s' : '0.25s',
                           }}
                         />
                       </div>
@@ -406,7 +444,12 @@ export function Gap() {
                     <div className="relative z-[3] p-8">
                       <span
                         className="gap-watermark pointer-events-none absolute -right-2 -top-3 select-none font-mono text-7xl font-bold leading-none sm:text-8xl"
-                        style={{ transformOrigin: 'top right', ...((isMobile || isLowPower) ? { opacity: 0.15, transition: 'none' } : {}) }}
+                        style={{
+                          transformOrigin: 'top right',
+                          ...((isMobile || isLowPower)
+                            ? { animation: entranceDone[i] ? 'watermarkGrow 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s both' : 'none' }
+                            : {}),
+                        }}
                       >
                         {item.n}
                       </span>

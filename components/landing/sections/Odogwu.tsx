@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { ScrollInView } from '@/components/landing/ScrollInView';
 import { HoverDepth } from '@/components/landing/HoverDepth';
 import { Section } from '@/components/landing/blocks/Section';
@@ -11,6 +12,22 @@ import { useScrollParallax } from '@/lib/useScrollParallax';
 
 export function Odogwu() {
   const { ref, offset } = useScrollParallax(80);
+  const [isMobile, setIsMobile] = useState(false);
+  const isMobileRef = useRef(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 639px)');
+    setIsMobile(mq.matches);
+    isMobileRef.current = mq.matches;
+    const handler = (e: MediaQueryListEvent) => {
+      setIsMobile(e.matches);
+      isMobileRef.current = e.matches;
+    };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  const imgDepth = isMobile ? 0.3 : 1.2;
   return (
     <Section id="odogwu" tone="muted" density="roomy">
       <div ref={ref} className="grid items-center gap-10 lg:grid-cols-[1.8fr_1fr]">
@@ -34,7 +51,7 @@ export function Odogwu() {
         <ScrollInView delay={180} entrance="slideLeft">
           <div
             className="relative mx-auto w-full max-w-sm"
-            style={{ transform: `translateY(${offset * 1.2}px)`, willChange: 'transform' }}
+            style={{ transform: `translateY(${offset * imgDepth}px)`, willChange: 'transform' }}
           >
             <div className="absolute inset-0 -z-10 rounded-full bg-primary/10 blur-3xl" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
