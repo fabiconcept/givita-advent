@@ -10,17 +10,38 @@ export function Truth() {
     'When someone wants to start a business, pursue a dream, solve a local problem, support a cultural movement, pay for education, fund a creative project, or overcome a difficult season - people come together. Family contributes. Friends contribute. Neighbors contribute.';
 
   const GROUPS: [number, number, boolean][] = [
-    [8,  12, false],  // start a business
-    [14, 18, false],  // pursue a dream
-    [20, 26, false],  // solve a local problem
-    [28, 34, false],  // support a cultural movement
-    [36, 40, false],  // pay for education
-    [42, 48, false],  // fund a creative project
-    [52, 58, false],  // overcome a difficult season
-    [62, 66, true],   // people come together
-    [68, 70, true],   // Family contributes
-    [72, 74, true],   // Friends contribute
-    [76, 78, true],   // Neighbors contribute
+    [0,   7,  false], // When someone wants to
+    [8,  12,  true],  // start a business
+    [13, 13,  false], // (space)
+    [14, 17,  false], // pursue a
+    [18, 18,  true],  // dream
+    [19, 19,  false], // (space)
+    [20, 23,  false], // solve a
+    [24, 26,  true],  // local problem
+    [27, 27,  false], // (space)
+    [28, 31,  false], // support a
+    [32, 34,  true],  // cultural movement
+    [35, 35,  false], // (space)
+    [36, 39,  false], // pay for
+    [40, 40,  true],  // education
+    [41, 41,  false], // (space)
+    [42, 45,  false], // fund a
+    [46, 48,  true],  // creative project
+    [49, 49,  false], // (space)
+    [50, 51,  false], // or
+    [52, 55,  false], // overcome a
+    [56, 58,  true],  // difficult season
+    [59, 61,  false], // &nbsp;-&nbsp;
+    [62, 66,  false], // people come together.
+    [67, 67,  false], // (space)
+    [68, 68,  true],  // Family
+    [69, 70,  false], // &nbsp;contributes.
+    [71, 71,  false], // (space)
+    [72, 72,  true],  // Friends
+    [73, 74,  false], // &nbsp;contribute.
+    [75, 75,  false], // (space)
+    [76, 76,  true],  // Neighbors
+    [77, 78,  false], // &nbsp;contribute.
   ];
   const NUM_GROUPS = GROUPS.length;
 
