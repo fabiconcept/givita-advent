@@ -1,0 +1,21 @@
+{
+  "name": "Givita",
+  "short_name": "Givita",
+  "description": "Africa's community-powered fundraising platform",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0c0c0e",
+  "theme_color": "#d6ff5d",
+  "icons": [
+    {
+      "src": "/assets/flower%202.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/assets/flower%202.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
