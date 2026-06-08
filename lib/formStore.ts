@@ -190,7 +190,7 @@ async function ensureSeed(): Promise<void> {
   }
   seedPromise = (async () => {
     try {
-      const { rows } = await sheetsRead(FORMS_TAB);
+      const { rows } = await sheetsRead(FORMS_TAB, { skipCache: true });
       logger.debug('formStore', `Sheets read ${FORMS_TAB}: ${rows.length} rows returned`);
       const hasSample = rows.some((r) => !isEmptyRow(r) && r.id === 'community-fundraising');
       logger.debug('formStore', `Has sample form: ${hasSample}`);
@@ -198,6 +198,8 @@ async function ensureSeed(): Promise<void> {
         try {
           logger.info('formStore', 'Seeding sample form to Google Sheets');
           await sheetsAppend(FORMS_TAB, formToRow(sampleForm()));
+          invalidateSheetsCache(FORMS_TAB);
+          logger.info('formStore', 'Seeded sample form and invalidated cache');
         } catch (err) {
           logger.error('formStore', 'Failed to seed sample form:', err);
         }
