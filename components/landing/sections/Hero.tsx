@@ -77,7 +77,7 @@ export function Hero() {
 
         <h1 className="mt-10 text-balance text-5xl font-semibold leading-[1.02] tracking-tight sm:text-7xl">
           <WordReveal text="Giving has always" className="" delay={120} stagger={70} />
-          <br className="hidden sm:block" />
+          {' '}<br className="hidden sm:block" />
           <WordReveal text="been our culture." delay={420} stagger={70} accent="culture" />
         </h1>
 
