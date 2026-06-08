@@ -67,10 +67,51 @@ function shouldLog(level: LogLevel, config: LogConfig): boolean {
   return LEVEL_ORDER[level] <= LEVEL_ORDER[config.minLevel];
 }
 
+export interface LogEntry {
+  level: LogLevel;
+  tag: string;
+  message: string;
+  args: string;
+  timestamp: string;
+}
+
+const MAX_LOG_ENTRIES = 500;
+const logBuffer: LogEntry[] = [];
+
+function serializeArgs(args: unknown[]): string {
+  if (args.length === 0) return '';
+  try {
+    return args
+      .map((a) => (a instanceof Error ? a.stack || a.message : JSON.stringify(a, null, 0)))
+      .join(' ');
+  } catch {
+    return String(args);
+  }
+}
+
+function addEntry(level: LogLevel, tag: string, msg: string, args: unknown[]) {
+  logBuffer.push({
+    level,
+    tag,
+    message: msg,
+    args: serializeArgs(args),
+    timestamp: new Date().toISOString(),
+  });
+  if (logBuffer.length > MAX_LOG_ENTRIES) {
+    logBuffer.splice(0, logBuffer.length - MAX_LOG_ENTRIES);
+  }
+}
+
+export function getLogs(limit = 200): LogEntry[] {
+  return logBuffer.slice(-limit);
+}
+
 function log(level: LogLevel, tag: string, msg: string, ...args: unknown[]) {
   const config = getConfig();
   if (!shouldLog(level, config)) return;
   if (config.tags.size > 0 && !config.tags.has(tag)) return;
+
+  addEntry(level, tag, msg, args);
 
   const color = LEVEL_STYLE[level];
   const ts = new Date().toISOString().slice(11, 23);
