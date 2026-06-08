@@ -11,7 +11,6 @@ import {
   IllustBroken,
   IllustShield,
 } from '@/components/landing/illustrations';
-import { useScrollParallax } from '@/lib/useScrollParallax';
 
 function useInView(threshold = 0.05) {
   const ref = useRef<HTMLDivElement>(null);
@@ -77,12 +76,48 @@ export function Gap() {
     { n: '03', title: 'Culture is treated as decoration',         body: 'The social dynamics that actually drive giving get flattened into one-time transactions.',             Illust: IllustCommunity, strokeWidth: 2.4 },
   ];
 
-  const { ref: parallaxRef, offset } = useScrollParallax(120);
   const { ref: inViewRef, inView } = useInView(0.05);
   const inViewTriggered = useRef(false);
   const [entranceDone, setEntranceDone] = useState([false, false, false]);
   const [isMobile, setIsMobile] = useState(false);
   const isMobileRef = useRef(false);
+  const parallaxRef = useRef<HTMLDivElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([null, null, null]);
+  const bgRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const el = parallaxRef.current;
+        if (!el) return;
+        const rect = el.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const centerProgress = ((rect.top + rect.height / 2) / vh - 0.5) * 2;
+        const offset = centerProgress * 120;
+        const mobile = isMobileRef.current;
+
+        if (bgRef.current) {
+          bgRef.current.style.transform = `translateY(${offset * 0.18}px) rotate(${offset * 0.04}deg)`;
+        }
+
+        for (let i = 0; i < CARD_CONFIG.length; i++) {
+          const cardEl = cardRefs.current[i];
+          if (!cardEl) continue;
+          const cfg = CARD_CONFIG[i];
+          const tx = mobile ? offset * cfg.depthFactor * (i === 1 ? 0.4 : -0.35) : 0;
+          cardEl.style.transform = `translateY(${offset * cfg.depthFactor}px) translateX(${tx}px) translateZ(${-offset * cfg.depthFactor * 0.35}px) scale(${1 - offset * cfg.depthFactor * 0.00015})`;
+        }
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('scroll', onScroll);
+    };
+  }, []);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 639px)');
@@ -253,11 +288,8 @@ export function Gap() {
       />
 
       <div
+        ref={bgRef}
         className="pointer-events-none absolute inset-0 -z-10 hidden items-center justify-center sm:flex"
-        style={{
-          transform: `translateY(${offset * 0.18}px) rotate(${offset * 0.04}deg)`,
-          willChange: 'transform',
-        }}
       >
         <div className="w-80 opacity-[0.06] sm:opacity-[0.10]">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -279,11 +311,8 @@ export function Gap() {
           return (
             <div
               key={item.n}
+              ref={(el) => { cardRefs.current[i] = el; }}
               className="relative"
-              style={{
-                transform: `translateY(${offset * cfg.depthFactor}px) translateX(${isMobile ? offset * cfg.depthFactor * (i === 1 ? 0.4 : -0.35) : 0}px) translateZ(${-offset * cfg.depthFactor * 0.35}px) scale(${1 - offset * cfg.depthFactor * 0.00015})`,
-                willChange: 'transform',
-              }}
             >
               <div
                 style={{
@@ -342,10 +371,7 @@ export function Gap() {
                     onMouseLeave={(e) => { handleTiltLeave(e); handleCardLeave(i); }}
                     className="gap-card group relative overflow-hidden rounded-2xl border border-border/40 transition-all duration-500 hover:border-primary/30"
                   >
-                    <div
-                      className="absolute inset-0 z-0 rounded-[inherit] backdrop-blur-[5px]"
-                      style={{ filter: 'url(#liquidGlass) saturate(120%) brightness(1.15)' }}
-                    />
+                    <div className="absolute inset-0 z-0 rounded-[inherit] bg-card/[0.08] backdrop-blur-[4px]" />
                     <div className="absolute inset-0 z-[1] rounded-[inherit] bg-card/10 transition-colors duration-500 group-hover:bg-card/20" />
                     <div
                       className="absolute inset-0 z-[2] rounded-[inherit] pointer-events-none"
@@ -412,10 +438,7 @@ export function Gap() {
         }}
       >
         <div className="group relative">
-          <div
-            className="absolute inset-0 z-0 rounded-full backdrop-blur-[4px]"
-            style={{ filter: 'url(#liquidGlass) saturate(110%) brightness(1.1)' }}
-          />
+          <div className="absolute inset-0 z-0 rounded-full bg-card/[0.07] backdrop-blur-[3px]" />
           <div className="absolute inset-0 z-[1] rounded-full bg-card/10" />
           <div
             className="absolute inset-0 z-[2] rounded-full pointer-events-none"

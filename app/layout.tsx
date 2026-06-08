@@ -23,7 +23,8 @@ const KEYWORDS = [
   'Odogwu',
   'campaign platform',
 ]
-const OG_IMAGE = '/assets/flower 2.png'
+const FAVICON = '/assets/flower 2.png'
+const OG_IMAGE = '/assets/Flyer 4.jpg'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -44,19 +45,15 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-      'max-video-preview': -1,
-    },
+    'max-image-preview': 'large',
+    'max-snippet': -1,
+    'max-video-preview': -1,
   },
   icons: {
     icon: [
-      { url: OG_IMAGE, type: 'image/png' },
+      { url: FAVICON, type: 'image/png' },
     ],
-    apple: OG_IMAGE,
+    apple: FAVICON,
   },
   openGraph: {
     type: 'website',
@@ -68,7 +65,7 @@ export const metadata: Metadata = {
       {
         url: OG_IMAGE,
         width: 1200,
-        height: 1200,
+        height: 776,
         alt: SITE_NAME,
       },
     ],
