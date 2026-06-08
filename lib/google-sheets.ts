@@ -127,7 +127,7 @@ export async function readRows(tabName: string, opts: { skipCache?: boolean } = 
     const values = res.data.values || [];
     logger.debug('sheets', `readRows(${tabName}): API returned ${values.length} rows`);
     if (values.length === 0) {
-      cache.set(tabName, { headers: [], rows: [], expiresAt: Date.now() + CACHE_TTL_MS });
+      if (!opts.skipCache) cache.set(tabName, { headers: [], rows: [], expiresAt: Date.now() + CACHE_TTL_MS });
       return { headers: [], rows: [] };
     }
     const headers = (values[0] as string[]).map((h) => h.trim().toLowerCase());
@@ -139,13 +139,13 @@ export async function readRows(tabName: string, opts: { skipCache?: boolean } = 
       });
       return row;
     });
-    cache.set(tabName, { headers, rows, expiresAt: Date.now() + CACHE_TTL_MS });
+    if (!opts.skipCache) cache.set(tabName, { headers, rows, expiresAt: Date.now() + CACHE_TTL_MS });
     logger.debug('sheets', `readRows(${tabName}): ${rows.length} data rows cached`);
     return { headers, rows };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     logger.error('sheets', `readRows(${tabName}) API error: ${msg}`);
-    cache.set(tabName, { headers: [], rows: [], expiresAt: Date.now() + CACHE_TTL_MS });
+    if (!opts.skipCache) cache.set(tabName, { headers: [], rows: [], expiresAt: Date.now() + CACHE_TTL_MS });
     return { headers: [], rows: [] };
   }
 }
