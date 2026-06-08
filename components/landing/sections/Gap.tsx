@@ -81,6 +81,8 @@ export function Gap() {
   const [entranceDone, setEntranceDone] = useState([false, false, false]);
   const [isMobile, setIsMobile] = useState(false);
   const isMobileRef = useRef(false);
+  const [isLowPower, setIsLowPower] = useState(false);
+  const isLowPowerRef = useRef(false);
   const parallaxRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([null, null, null]);
   const bgRef = useRef<HTMLDivElement>(null);
@@ -95,8 +97,10 @@ export function Gap() {
         const rect = el.getBoundingClientRect();
         const vh = window.innerHeight;
         const centerProgress = ((rect.top + rect.height / 2) / vh - 0.5) * 2;
-        const offset = centerProgress * 120;
         const mobile = isMobileRef.current;
+        const lowPower = isLowPowerRef.current;
+        const pScale = mobile ? 0.35 : lowPower ? 0.5 : 1;
+        const offset = centerProgress * 120 * pScale;
 
         if (bgRef.current) {
           bgRef.current.style.transform = `translateY(${offset * 0.18}px) rotate(${offset * 0.04}deg)`;
@@ -106,8 +110,9 @@ export function Gap() {
           const cardEl = cardRefs.current[i];
           if (!cardEl) continue;
           const cfg = CARD_CONFIG[i];
-          const tx = mobile ? offset * cfg.depthFactor * (i === 1 ? 0.4 : -0.35) : 0;
-          cardEl.style.transform = `translateY(${offset * cfg.depthFactor}px) translateX(${tx}px) translateZ(${-offset * cfg.depthFactor * 0.35}px) scale(${1 - offset * cfg.depthFactor * 0.00015})`;
+          const df = cfg.depthFactor * (mobile ? 0.4 : 1);
+          const tx = mobile ? offset * df * (i === 1 ? 0.4 : -0.35) : 0;
+          cardEl.style.transform = `translateY(${offset * df}px) translateX(${tx}px) translateZ(${-offset * df * 0.35}px) scale(${1 - offset * df * 0.00015})`;
         }
       });
     };
@@ -132,6 +137,14 @@ export function Gap() {
   }, []);
 
   useEffect(() => {
+    const lowCores = (navigator.hardwareConcurrency ?? 8) < 4;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const low = lowCores || reducedMotion;
+    setIsLowPower(low);
+    isLowPowerRef.current = low;
+  }, []);
+
+  useEffect(() => {
     if (inView && !inViewTriggered.current) {
       inViewTriggered.current = true;
       const durations = CARD_CONFIG.map((cfg) => (cfg.entranceDelay + cfg.entranceDuration) * 1000);
@@ -153,9 +166,9 @@ export function Gap() {
   const flowerRefs = useRef<(HTMLImageElement | null)[]>([null, null, null]);
 
   const tickFlowers = useCallback(() => {
+    if (isMobileRef.current || isLowPowerRef.current) return;
     let active = false;
     const speed = 0.12;
-    const mobile = isMobileRef.current;
     for (let i = 0; i < CARD_CONFIG.length; i++) {
       const t = flowerTargets.current[i];
       const c = flowerCurrent.current[i];
@@ -165,8 +178,8 @@ export function Gap() {
       if (el) {
         const cardCfg = CARD_CONFIG[i];
         const flCfg = FLOWER_CONFIG[i];
-        const effSide = mobile ? 'bottom-center' : flCfg.side;
-        const effVMode = mobile ? 'overflow-bottom' : flCfg.vMode;
+        const effSide = isMobileRef.current ? 'bottom-center' : flCfg.side;
+        const effVMode = isMobileRef.current ? 'overflow-bottom' : flCfg.vMode;
         const baseX = effSide === 'right' ? 'translateX(25%)' : effSide === 'bottom-center' ? 'translateX(-50%)' : 'translateX(-25%)';
         const offsetDir = effSide === 'right' ? 1 : -1;
         let vy: string;
@@ -269,17 +282,19 @@ export function Gap() {
 
       `}</style>
 
-      <svg className="absolute w-0 h-0" aria-hidden>
-        <defs>
-          <filter id="liquidGlass">
-            <feComponentTransfer in="SourceAlpha" result="alpha">
-              <feFuncA type="identity" />
-            </feComponentTransfer>
-            <feGaussianBlur in="alpha" stdDeviation="10" result="blur" />
-            <feDisplacementMap in="SourceGraphic" in2="blur" scale="14" xChannelSelector="A" yChannelSelector="A" />
-          </filter>
-        </defs>
-      </svg>
+      {(isMobile || isLowPower) ? null : (
+        <svg className="absolute w-0 h-0" aria-hidden>
+          <defs>
+            <filter id="liquidGlass">
+              <feComponentTransfer in="SourceAlpha" result="alpha">
+                <feFuncA type="identity" />
+              </feComponentTransfer>
+              <feGaussianBlur in="alpha" stdDeviation="10" result="blur" />
+              <feDisplacementMap in="SourceGraphic" in2="blur" scale="14" xChannelSelector="A" yChannelSelector="A" />
+            </filter>
+          </defs>
+        </svg>
+      )}
 
       <HangingFlower
         className="right-8 top-0 sm:right-16 lg:right-24"
@@ -326,7 +341,7 @@ export function Gap() {
                 <div
                   className={`${entranceDone[i] ? '' : 'pointer-events-none'} relative`}
                   style={{
-                    animation: entranceDone[i]
+                    animation: entranceDone[i] && !isLowPower
                       ? `${cfg.floatName} ${3.5 - i * 0.5}s ease-in-out infinite`
                       : 'none',
                   }}
@@ -339,9 +354,11 @@ export function Gap() {
                       <div
                         className="transition-all duration-700"
                         style={{
-                          transform: hoveredCard === i
-                            ? 'scale(1) rotate(0deg)'
-                            : `scale(${isMobile ? 0.25 : flCfg.scaleStart}) rotate(${flCfg.rotStart}deg)`,
+                          transform: (isMobile || isLowPower)
+                            ? 'scale(0.25) rotate(0deg)'
+                            : hoveredCard === i
+                              ? 'scale(1) rotate(0deg)'
+                              : `scale(${flCfg.scaleStart}) rotate(${flCfg.rotStart}deg)`,
                           transitionTimingFunction: hoveredCard === i
                             ? 'cubic-bezier(0.34, 1.56, 0.64, 1)'
                             : 'ease-out',
@@ -358,21 +375,29 @@ export function Gap() {
                             width: `${size}px`,
                             height: `${size}px`,
                             ...(effSide === 'bottom-center' || (isMobile && flCfg.vMode === 'center') ? { top: isMobile ? undefined : '50%', bottom: isMobile ? 0 : undefined } : {}),
-                            opacity: hoveredCard === i ? 1 : 0,
-                            transitionDelay: hoveredCard === i ? '0s' : '0.25s',
+                            opacity: (isMobile || isLowPower) ? 0.2 : (hoveredCard === i ? 1 : 0),
+                            transitionDelay: (isMobile || isLowPower) ? '0s' : (hoveredCard === i ? '0s' : '0.25s'),
                           }}
                         />
                       </div>
                     );
                   })()}
                   <article
-                    onMouseEnter={() => handleCardEnter(i)}
-                    onMouseMove={(e) => handleTiltMove(e, i)}
-                    onMouseLeave={(e) => { handleTiltLeave(e); handleCardLeave(i); }}
-                    className="gap-card group relative overflow-hidden rounded-2xl border border-border/40 transition-all duration-500 hover:border-primary/30"
+                    {...(isMobile ? {} : {
+                      onMouseEnter: () => handleCardEnter(i),
+                      onMouseMove: (e) => handleTiltMove(e, i),
+                      onMouseLeave: (e) => { handleTiltLeave(e); handleCardLeave(i); },
+                    })}
+                    className={`gap-card group relative overflow-hidden rounded-2xl border border-border/40 transition-all duration-500 ${(isMobile || isLowPower) ? '' : 'hover:border-primary/30'}`}
                   >
-                    <div className="absolute inset-0 z-0 rounded-[inherit] bg-card/[0.08] backdrop-blur-[4px]" />
-                    <div className="absolute inset-0 z-[1] rounded-[inherit] bg-card/10 transition-colors duration-500 group-hover:bg-card/20" />
+                    {(isMobile || isLowPower) ? (
+                      <div className="absolute inset-0 z-0 rounded-[inherit] bg-card/15" />
+                    ) : (
+                      <>
+                        <div className="absolute inset-0 z-0 rounded-[inherit] bg-card/[0.08] backdrop-blur-[4px]" />
+                        <div className="absolute inset-0 z-[1] rounded-[inherit] bg-card/10 transition-colors duration-500 group-hover:bg-card/20" />
+                      </>
+                    )}
                     <div
                       className="absolute inset-0 z-[2] rounded-[inherit] pointer-events-none"
                       style={{ boxShadow: 'inset 0 0.5px 0 rgba(255,255,255,0.10), inset 0 0 12px rgba(255,255,255,0.04)' }}
@@ -381,7 +406,7 @@ export function Gap() {
                     <div className="relative z-[3] p-8">
                       <span
                         className="gap-watermark pointer-events-none absolute -right-2 -top-3 select-none font-mono text-7xl font-bold leading-none sm:text-8xl"
-                        style={{ transformOrigin: 'top right' }}
+                        style={{ transformOrigin: 'top right', ...((isMobile || isLowPower) ? { opacity: 0.15, transition: 'none' } : {}) }}
                       >
                         {item.n}
                       </span>
@@ -390,7 +415,7 @@ export function Gap() {
                         <div
                           className="h-16 w-16 shrink-0 sm:h-20 sm:w-20"
                           style={{
-                            animation: entranceDone[i]
+                            animation: entranceDone[i] && !isLowPower
                               ? `illustPulse ${3 + i * 0.4}s ease-in-out ${i * 0.8}s infinite`
                               : 'none',
                           }}
@@ -404,7 +429,7 @@ export function Gap() {
                         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.body}</p>
                       </div>
 
-                      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-px bg-linear-to-r from-transparent via-primary/25 to-transparent opacity-0 transition-all duration-700 group-hover:h-1 group-hover:opacity-100" />
+                      <div className={`pointer-events-none absolute inset-x-0 bottom-0 bg-linear-to-r from-transparent via-primary/25 to-transparent transition-all duration-700 ${(isMobile || isLowPower) ? 'h-0 opacity-0' : 'h-px opacity-0 group-hover:h-1 group-hover:opacity-100'}`} />
                     </div>
 
                     {i < items.length - 1 && (
@@ -412,7 +437,7 @@ export function Gap() {
                         aria-hidden
                         className="absolute z-[4] -bottom-7 left-1/2 hidden -translate-x-1/2 text-muted-foreground/20 sm:block"
                         style={{
-                          animation: entranceDone[i]
+                          animation: entranceDone[i] && !isLowPower
                             ? 'arrowBounce 2.2s ease-in-out infinite'
                             : 'none',
                         }}
@@ -434,12 +459,18 @@ export function Gap() {
       <div
         className="mt-20 flex justify-center sm:mt-24"
         style={{
-          animation: entranceDone.every(Boolean) ? 'taglinePulse 3s ease-in-out infinite' : 'none',
+          animation: entranceDone.every(Boolean) && !isLowPower ? 'taglinePulse 3s ease-in-out infinite' : 'none',
         }}
       >
         <div className="group relative">
-          <div className="absolute inset-0 z-0 rounded-full bg-card/[0.07] backdrop-blur-[3px]" />
-          <div className="absolute inset-0 z-[1] rounded-full bg-card/10" />
+          {(isMobile || isLowPower) ? (
+            <div className="absolute inset-0 z-0 rounded-full bg-card/15" />
+          ) : (
+            <>
+              <div className="absolute inset-0 z-0 rounded-full bg-card/[0.07] backdrop-blur-[3px]" />
+              <div className="absolute inset-0 z-[1] rounded-full bg-card/10" />
+            </>
+          )}
           <div
             className="absolute inset-0 z-[2] rounded-full pointer-events-none"
             style={{ boxShadow: 'inset 0 0.5px 0 rgba(255,255,255,0.08), inset 0 0 8px rgba(255,255,255,0.03)' }}
@@ -448,7 +479,7 @@ export function Gap() {
             <span
               className="h-1.5 w-1.5 rounded-full bg-destructive/50"
               style={{
-                animation: entranceDone.every(Boolean) ? 'taglinePulse 2s ease-in-out infinite' : 'none',
+                animation: entranceDone.every(Boolean) && !isLowPower ? 'taglinePulse 2s ease-in-out infinite' : 'none',
               }}
             />
             Three compounding problems &mdash; one underlying cause.
