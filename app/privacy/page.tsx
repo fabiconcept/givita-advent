@@ -24,7 +24,7 @@ const SECTIONS = [
   },
   {
     title: 'Your rights',
-    body: 'You can request a copy of your data, ask us to correct it, or delete it entirely at any time. Just email hello@givita.app with your request and we will handle it within 14 days. No fine print, no runaround.',
+    body: 'You can request a copy of your data, ask us to correct it, or delete it entirely at any time. Just email favourajokubi@gmail.com with your request and we will handle it within 14 days. No fine print, no runaround.',
   },
   {
     title: 'Changes to this policy',
@@ -100,10 +100,10 @@ export default function PrivacyPage() {
               If you have questions about anything on this page, or if you want to request access to your data, just reach out.
             </p>
             <a
-              href="mailto:hello@givita.app"
+              href="mailto:favourajokubi@gmail.com"
               className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary transition-colors hover:text-primary/80"
             >
-              hello@givita.app
+              favourajokubi@gmail.com
               <ArrowLeft className="h-3.5 w-3.5 rotate-180" />
             </a>
           </div>
