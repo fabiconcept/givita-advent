@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Form, FormQuestion } from '@/types';
 import { Button } from '@/components/ui/button';
-import { Check, Sparkles, RefreshCcw, Home, FileText } from 'lucide-react';
+import { Check, Sparkles, RefreshCcw, Home, FileText, ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 
 interface SuccessScreenProps {
@@ -25,6 +25,7 @@ function getAnswer(question: FormQuestion, value: string | string[] | number | u
 
 export function SuccessScreen({ form, responses, onRestart }: SuccessScreenProps) {
   const [mounted, setMounted] = useState(false);
+  const [expanded, setExpanded] = useState(false);
   useEffect(() => {
     const t = window.setTimeout(() => setMounted(true), 50);
     return () => window.clearTimeout(t);
@@ -34,6 +35,9 @@ export function SuccessScreen({ form, responses, onRestart }: SuccessScreenProps
     () => [...form.questions].sort((a, b) => a.order - b.order),
     [form.questions]
   );
+
+  const previewCount = 3;
+  const displayQuestions = expanded ? ordered : ordered.slice(0, previewCount);
 
   return (
     <section
@@ -68,25 +72,42 @@ export function SuccessScreen({ form, responses, onRestart }: SuccessScreenProps
             {ordered.length} {ordered.length === 1 ? 'answer' : 'answers'}
           </span>
         </div>
-        <ul className="divide-y divide-border/60">
-          {ordered.map((q, i) => (
-            <li
-              key={q.id}
-              className="grid grid-cols-[40px_1fr] gap-3 px-5 py-4 sm:grid-cols-[56px_1fr]"
-              style={{ animation: `slideUp 400ms ease-out ${i * 60}ms both` }}
-            >
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 font-mono text-xs font-semibold text-primary sm:h-8 sm:w-8">
-                {i + 1}
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-foreground/80">{q.title}</p>
-                <p className="mt-1 break-words text-sm text-muted-foreground">
-                  {getAnswer(q, responses[q.id])}
-                </p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <div className="relative">
+          <ul className="divide-y divide-border/60">
+            {displayQuestions.map((q, i) => (
+              <li
+                key={q.id}
+                className="grid grid-cols-[40px_1fr] gap-3 px-5 py-4 sm:grid-cols-[56px_1fr]"
+                style={{ animation: `slideUp 400ms ease-out ${i * 60}ms both` }}
+              >
+                <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-primary/10 font-mono text-xs font-semibold text-primary sm:h-8 sm:w-8">
+                  {i + 1}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-foreground/80">{q.title}</p>
+                  <p className="mt-1 break-words text-sm text-muted-foreground">
+                    {getAnswer(q, responses[q.id])}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ul>
+          {!expanded && ordered.length > previewCount && (
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background/95 to-transparent" />
+          )}
+        </div>
+        {ordered.length > previewCount && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="flex w-full items-center justify-center gap-2 border-t border-border/60 px-5 py-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+          >
+            {expanded ? 'Show less' : `Show all ${ordered.length} answers`}
+            <ChevronDown
+              className={`h-4 w-4 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}
+            />
+          </button>
+        )}
       </div>
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
