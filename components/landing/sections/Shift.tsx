@@ -17,7 +17,7 @@ export function Shift() {
         style={{ transform: `translateY(${offset * 0.7}px)`, willChange: 'transform' }}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/assets/Buffer-bro.png" alt="" aria-hidden className="h-auto w-full object-contain transition-transform duration-500 hover:rotate-2 hover:scale-105" loading="lazy" />
+        <img src="/assets/Buffer-bro.png" alt="" aria-hidden width="176" height="176" className="h-auto w-full object-contain transition-transform duration-500 hover:rotate-2 hover:scale-105" loading="lazy" />
       </div>
       <div ref={ref} className="mx-auto max-w-3xl text-center">
         <Reveal><Eyebrow number="03" label="The shift" /></Reveal>
@@ -28,7 +28,7 @@ export function Shift() {
         </Reveal>
         <Reveal delay={180}>
           <p className="mx-auto mt-6 max-w-2xl text-pretty text-lg leading-relaxed text-muted-foreground">
-            We didn&apos;t start with a product. We started with how <span className="text-primary dark:text-muted-foreground">Africans</span> already <span className="text-primary dark:text-muted-foreground">give</span> - and built the platform backward from there. Toggle to see the shift.
+            We didn&apos;t start with a product. We started with how <span className="font-semibold text-primary dark:text-primary">Africans</span> already <span className="font-semibold text-primary dark:text-primary">give</span> - and built the platform backward from there. Toggle to see the shift.
           </p>
         </Reveal>
       </div>

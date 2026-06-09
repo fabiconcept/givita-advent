@@ -83,7 +83,7 @@ export function Future() {
                 >
                   <div className="relative">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/assets/Flyer 4.jpg" alt="Givita launch flyer - a graph of where we're heading" className="block h-auto w-full" loading="lazy" decoding="async" />
+                    <img src="/assets/Flyer 4.jpg" alt="Givita launch flyer - a graph of where we're heading" width="560" height="400" className="block h-auto w-full" loading="lazy" decoding="async" />
                     <span className="pointer-events-none absolute inset-0 bg-linear-to-t from-background/30 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
                   </div>
                 </a>

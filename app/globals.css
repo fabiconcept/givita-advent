@@ -114,6 +114,10 @@
   --green-icon-bg: #1a3a28;
 }
 
+.dark .text-primary {
+  color: #d6ff5d;
+}
+
 @theme inline {
   --font-sans: 'Onest', sans-serif;
   --font-mono: 'Onest', sans-serif;

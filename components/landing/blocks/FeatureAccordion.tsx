@@ -24,13 +24,8 @@ export function FeatureAccordion({
     const el = rootRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.4 },
+      ([entry]) => setInView(entry.isIntersecting),
+      { threshold: 0.3 },
     );
     observer.observe(el);
     return () => observer.disconnect();
@@ -63,7 +58,7 @@ export function FeatureAccordion({
               type="button"
               onClick={() => handleClick(i, isOpen)}
               aria-expanded={isOpen}
-              className="grid w-full grid-cols-[64px_1fr_24px] items-center gap-5 py-5 text-left transition-colors hover:bg-muted/30"
+              className="grid w-full grid-cols-[64px_1fr_24px] items-center gap-5 py-5 text-left transition-colors hover:bg-muted/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               <span className={cn('h-12 w-16 transition-all duration-300', isOpen ? 'text-foreground' : 'text-muted-foreground/70')}>
                 <f.Illust className="h-full w-full" />

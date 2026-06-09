@@ -57,14 +57,24 @@ export function ScrollShowcase() {
   const [scrollPct, setScrollPct] = useState(0);
   const [userPinned, setUserPinned] = useState<number | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [reduced, setReduced] = useState(false);
 
   useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduced(mq.matches);
+    const h = () => setReduced(mq.matches);
+    mq.addEventListener('change', h);
+    return () => mq.removeEventListener('change', h);
+  }, []);
+
+  useEffect(() => {
+    if (reduced) { setScrollPct(1); return; }
     const mq = window.matchMedia('(max-width: 639px)');
     setIsMobile(mq.matches);
     const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
     mq.addEventListener('change', handler);
     return () => mq.removeEventListener('change', handler);
-  }, []);
+  }, [reduced]);
 
   useEffect(() => {
     let raf = 0;
@@ -157,7 +167,7 @@ export function ScrollShowcase() {
                       type="button"
                       onClick={() => setUserPinned(i)}
                       className={cn(
-                        'group relative flex w-full items-center gap-5 rounded-2xl border p-4 text-left transition-all duration-500',
+                        'group relative flex w-full items-center gap-5 rounded-2xl border p-4 text-left transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
                         isActive
                           ? 'border-primary/40 bg-card/80'
                           : isPast

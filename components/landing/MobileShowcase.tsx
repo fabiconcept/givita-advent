@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PhoneMockup } from '@/components/landing/PhoneMockup';
 import { cn } from '@/lib/utils';
 import { ArrowRight } from 'lucide-react';
@@ -53,6 +53,14 @@ const SCREENS: Screen[] = [
 
 export function MobileShowcase() {
   const [active, setActive] = useState(0);
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduced(mq.matches);
+    const h = () => setReduced(mq.matches);
+    mq.addEventListener('change', h);
+    return () => mq.removeEventListener('change', h);
+  }, []);
   const screen = SCREENS[active];
   const Illustration = screen.Illustration;
 
@@ -68,7 +76,8 @@ export function MobileShowcase() {
                 type="button"
                 onClick={() => setActive(i)}
                 className={cn(
-                  'group flex w-full items-center gap-5 rounded-2xl border p-4 text-left transition-all duration-300',
+                  'group flex w-full items-center gap-5 rounded-2xl border p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+                  reduced ? '' : 'transition-all duration-300',
                   isActive
                     ? 'border-primary/40 bg-card/80'
                     : 'border-transparent bg-transparent hover:bg-card/40'
@@ -93,7 +102,7 @@ export function MobileShowcase() {
                   </p>
                   <p
                     className={cn(
-                      'mt-1 text-sm leading-relaxed transition-all duration-300',
+                      'mt-1 text-sm leading-relaxed', reduced ? '' : 'transition-all duration-300',
                       isActive ? 'max-h-24 text-muted-foreground opacity-100' : 'max-h-0 overflow-hidden opacity-0'
                     )}
                   >
@@ -102,7 +111,7 @@ export function MobileShowcase() {
                 </div>
                 <ArrowRight
                   className={cn(
-                    'h-4 w-4 shrink-0 transition-all duration-300',
+                    'h-4 w-4 shrink-0', reduced ? '' : 'transition-all duration-300',
                     isActive ? 'translate-x-0 text-primary opacity-100' : '-translate-x-2 text-muted-foreground opacity-0'
                   )}
                 />
@@ -117,7 +126,7 @@ export function MobileShowcase() {
           aria-hidden
           className="absolute -inset-10 -z-10 rounded-full bg-primary/10 blur-3xl"
         />
-        <div key={screen.key} className="transition-all duration-500 ease-out">
+        <div key={screen.key} className={reduced ? '' : 'transition-all duration-500 ease-out'}>
           <PhoneMockup src={screen.image} alt={screen.title} />
         </div>
         <p className="mx-auto mt-5 flex max-w-[280px] items-center justify-center gap-2 text-xs text-muted-foreground">

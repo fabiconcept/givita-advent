@@ -1,14 +1,23 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { HangingFlower } from '@/components/landing/HangingFlower';
-import { ScrollInView } from '@/components/landing/ScrollInView';
-import { ArrowRight } from 'lucide-react';
-import { useScrollParallax } from '@/lib/useScrollParallax';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ArrowRight, Loader2, Mail, Check } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import type { Form } from '@/types';
 
-const FLOWER_COUNT = 18;
+const STORY_LINKS = [
+  ['#hero',     'Opening'],
+  ['#truth',    'The truth'],
+  ['#shift',    'The shift'],
+  ['#giving',   'Built around giving'],
+  ['#odogwu',   'Odogwu'],
+  ['#trust',    'Trust'],
+  ['#diaspora', 'Diaspora'],
+  ['#future',   'The future'],
+] as const;
 
 function randomBetween(a: number, b: number) {
   return a + Math.random() * (b - a);
@@ -25,8 +34,8 @@ interface FallenLeaf {
   delay: number;
 }
 
-function createLeaves(baseX: number, baseY: number): FallenLeaf[] {
-  return Array.from({ length: FLOWER_COUNT }, (_, i) => ({
+function createLeaves(baseX: number, baseY: number, count: number): FallenLeaf[] {
+  return Array.from({ length: count }, (_, i) => ({
     id: i,
     size: randomBetween(14, 28),
     x: baseX + randomBetween(-12, 12),
@@ -39,14 +48,16 @@ function createLeaves(baseX: number, baseY: number): FallenLeaf[] {
 }
 
 export function Footer() {
-  const { ref, offset } = useScrollParallax(40);
-  const [leaves, setLeaves] = useState<{ id: number; items: FallenLeaf[] }[]>([]);
   const [featuredForm, setFeaturedForm] = useState<Form | null>(null);
+  const [featuredLoaded, setFeaturedLoaded] = useState(false);
+  const [leaves, setLeaves] = useState<{ id: number; items: FallenLeaf[] }[]>([]);
+
   useEffect(() => {
     fetch('/api/forms/featured')
       .then((r) => r.json())
       .then((d) => { if (d.form) setFeaturedForm(d.form); })
-      .catch(() => {});
+      .catch(() => {})
+      .finally(() => setFeaturedLoaded(true));
   }, []);
 
   const surveyHref = featuredForm ? `/forms/${featuredForm.id}` : '#';
@@ -56,7 +67,7 @@ export function Footer() {
     const cx = rect.left + rect.width / 2;
     const cy = rect.top + rect.height / 2;
     const id = Date.now();
-    const items = createLeaves(cx, cy);
+    const items = createLeaves(cx, cy, 12);
     setLeaves((prev) => [...prev, { id, items }]);
     setTimeout(() => {
       setLeaves((prev) => prev.filter((b) => b.id !== id));
@@ -64,8 +75,7 @@ export function Footer() {
   }, []);
 
   return (
-    <footer ref={ref} className="relative overflow-hidden border-t border-border/60 bg-muted/20">
-      <HangingFlower className="right-10 top-0 sm:right-16 lg:right-24" side="right" size={72} ropeLength={54} delay={0.2} tone="muted" />
+    <footer className="relative border-t border-border bg-muted/20">
       {leaves.map((batch) =>
         batch.items.map((l) => (
           <span
@@ -82,30 +92,21 @@ export function Footer() {
               ['--spin' as string]: `${l.rotation}deg`,
             }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/assets/flower 2.png"
-              alt=""
-              className="h-full w-full object-contain"
-              draggable={false}
-            />
+            <img src="/assets/flower 2.png" alt="" className="h-full w-full object-contain" draggable={false} />
           </span>
         ))
       )}
-        <div
-          className="relative mx-auto w-full max-w-6xl px-5 pb-10 pt-20 sm:px-8 sm:pt-24"
-          style={{ transform: `translateY(${offset * 0.3}px)`, willChange: 'transform' }}
-        >
-          <ScrollInView entrance="flipIn" duration={800}>
-          <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.4fr_1fr_1fr]">
+
+      <div className="mx-auto w-full max-w-6xl px-5 pb-6 pt-16 sm:px-8 sm:pt-20">
+        <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-[1.5fr_1fr_1.2fr]">
           <div>
             <button
               type="button"
               onClick={handleLogoClick}
               className="flex cursor-pointer items-center gap-2.5 text-left transition-opacity hover:opacity-80"
+              aria-label="Givita — click for a surprise"
             >
               <span className="flex h-10 w-12 items-center justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/assets/flower 2.png" alt="Givita" className="h-full w-full object-contain" />
               </span>
               <span className="text-base font-semibold text-foreground">Givita</span>
@@ -114,78 +115,128 @@ export function Footer() {
               A community-powered fundraising platform built for the way African communities already support each other.
             </p>
             <p className="mt-6 inline-flex items-center gap-2 text-xs text-muted-foreground">
-              <span className="h-1 w-1 rounded-full bg-emerald-500" />
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" aria-hidden />
               Surveying the first 500 voices now.
             </p>
           </div>
-          <div>
+
+          <nav aria-label="Story chapters">
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">The story</p>
-            <ul className="mt-5 space-y-3 text-sm">
-              {[
-                ['#hero',     'Opening'],
-                ['#truth',    'The truth'],
-                ['#shift',    'The shift'],
-                ['#giving',   'Built around giving'],
-                ['#odogwu',   'Odogwu'],
-                ['#trust',    'Trust'],
-                ['#diaspora', 'Diaspora'],
-                ['#future',   'The future'],
-              ].map(([href, label]) => (
+            <ul className="mt-5 space-y-1">
+              {STORY_LINKS.map(([href, label]) => (
                 <li key={href}>
-                  <a href={href} className="text-foreground/70 transition-colors hover:text-foreground">{label}</a>
+                  <a
+                    href={href}
+                    className="inline-block py-2.5 text-sm text-foreground/70 transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-md"
+                  >
+                    {label}
+                  </a>
                 </li>
               ))}
             </ul>
-          </div>
+          </nav>
+
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">Get involved</p>
-            <ul className="mt-5 space-y-3 text-sm">
-              <li>
-                <Link href={surveyHref} className="group inline-flex items-center gap-1.5 text-foreground transition-colors hover:text-primary">
-                  Add your voice
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              </li>
-              <li>
-                <a href="#future" className="text-foreground/70 transition-colors hover:text-foreground">Newsletter</a>
-              </li>
-            </ul>
-            <div className="mt-8 h-px w-12 bg-border" />
-            <p className="mt-4 text-xs text-muted-foreground">Made with care &middot; Imo State &middot; Abuja &middot; everywhere our people are.</p>
+            <div className="mt-5 space-y-4">
+              <Link
+                href={surveyHref}
+                className={cn(
+                  'group inline-flex items-center gap-1.5 py-2.5 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-md',
+                  featuredLoaded
+                    ? 'text-foreground hover:text-primary'
+                    : 'pointer-events-none text-muted-foreground/40'
+                )}
+                aria-disabled={!featuredLoaded}
+                tabIndex={featuredLoaded ? undefined : -1}
+              >
+                Add your voice
+                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+              </Link>
+              <NewsletterBlock />
+            </div>
           </div>
-          </div>
-        </ScrollInView>
-        <ScrollInView entrance="fade" delay={300} duration={600}>
-          <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
-            <p>&copy; {new Date().getFullYear()} Givita. Every voice matters.</p>
-            <p className="font-mono">v0.1 &middot; survey edition</p>
-          </div>
-        </ScrollInView>
+        </div>
+
+        <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
+          <p>&copy; {new Date().getFullYear()} Givita. Every voice matters.</p>
+          <p className="font-mono">v0.1 &middot; survey edition</p>
+        </div>
       </div>
+
       <style>{`
         @keyframes leafFall {
-          0% {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(0.6) rotate(0deg);
-          }
-          20% {
-            opacity: 1;
-            transform: translate(calc(-50% + var(--drift) * 0.2), calc(-50% + 12vh)) scale(1) rotate(calc(var(--spin) * 0.15));
-          }
-          50% {
-            opacity: 0.95;
-            transform: translate(calc(-50% + var(--drift) * 0.7), calc(-50% + 35vh)) scale(0.95) rotate(calc(var(--spin) * 0.5));
-          }
-          80% {
-            opacity: 0.7;
-            transform: translate(calc(-50% + var(--drift) * 0.9), calc(-50% + 60vh)) scale(0.85) rotate(calc(var(--spin) * 0.85));
-          }
-          100% {
-            opacity: 0;
-            transform: translate(calc(-50% + var(--drift)), calc(-50% + 80vh)) scale(0.5) rotate(var(--spin));
-          }
+          0% { opacity: 1; transform: translate(-50%, -50%) scale(0.6) rotate(0deg); }
+          20% { opacity: 1; transform: translate(calc(-50% + var(--drift) * 0.2), calc(-50% + 12vh)) scale(1) rotate(calc(var(--spin) * 0.15)); }
+          50% { opacity: 0.95; transform: translate(calc(-50% + var(--drift) * 0.7), calc(-50% + 35vh)) scale(0.95) rotate(calc(var(--spin) * 0.5)); }
+          80% { opacity: 0.7; transform: translate(calc(-50% + var(--drift) * 0.9), calc(-50% + 60vh)) scale(0.85) rotate(calc(var(--spin) * 0.85)); }
+          100% { opacity: 0; transform: translate(calc(-50% + var(--drift)), calc(-50% + 80vh)) scale(0.5) rotate(var(--spin)); }
         }
       `}</style>
     </footer>
+  );
+}
+
+function NewsletterBlock() {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [message, setMessage] = useState('');
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!email) return;
+    setStatus('loading');
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Subscription failed');
+      setStatus('success');
+      setMessage(data.message || "You're on the list. Welcome to the community.");
+      setEmail('');
+    } catch {
+      setStatus('error');
+      setMessage('Something went wrong. Try again.');
+    }
+  }
+
+  if (status === 'success') {
+    return (
+      <div className="inline-flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-4 py-2 text-sm text-foreground">
+        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-500 text-white">
+          <Check className="h-3 w-3" strokeWidth={3} />
+        </span>
+        {message}
+      </div>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+      <label htmlFor="footer-newsletter" className="sr-only">Email for launch updates</label>
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            id="footer-newsletter"
+            name="email"
+            type="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="you@email.com"
+            autoComplete="email"
+            className="h-11 rounded-full pl-9 text-sm"
+          />
+        </div>
+        <Button type="submit" disabled={status === 'loading'} className="h-11 rounded-full px-5 text-sm">
+          {status === 'loading' ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Subscribe'}
+        </Button>
+      </div>
+      {status === 'error' && <p className="text-xs text-destructive">{message}</p>}
+    </form>
   );
 }

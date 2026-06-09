@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
 interface HangingFlowerProps {
@@ -35,6 +35,7 @@ export function HangingFlower({
   spin: initialSpin = 0,
   swayMultiplier = 1,
 }: HangingFlowerProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
   const swayElRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
   const hiddenRef = useRef(false);
@@ -42,6 +43,16 @@ export function HangingFlower({
   const fallAnimRef = useRef<number | null>(null);
   const hoverRafRef = useRef<number | null>(null);
   const hoverAngleRef = useRef(0);
+  const [inView, setInView] = useState(false);
+  const [reduced, setReduced] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduced(mq.matches);
+    const h = () => setReduced(mq.matches);
+    mq.addEventListener('change', h);
+    return () => mq.removeEventListener('change', h);
+  }, []);
 
   const windParams = useRef({
     freq1: roundTo(randomBetween(0.25, 0.65), 2),
@@ -55,10 +66,24 @@ export function HangingFlower({
   });
 
   useEffect(() => {
+    if (reduced) { swayElRef.current && (swayElRef.current.style.transform = `rotate(${initialSpin}deg)`); return; }
+    const el = containerRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => { setInView(entry.isIntersecting); },
+      { rootMargin: '100px' }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [reduced, initialSpin]);
+
+  useEffect(() => {
+    if (reduced || !inView) return;
     const el = swayElRef.current;
     if (!el) return;
     const w = windParams.current;
     let startTime = performance.now() - delay * 1000;
+    let raf = 0;
 
     function tick(now: number) {
       const t = (now - startTime) / 1000;
@@ -67,12 +92,12 @@ export function HangingFlower({
       const w3 = Math.sin(t * w.freq3 + 4.2) * w.amp3 * swayMultiplier;
       const gust = Math.max(0, Math.sin(t * w.gustFreq)) ** 4 * w.gustAmp * swayMultiplier;
       el.style.transform = `rotate(${w1 + w2 + w3 + gust + initialSpin}deg)`;
-      requestAnimationFrame(tick);
+      raf = requestAnimationFrame(tick);
     }
 
-    const raf = requestAnimationFrame(tick);
+    raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [initialSpin, delay]);
+  }, [initialSpin, delay, inView, reduced, swayMultiplier]);
 
   const startHoverSpin = useCallback(() => {
     if (hoverRef.current) return;
@@ -218,6 +243,7 @@ export function HangingFlower({
 
   return (
     <div
+      ref={containerRef}
       className={cn('absolute z-10', flip && 'rotate-180', className)}
       style={{ width, height }}
       aria-hidden

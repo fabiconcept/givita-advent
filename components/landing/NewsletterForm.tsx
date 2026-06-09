@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { ArrowRight, Check, Mail } from 'lucide-react';
+import { ArrowRight, Check, Loader2, Mail } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface NewsletterFormProps {
@@ -72,7 +72,10 @@ export function NewsletterForm({
     >
       <div className="relative flex-1">
         <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <label htmlFor="newsletter-email" className="sr-only">Email address</label>
         <Input
+          id="newsletter-email"
+          name="email"
           type="email"
           required
           value={email}
@@ -88,7 +91,7 @@ export function NewsletterForm({
         disabled={status === 'loading'}
         className="h-12 rounded-full px-6"
       >
-        {status === 'loading' ? 'Subscribing…' : cta}
+        {status === 'loading' ? <><Loader2 className="h-4 w-4 animate-spin" /> Subscribing…</> : cta}
         {status !== 'loading' && <ArrowRight className="ml-1.5 h-4 w-4" />}
       </Button>
       {status === 'error' && (

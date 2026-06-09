@@ -14,11 +14,11 @@ export function Trust() {
       <div className="relative">
         <div className="pointer-events-none absolute -right-2 -top-6 hidden w-44 rotate-6 opacity-90 sm:block lg:w-52">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/Private data-pana.png" alt="" aria-hidden className="h-auto w-full object-contain" loading="lazy" />
+          <img src="/assets/Private data-pana.png" alt="" aria-hidden width="208" height="208" className="h-auto w-full object-contain" loading="lazy" />
         </div>
         <div className="pointer-events-none absolute -left-4 bottom-0 hidden w-32 -rotate-[8deg] opacity-80 sm:block lg:w-40">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/assets/ID Card-bro.png" alt="" aria-hidden className="h-auto w-full object-contain" loading="lazy" />
+          <img src="/assets/ID Card-bro.png" alt="" aria-hidden width="160" height="160" className="h-auto w-full object-contain" loading="lazy" />
         </div>
         <div className="mx-auto max-w-2xl">
           <Reveal><Eyebrow number="07" label="Trust is the foundation" tone="primary" /></Reveal>

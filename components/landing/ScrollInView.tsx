@@ -3,6 +3,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
 
+function useReducedMotion() {
+  const [reduced, setReduced] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduced(mq.matches);
+    const h = () => setReduced(mq.matches);
+    mq.addEventListener('change', h);
+    return () => mq.removeEventListener('change', h);
+  }, []);
+  return reduced;
+}
+
 export type ScrollPreset =
   | 'fade'
   | 'slideUp' | 'slideDown'
@@ -43,8 +55,10 @@ export function ScrollInView({
 }: ScrollInViewProps) {
   const ref = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
+  const reduced = useReducedMotion();
 
   useEffect(() => {
+    if (reduced) { setVisible(true); return; }
     const el = ref.current;
     if (!el) return;
 
@@ -66,19 +80,22 @@ export function ScrollInView({
 
     io.observe(el);
     return () => { io.disconnect(); };
-  }, [duration, delay, threshold]);
+  }, [duration, delay, threshold, reduced]);
 
-  const p = P[entrance] || P.fade;
+  const p = reduced ? P.fade : (P[entrance] || P.fade);
 
   const Component = Tag as unknown as React.ElementType;
+  const transition = reduced
+    ? 'none'
+    : `all ${duration}ms cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`;
   return (
     <Component
       ref={ref}
       className={cn(className)}
       style={{
         ...(visible ? p.to : p.from),
-        transition: `all ${duration}ms cubic-bezier(0.22, 1, 0.36, 1) ${delay}ms`,
-        willChange: 'transform, opacity',
+        transition,
+        willChange: reduced ? 'auto' : 'transform, opacity',
       }}
     >
       {children}

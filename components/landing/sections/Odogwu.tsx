@@ -42,7 +42,7 @@ export function Odogwu() {
                   <OdogwuWord /> mentality. Givita embraces this culture and turns it into a modern digital experience.
                 </p>
                 <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-                  People contribute because they believe in someone, want their <span className="text-primary dark:text-muted-foreground">community</span> to succeed, feel connected to a shared goal, want to make an <span className="text-primary dark:text-muted-foreground">impact</span>, and want to be remembered as a contributor to something meaningful.
+                  People contribute because they believe in someone, want their <span className="font-semibold text-primary dark:text-primary">community</span> to succeed, feel connected to a shared goal, want to make an <span className="font-semibold text-primary dark:text-primary">impact</span>, and want to be remembered as a contributor to something meaningful.
                 </p>
               </div>
             </HoverDepth>
@@ -55,7 +55,7 @@ export function Odogwu() {
           >
             <div className="absolute inset-0 -z-10 rounded-full bg-primary/10 blur-3xl" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/assets/Self confidence-rafiki 1.png" alt="Confidence and community" className="h-auto w-full object-contain" loading="lazy" />
+            <img src="/assets/Self confidence-rafiki 1.png" alt="Confidence and community" width="384" height="384" className="h-auto w-full object-contain" loading="lazy" />
           </div>
         </ScrollInView>
       </div>

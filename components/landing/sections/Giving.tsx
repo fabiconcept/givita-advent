@@ -39,7 +39,7 @@ export function Giving() {
           <div className="max-w-2xl">
             <Reveal><Eyebrow number="05" label="Built around giving" /></Reveal>
             <Reveal delay={100}><h2 className="mt-6 text-balance text-4xl font-semibold leading-[1.1] tracking-tight sm:text-5xl">Giving should feel rewarding.</h2></Reveal>
-            <Reveal delay={180}><p className="mt-6 text-pretty text-lg leading-relaxed text-muted-foreground">Social and gamified systems designed to celebrate <span className="text-primary dark:text-muted-foreground">generosity</span> - without losing authenticity. Tap any feature to read more.</p></Reveal>
+            <Reveal delay={180}><p className="mt-6 text-pretty text-lg leading-relaxed text-muted-foreground">Social and gamified systems designed to celebrate <span className="font-semibold text-primary dark:text-primary">generosity</span> - without losing authenticity. Tap any feature to read more.</p></Reveal>
           </div>
           <ScrollInView delay={240} entrance="rotateIn">
             <div

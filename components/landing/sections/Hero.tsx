@@ -83,8 +83,7 @@ export function Hero() {
 
         <Reveal delay={900}>
           <p className="mx-auto mt-8 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            Givita turns the way <span className="text-primary dark:text-muted-foreground">African communities</span> already support each other into a modern, <span className="text-primary dark:text-muted-foreground">trusted</span> digital experience -
-            built for us, by us.
+            Givita turns the way{' '}<span className="font-semibold text-primary dark:text-primary">African communities</span>{' '}already support each other into a modern,{' '}<span className="font-semibold text-primary dark:text-primary">trusted</span>{' '}digital experience{' '}&mdash;{' '}built for us, by us.
           </p>
         </Reveal>
 
@@ -110,7 +109,7 @@ export function Hero() {
             </Button>
             <a
               href="#truth"
-              className="inline-flex h-12 items-center justify-center gap-1.5 rounded-full px-5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="inline-flex h-12 items-center justify-center gap-1.5 rounded-full px-5 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             >
               Read the story <ArrowUpRight className="h-4 w-4" />
             </a>
