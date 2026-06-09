@@ -16,26 +16,35 @@ const cache = new Map<string, CacheEntry>();
 
 function isSheetsConfigured() {
   const sheetId = process.env.GOOGLE_SHEET_ID;
-  const jsonCred = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-  const fileCred = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-  const hasCred = Boolean(jsonCred || fileCred);
-  const result = Boolean(sheetId && hasCred);
-  logger.debug('sheets', `isSheetsConfigured: sheetId=${!!sheetId} json=${jsonCred ? `${jsonCred.length}chars` : 'unset'} file=${fileCred ?? 'unset'} → ${result}`);
+  const email = process.env.GOOGLE_SHEET_CLIENT_EMAIL;
+  const key = process.env.GOOGLE_SHEET_PRIVATE_KEY;
+  const result = Boolean(sheetId && email && key);
+  logger.debug('sheets', `isSheetsConfigured: sheetId=${!!sheetId} email=${!!email} key=${!!key} → ${result}`);
   return result;
 }
 
-function parseServiceAccountKey(): Record<string, unknown> | null {
-  const raw = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-  if (!raw) return null;
-  try {
-    const parsed = JSON.parse(raw);
-    logger.debug('sheets', `parseServiceAccountKey OK — email: ${parsed.client_email}`);
-    return parsed;
-  } catch (err) {
-    const firstFew = raw.slice(0, 80);
-    logger.error('sheets', `Failed to parse GOOGLE_APPLICATION_CREDENTIALS_JSON (first 80 chars: ${firstFew}...):`, err);
-    return null;
+function buildCredentials(): Record<string, string> | null {
+  const email = process.env.GOOGLE_SHEET_CLIENT_EMAIL;
+  let key = process.env.GOOGLE_SHEET_PRIVATE_KEY;
+  if (!email || !key) return null;
+
+  // Handle both literal \n and actual newlines
+  if (key.includes('\\n')) {
+    key = key.replace(/\\n/g, '\n');
   }
+
+  return {
+    type: 'service_account',
+    project_id: process.env.GOOGLE_SHEET_PROJECT_ID ?? '',
+    private_key_id: process.env.GOOGLE_SHEET_PRIVATE_KEY_ID ?? '',
+    private_key: key,
+    client_email: email,
+    client_id: process.env.GOOGLE_SHEET_CLIENT_ID ?? '',
+    auth_uri: 'https://accounts.google.com/o/oauth2/auth',
+    token_uri: 'https://oauth2.googleapis.com/token',
+    auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
+    client_x509_cert_url: `https://www.googleapis.com/robot/v1/metadata/x509/${encodeURIComponent(email)}`,
+  };
 }
 
 let sheetsClient: sheets_v4.Sheets | null = null;
@@ -50,15 +59,18 @@ export function getSheetsClient(): sheets_v4.Sheets | null {
     return sheetsClient;
   }
 
-  const jsonCred = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-  const fileCred = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-  logger.debug('sheets', `getSheetsClient: json=${!!jsonCred} file=${!!fileCred}`);
+  const creds = buildCredentials();
+  if (!creds) {
+    logger.error('sheets', 'getSheetsClient: could not build credentials');
+    return null;
+  }
+
+  logger.debug('sheets', `getSheetsClient: email=${creds.client_email}`);
 
   let auth;
   try {
     auth = new google.auth.GoogleAuth({
-      credentials: jsonCred ? parseServiceAccountKey() ?? undefined : undefined,
-      keyFile: fileCred || undefined,
+      credentials: creds,
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
     logger.debug('sheets', 'GoogleAuth created successfully');

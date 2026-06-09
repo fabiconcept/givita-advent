@@ -8,30 +8,17 @@ export const dynamic = 'force-dynamic';
 export async function GET() {
   logger.info('debug', 'GET /api/debug — starting diagnostics');
 
+  const email = process.env.GOOGLE_SHEET_CLIENT_EMAIL;
   const env: Record<string, string | null> = {
     NODE_ENV: process.env.NODE_ENV ?? null,
     GOOGLE_SHEET_ID: process.env.GOOGLE_SHEET_ID ? `set (${process.env.GOOGLE_SHEET_ID.length} chars)` : null,
-    GOOGLE_APPLICATION_CREDENTIALS_JSON: process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON
-      ? `set (${process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON.length} chars)`
+    GOOGLE_SHEET_CLIENT_EMAIL: email ?? null,
+    GOOGLE_SHEET_PRIVATE_KEY: process.env.GOOGLE_SHEET_PRIVATE_KEY
+      ? `set (${process.env.GOOGLE_SHEET_PRIVATE_KEY.length} chars)`
       : null,
-    GOOGLE_APPLICATION_CREDENTIALS: process.env.GOOGLE_APPLICATION_CREDENTIALS ?? null,
     DEBUG_LOG: process.env.DEBUG_LOG ?? null,
   };
   logger.debug('debug', 'Environment:', env);
-
-  let jsonParseOk = false;
-  let jsonParseError: string | null = null;
-  if (process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON) {
-    try {
-      const p = JSON.parse(process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON);
-      jsonParseOk = true;
-      jsonParseError = `email: ${p.client_email}`;
-      logger.debug('debug', `JSON parse OK: ${p.client_email}`);
-    } catch (e: unknown) {
-      jsonParseError = e instanceof Error ? e.message : String(e);
-      logger.error('debug', `JSON parse failed: ${jsonParseError}`);
-    }
-  }
 
   const sheetsAvailable = isSheetsAvailable();
   logger.info('debug', `isSheetsAvailable: ${sheetsAvailable}`);
