@@ -160,7 +160,13 @@ export function Footer() {
 
         <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t border-border/60 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center">
           <p>&copy; {new Date().getFullYear()} Givita. Every voice matters.</p>
-          <p className="font-mono">v0.1 &middot; survey edition</p>
+          <div className="flex items-center gap-4">
+            <Link href="/privacy" className="transition-colors hover:text-foreground">
+              Privacy
+            </Link>
+            <span className="text-border-strong" aria-hidden>/</span>
+            <span className="font-mono">v0.1 &middot; survey edition</span>
+          </div>
         </div>
       </div>
 
