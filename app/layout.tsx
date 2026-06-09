@@ -39,7 +39,7 @@ export default function RootLayout({
         >
           <ShortcutGuardProvider>
             <main id="main-content">{children}</main>
-            {process.env.NODE_ENV === 'production' && <Analytics />}
+            <Analytics />
             <CookieConsent />
           </ShortcutGuardProvider>
         </ThemeProvider>
