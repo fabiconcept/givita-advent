@@ -162,9 +162,13 @@ export function Footer() {
           <p>&copy; {new Date().getFullYear()} Givita. Every voice matters.</p>
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="transition-colors hover:text-foreground">
-              Privacy
+              Privacy Policy
             </Link>
-            <span className="text-border-strong" aria-hidden>/</span>
+            <span className="text-muted-foreground/30" aria-hidden>/</span>
+            <Link href="/terms" className="transition-colors hover:text-foreground">
+              Terms
+            </Link>
+            <span className="text-muted-foreground/30" aria-hidden>/</span>
             <span className="font-mono">v0.1 &middot; survey edition</span>
           </div>
         </div>

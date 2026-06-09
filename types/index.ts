@@ -29,6 +29,11 @@ export interface FormQuestion {
   min?: number;     // number
   max?: number;     // number
   unit?: string;    // number (e.g. "NGN", "years")
+  // Validation
+  minLength?: number;     // text, textarea
+  maxLength?: number;     // text, textarea
+  pattern?: string;       // regex (text, textarea, email, phone)
+  patternMessage?: string; // custom error for pattern mismatch
 }
 
 export interface Form {

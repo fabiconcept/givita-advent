@@ -7,32 +7,44 @@ import { ArrowLeft, Leaf } from 'lucide-react';
 
 const SECTIONS = [
   {
-    title: 'What we collect',
-    body: 'We collect only what you choose to share. When you fill out a survey, that means your responses, the name or email you provide, and optionally a photo or link you include. When you sign up for launch updates, we keep your email address and nothing else.',
+    title: 'The short version',
+    body: 'Givita is a community fundraising platform in early development. By using this site you agree to these terms. If you do not agree, please do not use the site. Simple.',
   },
   {
-    title: 'How we use it',
-    body: 'Your survey answers help us understand what our community needs. We aggregate responses to shape Givita before launch and may publish anonymized trends (no names, no emails). Your email is used solely to send launch updates and occasional important notes. We will never sell your data or share it with advertisers.',
+    title: 'What we offer',
+    body: 'Right now Givita is in a survey phase. We provide a questionnaire about community fundraising habits and a newsletter signup. Thats it. There is no financial platform, no payment processing, no fundraising campaigns live yet. Everything you see is a prototype.',
   },
   {
-    title: 'Cookies & tracking',
-    body: 'We use essential cookies to keep the app running and a minimal analytics cookie (via Vercel Analytics) to know how many people visit each page. No tracking across other sites, no fingerprinting, no third-party ad cookies. You can block cookies in your browser settings without losing access to the survey.',
+    title: 'Your account',
+    body: 'There are no accounts yet. You do not sign up, log in, or create a profile. You simply fill out a survey and optionally leave an email for updates. When we launch the full platform, new terms will apply and you will have a chance to review them before signing up.',
   },
   {
-    title: 'Where your data lives',
-    body: 'Survey responses are stored in Google Sheets (encrypted at rest) on a dedicated service account that only the Givita team can access. Email subscriptions live in a separate, restricted sheet. We keep backups for 30 days and delete individual records on request.',
+    title: 'Your content',
+    body: 'You retain full ownership of everything you submit in surveys. By submitting, you grant Givita a non-exclusive, royalty-free license to use anonymized and aggregated versions of your responses for research, product development, and public communication (like blog posts about what we learned). We will never attribute a quote to you without asking first.',
   },
   {
-    title: 'Your rights',
-    body: 'You can request a copy of your data, ask us to correct it, or delete it entirely at any time. Just email favourajokubi@gmail.com with your request and we will handle it within 14 days. No fine print, no runaround.',
+    title: 'Fair use',
+    body: 'Do not use this site to break any laws, harass anyone, submit false information maliciously, or try to hack or scrape the platform. Keep it kind. If you abuse the service, we reserve the right to block your access without notice.',
   },
   {
-    title: 'Changes to this policy',
-    body: 'If we change how we handle your data, we will update this page and note the change in our launch newsletter. Major changes get a direct email. We will never retroactively change how we treat data you already gave us.',
+    title: 'No warranties',
+    body: 'This site is provided as is. We are actively building it, so things may break, change, or disappear. We make no guarantees that the service will be uninterrupted, error-free, or that today\'s features will exist tomorrow. That is what a pre-launch means.',
+  },
+  {
+    title: 'Limitation of liability',
+    body: 'To the maximum extent permitted by law, Givita and its team are not liable for any damages arising from your use of this site. Since we do not handle money or store sensitive financial data, this mainly means you cannot sue us if the survey goes down or an email gets lost.',
+  },
+  {
+    title: 'Changes',
+    body: 'We may update these terms as Givita evolves. If we make significant changes, we will note it on this page and mention it in the newsletter. Continued use after changes means you accept the new terms. If you do not agree, stop using the site.',
+  },
+  {
+    title: 'Governing law',
+    body: 'These terms are governed by the laws of Nigeria. If you are accessing this site from another jurisdiction, you do so at your own initiative and are responsible for compliance with local laws.',
   },
 ];
 
-export default function PrivacyPage() {
+export default function TermsPage() {
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-x-clip">
       <HangingFlower className="left-4 -top-10 sm:left-8 lg:left-12" side="left" size={140} ropeLength={80} delay={0} tone="primary" />
@@ -58,19 +70,19 @@ export default function PrivacyPage() {
 
         <ScrollInView entrance="slideUp" duration={700} delay={100}>
           <span className="inline-block rounded-full bg-primary/10 px-4 py-1 text-xs font-medium text-primary">
-            Privacy
+            Terms
           </span>
         </ScrollInView>
 
         <ScrollInView entrance="slideUp" duration={700} delay={180}>
           <h1 className="mt-6 text-balance text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl">
-            Your data, your call.
+            Playing nice.
           </h1>
         </ScrollInView>
 
         <ScrollInView entrance="slideUp" duration={700} delay={260}>
           <p className="mt-4 max-w-xl text-pretty text-lg leading-relaxed text-muted-foreground">
-            We built Givita on trust. This policy spells out exactly what we collect, why, and what you can do about it. Nothing hidden, nothing clever.
+            These are the ground rules for using Givita while we are still in the early stages. They exist to protect you and us. Read them, they are short.
           </p>
         </ScrollInView>
 
@@ -82,7 +94,7 @@ export default function PrivacyPage() {
 
         <div className="mt-16 space-y-12">
           {SECTIONS.map((section, i) => (
-            <ScrollInView key={section.title} entrance="slideUp" duration={700} delay={Math.min(i * 80, 400)}>
+            <ScrollInView key={section.title} entrance="slideUp" duration={700} delay={Math.min(i * 70, 400)}>
               <section className="group/section rounded-2xl border border-transparent p-5 transition-colors hover:border-border/40 hover:bg-muted/10 sm:p-6">
                 <div className="mb-3 flex items-center gap-3">
                   <span className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-semibold text-primary transition-transform group-hover/section:scale-110">
@@ -107,9 +119,9 @@ export default function PrivacyPage() {
 
         <ScrollInView entrance="slideUp" duration={700} delay={500}>
           <div className="mt-20 rounded-2xl border border-border bg-card p-8 sm:p-10">
-            <h2 className="text-xl font-semibold tracking-tight">Questions?</h2>
+            <h2 className="text-xl font-semibold tracking-tight">Questions about the fine print?</h2>
             <p className="mt-3 leading-relaxed text-muted-foreground">
-              If you have questions about anything on this page, or if you want to request access to your data, just reach out.
+              These terms are written for humans, not lawyers. If something is unclear, or if you want to negotiate your own terms (within reason), email us.
             </p>
             <a
               href="mailto:favourajokubi@gmail.com"
@@ -125,6 +137,10 @@ export default function PrivacyPage() {
           <div className="mt-12 border-t border-border pt-6 text-center text-xs text-muted-foreground">
             <Link href="/" className="transition-colors hover:text-foreground">
               &larr; Back
+            </Link>
+            <span className="mx-3 text-muted-foreground/30" aria-hidden>/</span>
+            <Link href="/privacy" className="transition-colors hover:text-foreground">
+              Privacy Policy
             </Link>
           </div>
         </ScrollInView>

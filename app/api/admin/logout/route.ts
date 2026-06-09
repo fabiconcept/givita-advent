@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { clearSessionCookie } from '@/lib/auth';
+import { requireAdmin, clearSessionCookie } from '@/lib/auth';
 import { checkRateLimit, apiLimiter } from '@/lib/rateLimit';
 
 export async function POST(request: NextRequest) {
   try {
+    const authError = requireAdmin(request);
+    if (authError) return authError;
+
     const { allowed, remaining } = checkRateLimit(apiLimiter, request);
     if (!allowed) {
       return NextResponse.json(

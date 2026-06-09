@@ -117,6 +117,7 @@ export default function AdminResponsesPage() {
   const router = useRouter();
   const formId = params.id as string;
   const focusedQuestionRef = useRef<string | null>(null);
+  const editQuestionsRef = useRef<FormQuestion[]>([]);
 
   const [form, setForm] = useState<Form | null>(null);
   const [stats, setStats] = useState<ResponseStats | null>(null);
@@ -175,6 +176,10 @@ export default function AdminResponsesPage() {
       focusedQuestionRef.current = null;
     }
   }, [editQuestions.length]);
+
+  useEffect(() => {
+    editQuestionsRef.current = editQuestions;
+  }, [editQuestions]);
 
   const handleShortcut = useCallback((shortcut: { key: string; shiftKey?: boolean }) => {
     switch (shortcut.key) {
@@ -261,7 +266,7 @@ export default function AdminResponsesPage() {
         body: JSON.stringify({
           title: editTitle.trim(),
           description: editDescription,
-          questions: editQuestions.map((q, i) => ({ ...q, order: i + 1 })),
+          questions: editQuestionsRef.current.map((q, i) => ({ ...q, order: i + 1 })),
         }),
       });
       if (!res.ok) {
@@ -1083,12 +1088,52 @@ function SortableQuestionCard({
             question.type === 'url' ||
             question.type === 'phone' ||
             question.type === 'date') && (
-            <Input
-              value={question.placeholder || ''}
-              onChange={(e) => onUpdate({ placeholder: e.target.value || undefined })}
-              placeholder="Placeholder text (optional)"
-              className="h-8 rounded-lg text-xs"
-            />
+            <div className="space-y-2">
+              <div className="grid gap-2 sm:grid-cols-3">
+                <Input
+                  value={question.placeholder || ''}
+                  onChange={(e) => onUpdate({ placeholder: e.target.value || undefined })}
+                  placeholder="Placeholder text (optional)"
+                  className="h-8 rounded-lg text-xs"
+                />
+                {(question.type === 'text' || question.type === 'textarea' || question.type === 'email') && (
+                  <>
+                    <Input
+                      type="number"
+                      min={0}
+                      value={question.minLength ?? ''}
+                      onChange={(e) => onUpdate({ minLength: e.target.value === '' ? undefined : Number(e.target.value) })}
+                      placeholder="Min chars"
+                      className="h-8 rounded-lg text-xs"
+                    />
+                    <Input
+                      type="number"
+                      min={1}
+                      value={question.maxLength ?? ''}
+                      onChange={(e) => onUpdate({ maxLength: e.target.value === '' ? undefined : Number(e.target.value) })}
+                      placeholder="Max chars"
+                      className="h-8 rounded-lg text-xs"
+                    />
+                  </>
+                )}
+              </div>
+              {(question.type === 'text' || question.type === 'textarea' || question.type === 'email' || question.type === 'phone') && (
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <Input
+                    value={question.pattern || ''}
+                    onChange={(e) => onUpdate({ pattern: e.target.value || undefined })}
+                    placeholder="Regex pattern (e.g. ^[A-Z].+$)"
+                    className="h-8 rounded-lg text-xs font-mono"
+                  />
+                  <Input
+                    value={question.patternMessage || ''}
+                    onChange={(e) => onUpdate({ patternMessage: e.target.value || undefined })}
+                    placeholder="Custom error message (optional)"
+                    className="h-8 rounded-lg text-xs"
+                  />
+                </div>
+              )}
+            </div>
           )}
         </div>
         <div className="flex flex-col items-end gap-1">

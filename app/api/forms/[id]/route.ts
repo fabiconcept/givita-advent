@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getForm, updateForm, deleteForm } from '@/lib/formStore';
 import { requireAdmin } from '@/lib/auth';
 import { checkRateLimit, apiLimiter } from '@/lib/rateLimit';
+import { logger } from '@/lib/logger';
 import { Form } from '@/types';
 
 export const dynamic = 'force-dynamic';
@@ -64,6 +65,10 @@ export async function PATCH(
           min: q?.min !== undefined && q?.min !== null ? Number(q.min) : undefined,
           max: q?.max !== undefined && q?.max !== null ? Number(q.max) : undefined,
           unit: q?.unit || undefined,
+          minLength: q?.minLength !== undefined && q?.minLength !== null ? Number(q.minLength) : undefined,
+          maxLength: q?.maxLength !== undefined && q?.maxLength !== null ? Number(q.maxLength) : undefined,
+          pattern: q?.pattern || undefined,
+          patternMessage: q?.patternMessage || undefined,
           order: typeof q?.order === 'number' ? q.order : idx + 1,
         }))
         .sort((a, b) => a.order - b.order);
@@ -72,8 +77,10 @@ export async function PATCH(
     if (!updated) {
       return NextResponse.json({ error: 'Form not found' }, { status: 404 });
     }
+    logger.info('admin', `PATCH /api/forms/${id} — form updated (${updates.isPublished !== undefined ? 'publish toggle' : 'content change'})`);
     return NextResponse.json(updated);
   } catch (error) {
+    logger.error('admin', `PATCH /api/forms/${id} — error: ${error instanceof Error ? error.message : 'unknown'}`);
     console.error('[v0] Error updating form:', error);
     return NextResponse.json({ error: 'Failed to update form' }, { status: 500 });
   }
@@ -103,8 +110,10 @@ export async function DELETE(
     if (!ok) {
       return NextResponse.json({ error: 'Form not found' }, { status: 404 });
     }
+    logger.info('admin', `DELETE /api/forms/${id} — form deleted`);
     return NextResponse.json({ success: true });
   } catch (error) {
+    logger.error('admin', `DELETE /api/forms/${id} — error: ${error instanceof Error ? error.message : 'unknown'}`);
     console.error('[v0] Error deleting form:', error);
     const msg = error instanceof Error ? error.message : 'Failed to delete form';
     return NextResponse.json({ error: msg }, { status: 400 });

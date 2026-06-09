@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getForm, addResponse } from '@/lib/formStore';
 import { isAdminSession } from '@/lib/auth';
 import { checkRateLimit, publicLimiter } from '@/lib/rateLimit';
+import { validateQuestion } from '@/lib/validation';
 import { FormResponse } from '@/types';
 
 export const dynamic = 'force-dynamic';
@@ -36,17 +37,9 @@ export async function POST(
 
     const errors: Record<string, string> = {};
     for (const question of form.questions) {
-      if (question.required) {
-        const value = body.responses?.[question.id];
-        if (
-          value === undefined ||
-          value === null ||
-          value === '' ||
-          (Array.isArray(value) && value.length === 0)
-        ) {
-          errors[question.id] = 'This field is required';
-        }
-      }
+      const value = body.responses?.[question.id];
+      const err = validateQuestion(question, value);
+      if (err) errors[question.id] = err;
     }
 
     if (Object.keys(errors).length > 0) {

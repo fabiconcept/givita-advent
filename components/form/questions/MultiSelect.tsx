@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Check } from 'lucide-react';
+import { Check, Plus } from 'lucide-react';
 import { Kbd } from '@/components/ui/kbd';
 
 interface MultiSelectProps {
@@ -46,8 +46,13 @@ export function MultiSelect({ options, value, onChange }: MultiSelectProps) {
   }, [options, value]);
 
   return (
-    <div className="space-y-3">
-      <div ref={containerRef} className="flex flex-wrap gap-2.5">
+    <div className="space-y-4">
+      <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary/[0.06] px-3 py-1 text-xs font-medium text-primary">
+        <Plus className="h-3 w-3" />
+        Select all that apply
+      </div>
+
+      <div ref={containerRef} className="grid gap-2.5 sm:gap-3" role="group" aria-label="Multiple choice options">
         {options.map((option, i) => {
           const selected = value.includes(option);
           const focused = focusedIdx === i;
@@ -58,34 +63,47 @@ export function MultiSelect({ options, value, onChange }: MultiSelectProps) {
               onClick={() => toggle(option)}
               onFocus={() => setFocusedIdx(i)}
               className={cn(
-                'group inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-all duration-200',
+                'group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border bg-card/40 px-4 py-4 text-left transition-all duration-200 ease-out sm:py-5',
+                'hover:border-primary/50 hover:bg-card/70 hover:shadow-[0_8px_30px_-12px_rgba(81,46,248,0.4)]',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
                 selected
-                  ? 'border-primary bg-primary text-primary-foreground shadow-[0_8px_24px_-10px_rgba(81,46,248,0.5)]'
+                  ? 'border-primary bg-primary/[0.08] shadow-[0_8px_30px_-12px_rgba(81,46,248,0.5)]'
                   : focused
-                    ? 'border-primary/60 bg-card/80 text-foreground'
-                    : 'border-border bg-card/40 text-foreground/80 hover:border-primary/50 hover:bg-card/70 hover:text-foreground'
+                    ? 'border-primary/60'
+                    : 'border-border'
               )}
             >
               <span
                 className={cn(
-                  'flex h-5 w-5 items-center justify-center rounded-full border transition-colors',
-                  selected ? 'border-primary-foreground/40 bg-primary-foreground/20' : 'border-border bg-background/40'
+                  'flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border text-sm font-semibold transition-colors',
+                  selected
+                    ? 'border-primary bg-primary text-primary-foreground'
+                    : 'border-border bg-background/40 text-muted-foreground group-hover:border-primary/50 group-hover:text-primary'
                 )}
               >
-                {selected && <Check className="h-3 w-3" />}
+                {selected ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4 opacity-40" />}
               </span>
-              {option}
-              <span className="hidden text-[10px] text-muted-foreground/70 sm:inline">
+              <span
+                className={cn(
+                  'flex-1 text-base sm:text-lg',
+                  selected ? 'text-foreground font-medium' : 'text-foreground/90'
+                )}
+              >
+                {option}
+              </span>
+              <span className="hidden sm:inline-flex">
                 <Kbd>{i + 1}</Kbd>
               </span>
+              {selected && (
+                <span
+                  aria-hidden
+                  className="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-primary/40"
+                />
+              )}
             </button>
           );
         })}
       </div>
-      <p className="text-xs text-muted-foreground">
-        Select all that apply <span className="hidden sm:inline"> -  click to toggle</span>
-      </p>
     </div>
   );
 }

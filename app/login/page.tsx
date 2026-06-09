@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -16,8 +16,13 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
+  const honeypotRef = useRef<HTMLInputElement>(null);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+
+    if (honeypotRef.current?.value) return;
+
     setError('');
     setIsLoading(true);
 
@@ -68,6 +73,10 @@ export default function LoginPage() {
             onSubmit={handleSubmit}
             className="rounded-3xl border border-border bg-card/60 p-6 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.2)] backdrop-blur-xl sm:p-8"
           >
+            <div aria-hidden className="absolute -left-[9999px]">
+              <label htmlFor="website">Website</label>
+              <input id="website" name="website" type="text" ref={honeypotRef} tabIndex={-1} autoComplete="off" />
+            </div>
             <div className="space-y-2">
               <Label htmlFor="password" className="text-sm">
                 Password

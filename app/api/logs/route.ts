@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLogs, logger } from '@/lib/logger';
+import { requireAdmin } from '@/lib/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +12,9 @@ export async function GET(request: NextRequest) {
   if (disabled) {
     return NextResponse.json({ error: 'Not found' }, { status: 404 });
   }
+
+  const authError = requireAdmin(request);
+  if (authError) return authError;
 
   const url = new URL(request.url);
   const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '200', 10) || 200, 1), 500);

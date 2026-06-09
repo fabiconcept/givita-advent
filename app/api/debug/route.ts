@@ -1,11 +1,15 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { isSheetsAvailable, getSheetsClient, readRows } from '@/lib/google-sheets';
 import { getAllForms } from '@/lib/formStore';
+import { requireAdmin } from '@/lib/auth';
 import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authError = requireAdmin(request);
+  if (authError) return authError;
+
   logger.info('debug', 'GET /api/debug — starting diagnostics');
 
   const email = process.env.GOOGLE_SHEET_CLIENT_EMAIL;

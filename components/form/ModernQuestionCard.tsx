@@ -14,7 +14,8 @@ import { UrlInput } from '@/components/form/questions/UrlInput';
 import { PhoneInput } from '@/components/form/questions/PhoneInput';
 import { YesNoInput } from '@/components/form/questions/YesNoInput';
 import { RatingInput } from '@/components/form/questions/RatingInput';
-import { Hash } from 'lucide-react';
+import { Hash, AlertCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface ModernQuestionCardProps {
   question: FormQuestion;
@@ -22,9 +23,10 @@ interface ModernQuestionCardProps {
   total: number;
   value?: string | string[] | number;
   onChange: (value: string | string[] | number) => void;
+  error?: string;
 }
 
-export function ModernQuestionCard({ question, index, total, value, onChange }: ModernQuestionCardProps) {
+export function ModernQuestionCard({ question, index, total, value, onChange, error }: ModernQuestionCardProps) {
   return (
     <article className="relative">
       <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -139,6 +141,13 @@ export function ModernQuestionCard({ question, index, total, value, onChange }: 
           <Ranking options={question.options || []} value={(value as string[]) ?? []} onChange={(v) => onChange(v)} />
         )}
       </div>
+
+      {error && (
+        <div className="mt-4 flex items-center gap-2 rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-3 text-sm text-destructive">
+          <AlertCircle className="h-4 w-4 shrink-0" />
+          {error}
+        </div>
+      )}
     </article>
   );
 }

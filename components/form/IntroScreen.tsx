@@ -1,10 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Form } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Sparkles, ArrowRight, RefreshCcw } from 'lucide-react';
+import { Clock, Sparkles, ArrowRight, RefreshCcw, Home } from 'lucide-react';
 
 interface IntroScreenProps {
   form: Form;
@@ -66,6 +67,15 @@ export function IntroScreen({ form, estimated, hasResumed, onStart, onRestart }:
         >
           {hasResumed ? 'Continue' : 'Start'} <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </Button>
+        <span className="flex items-center gap-2">
+          <img src="/assets/flower 2.png" alt="" className="h-5 w-5 object-contain opacity-50" />
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/50 px-4 py-2 text-sm text-muted-foreground transition-all hover:border-primary/40 hover:text-foreground hover:shadow-[0_4px_16px_-8px_rgba(81,46,248,0.3)]"
+          >
+            <Home className="h-3.5 w-3.5" /> Home
+          </Link>
+        </span>
         {hasResumed && (
           <Button onClick={onRestart} variant="ghost" size="lg" className="h-12 rounded-full">
             <RefreshCcw className="mr-2 h-4 w-4" /> Start over
@@ -73,7 +83,7 @@ export function IntroScreen({ form, estimated, hasResumed, onStart, onRestart }:
         )}
       </div>
 
-      <p className="mt-10 text-xs text-muted-foreground">
+      <p className="mt-8 text-xs text-muted-foreground">
         Your progress is saved automatically. You can leave and come back.
       </p>
     </section>

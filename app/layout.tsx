@@ -2,6 +2,7 @@ import { Onest } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ShortcutGuardProvider } from '@/components/ShortcutGuard'
+import { CookieConsent } from '@/components/CookieConsent'
 import { createMetadata } from '@/lib/metadata'
 import './globals.css'
 
@@ -39,6 +40,7 @@ export default function RootLayout({
           <ShortcutGuardProvider>
             <main id="main-content">{children}</main>
             {process.env.NODE_ENV === 'production' && <Analytics />}
+            <CookieConsent />
           </ShortcutGuardProvider>
         </ThemeProvider>
       </body>

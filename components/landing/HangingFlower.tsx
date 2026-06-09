@@ -141,11 +141,12 @@ export function HangingFlower({
     if (!img) return;
     const duration = 500;
     const start = performance.now();
+    const drop = 24;
 
     function tick(now: number) {
       const t = Math.min((now - start) / duration, 1);
       const ease = 1 - Math.pow(1 - t, 3);
-      img.style.transform = `scale(${ease}) rotate(${-360 * (1 - ease)}deg)`;
+      img.style.transform = `translateY(${drop * (1 - ease)}px) scale(${ease}) rotate(${-360 * (1 - ease)}deg)`;
       img.style.opacity = String(ease);
       if (t < 1) {
         requestAnimationFrame(tick);

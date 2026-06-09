@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { NotFoundContent } from '@/components/404/NotFoundContent';
+import { validateQuestion } from '@/lib/validation';
 
 type Stage = 'intro' | 'questions' | 'submitting' | 'success' | 'already-filled' | 'not-found' | 'loading' | 'error';
 
@@ -88,6 +89,7 @@ export default function FormPage() {
   const [responses, setResponses] = useState<Record<string, string | string[] | number>>({});
   const [filledAt, setFilledAt] = useState<string | null>(null);
   const [startedAt] = useState(() => new Date().toISOString());
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let cancelled = false;
@@ -178,19 +180,33 @@ export default function FormPage() {
 
   const setAnswer = (qid: string, value: string | string[] | number) => {
     setResponses((prev) => ({ ...prev, [qid]: value }));
+    setValidationErrors((prev) => {
+      if (!prev[qid]) return prev;
+      const next = { ...prev };
+      delete next[qid];
+      return next;
+    });
   };
 
   const goNext = () => {
+    if (!current) return;
+    const error = validateQuestion(current, currentValue);
+    if (error) {
+      setValidationErrors((prev) => ({ ...prev, [current.id]: error }));
+      return;
+    }
     if (!canAdvance) return;
     if (isLast) {
       void submit();
     } else {
       setIndex((i) => Math.min(total - 1, i + 1));
     }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const goBack = () => {
     setIndex((i) => Math.max(0, i - 1));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const { inputsFocused } = useShortcutGuard();
@@ -293,6 +309,7 @@ export default function FormPage() {
               total={total}
               value={currentValue}
               onChange={(v) => setAnswer(current.id, v)}
+              error={validationErrors[current.id]}
             />
             <NavControls
               isFirst={isFirst}

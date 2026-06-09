@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { X } from 'lucide-react';
+import { X, Home } from 'lucide-react';
 
 interface ProgressBarProps {
   value: number;
@@ -37,18 +38,25 @@ export function ProgressBar({ value, step, total, onRestart }: ProgressBarProps)
           <span className="mx-1">/</span>
           <span>{String(total).padStart(2, '0')}</span>
         </span>
-        {onRestart && (
-          <Button
-            onClick={onRestart}
-            variant="ghost"
-            size="icon"
-            className={cn('h-8 w-8 rounded-full text-muted-foreground hover:text-foreground')}
-            aria-label="Restart form"
-            title="Restart"
-          >
-            <X className="h-4 w-4" />
+        <div className="flex items-center gap-1">
+          <Button asChild variant="ghost" size="icon" className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground">
+            <Link href="/" aria-label="Go home" title="Home">
+              <Home className="h-4 w-4" />
+            </Link>
           </Button>
-        )}
+          {onRestart && (
+            <Button
+              onClick={onRestart}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground"
+              aria-label="Restart form"
+              title="Restart"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
