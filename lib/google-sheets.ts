@@ -15,12 +15,12 @@ interface CacheEntry {
 const cache = new Map<string, CacheEntry>();
 
 function isSheetsConfigured() {
-  const isProd = process.env.NODE_ENV === 'production';
   const sheetId = process.env.GOOGLE_SHEET_ID;
-  const prodCred = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
-  const devCred = process.env.GOOGLE_APPLICATION_CREDENTIALS;
-  const result = Boolean(sheetId && (isProd ? prodCred : devCred));
-  logger.debug('sheets', `isSheetsConfigured: NODE_ENV=${isProd ? 'prod' : 'dev'} sheetId=${!!sheetId} credential=${isProd ? `json(${prodCred?.length ?? 0}chars)` : `file(${devCred ?? 'unset'})`} → ${result}`);
+  const jsonCred = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+  const fileCred = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  const hasCred = Boolean(jsonCred || fileCred);
+  const result = Boolean(sheetId && hasCred);
+  logger.debug('sheets', `isSheetsConfigured: sheetId=${!!sheetId} json=${jsonCred ? `${jsonCred.length}chars` : 'unset'} file=${fileCred ?? 'unset'} → ${result}`);
   return result;
 }
 
@@ -50,14 +50,15 @@ export function getSheetsClient(): sheets_v4.Sheets | null {
     return sheetsClient;
   }
 
-  const isProd = process.env.NODE_ENV === 'production';
-  logger.debug('sheets', `getSheetsClient: creating new client (${isProd ? 'prod' : 'dev'})`);
+  const jsonCred = process.env.GOOGLE_APPLICATION_CREDENTIALS_JSON;
+  const fileCred = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+  logger.debug('sheets', `getSheetsClient: json=${!!jsonCred} file=${!!fileCred}`);
 
   let auth;
   try {
     auth = new google.auth.GoogleAuth({
-      credentials: isProd ? parseServiceAccountKey() ?? undefined : undefined,
-      keyFile: isProd ? undefined : process.env.GOOGLE_APPLICATION_CREDENTIALS,
+      credentials: jsonCred ? parseServiceAccountKey() ?? undefined : undefined,
+      keyFile: fileCred || undefined,
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     });
     logger.debug('sheets', 'GoogleAuth created successfully');
