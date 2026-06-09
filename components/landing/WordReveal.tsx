@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Fragment } from 'react';
 import { cn } from '@/lib/utils';
 
 interface WordRevealProps {
@@ -36,35 +36,36 @@ export function WordReveal({ text, className, delay = 0, stagger = 60, accent }:
       {words.map((word, i) => {
         const isAccent = accent && word.includes(accent.split(' ')[0]);
         return (
-          <span
-            key={i}
-            className={cn(
-              'inline-block',
-              !reduced && 'transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]',
-              visible
-                ? 'translate-y-0 opacity-100 blur-0'
-                : 'translate-y-3 opacity-0 blur-sm'
-            )}
-            style={reduced ? undefined : { transitionDelay: `${delay + i * stagger}ms` }}
-          >
-            {isAccent ? (
-              <span className="relative inline-block">
-                <span className="relative z-10 text-primary">{word}</span>
-                <span
-                  aria-hidden
-                  className={cn(
-                    'absolute inset-x-0 bottom-1 h-3 origin-left rounded-sm sm:bottom-2 sm:h-4 dark:bg-primary bg-accent/60',
-                    !reduced && 'transition-transform duration-700',
-                    visible || reduced ? 'scale-x-100' : 'scale-x-0'
-                  )}
-                  style={reduced ? undefined : { transitionDelay: `${delay + i * stagger + 200}ms` }}
-                />
-              </span>
-            ) : (
-              word
-            )}
+          <Fragment key={i}>
+            <span
+              className={cn(
+                'inline-block',
+                !reduced && 'transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)]',
+                visible
+                  ? 'translate-y-0 opacity-100 blur-0'
+                  : 'translate-y-3 opacity-0 blur-sm'
+              )}
+              style={reduced ? undefined : { transitionDelay: `${delay + i * stagger}ms` }}
+            >
+              {isAccent ? (
+                <span className="relative inline-block">
+                  <span className="relative z-10 text-primary">{word}</span>
+                  <span
+                    aria-hidden
+                    className={cn(
+                      'absolute inset-x-0 bottom-1 h-3 origin-left rounded-sm sm:bottom-2 sm:h-4 dark:bg-primary bg-accent/60',
+                      !reduced && 'transition-transform duration-700',
+                      visible || reduced ? 'scale-x-100' : 'scale-x-0'
+                    )}
+                    style={reduced ? undefined : { transitionDelay: `${delay + i * stagger + 200}ms` }}
+                  />
+                </span>
+              ) : (
+                word
+              )}
+            </span>
             {i < words.length - 1 && ' '}
-          </span>
+          </Fragment>
         );
       })}
     </span>
