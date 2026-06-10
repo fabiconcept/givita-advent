@@ -86,9 +86,9 @@ export function OnboardingCoachmark({
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) finish(); setOpen(v); }}>
-      <DialogContent className="overflow-visible mx-4 max-w-sm rounded-3xl sm:mx-auto sm:max-w-md">
+      <DialogContent className="mx-4 max-w-sm rounded-3xl sm:mx-auto sm:max-w-md">
         {showEscapeTip && (
-          <div className="-mt-24 mb-2 rounded-2xl border-2 border-primary/10 bg-background p-4 shadow-2xl shadow-primary/5 ring-1 ring-primary/20">
+          <div className="rounded-2xl border-2 border-primary/10 bg-background p-4 shadow-2xl shadow-primary/5 ring-1 ring-primary/20">
             <div className="flex items-start justify-between gap-2">
               <span className="text-xs font-semibold uppercase tracking-wider text-primary">Tip</span>
               <button
