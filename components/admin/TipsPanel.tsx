@@ -216,6 +216,8 @@ export function TipsPanel() {
   const [mounted, setMounted] = useState(false);
   const [pageReady, setPageReady] = useState(false);
   const [currentQuestionType, setCurrentQuestionType] = useState<string | null>(null);
+  const [onboardingSeen, setOnboardingSeen] = useState(true);
+  // Will be corrected by polling effect once ctx is known
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => { setMounted(true); }, []);
@@ -257,6 +259,17 @@ export function TipsPanel() {
     setIndex(0);
     setSpotlight(null);
   }, [pathname]);
+
+  useEffect(() => {
+    if (ctx === 'landing' || ctx === 'not-found') { setOnboardingSeen(true); return; }
+    const key = ctx === 'form' ? 'givita:onboarding-form-seen' : 'givita:onboarding-seen';
+    const check = () => {
+      try { setOnboardingSeen(localStorage.getItem(key) === '1'); } catch { /* noop */ }
+    };
+    check();
+    const id = setInterval(check, 500);
+    return () => clearInterval(id);
+  }, [ctx]);
 
   useEffect(() => {
     if (pathname === '/admin') return;
@@ -367,10 +380,7 @@ export function TipsPanel() {
   }, [tips.length]);
 
   if (!mounted || !pageReady) return null;
-  if (ctx !== 'landing' && ctx !== 'not-found') {
-    const onboardingKey = ctx === 'form' ? 'givita:onboarding-form-seen' : 'givita:onboarding-seen';
-    try { if (localStorage.getItem(onboardingKey) !== '1') return null; } catch { /* noop */ }
-  }
+  if (!onboardingSeen) return null;
   if (dismissed || tips.length === 0) return null;
 
   const tipCard = (
