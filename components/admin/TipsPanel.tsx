@@ -193,6 +193,7 @@ export function TipsPanel() {
   const [escapeTipActive, setEscapeTipActive] = useState(false);
   const [pageReady, setPageReady] = useState(false);
   const [currentQuestionType, setCurrentQuestionType] = useState<string | null>(null);
+  const [onboardingDone, setOnboardingDone] = useState(true);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => { setMounted(true); }, []);
@@ -218,6 +219,8 @@ export function TipsPanel() {
     setDismissed(d === '1');
     setIndex(0);
     setSpotlight(null);
+    const onboardingKey = newCtx === 'form' ? 'givita:onboarding-form-seen' : 'givita:onboarding-seen';
+    try { setOnboardingDone(localStorage.getItem(onboardingKey) === '1'); } catch { setOnboardingDone(true); }
   }, [pathname]);
 
   useEffect(() => {
@@ -230,6 +233,8 @@ export function TipsPanel() {
         setDismissed(d === '1');
         setIndex(0);
         setSpotlight(null);
+        const onboardingKey = newCtx === 'form' ? 'givita:onboarding-form-seen' : 'givita:onboarding-seen';
+        try { setOnboardingDone(localStorage.getItem(onboardingKey) === '1'); } catch { setOnboardingDone(true); }
       }
     };
     const id = setInterval(check, 1000);
@@ -361,7 +366,7 @@ export function TipsPanel() {
   if (!mounted || !pageReady) return null;
   if (escapeTipActive) {
     // Dialog-triggered escape tip: show even if cycling tips are dismissed
-  } else if (dismissed || tips.length === 0) {
+  } else if (dismissed || tips.length === 0 || (!onboardingDone && ctx !== 'landing' && ctx !== 'not-found')) {
     return null;
   }
 
