@@ -458,14 +458,14 @@ export function TipsPanel() {
     <div className="fixed inset-0 z-50" onClick={(e) => { e.stopPropagation(); dismiss(); }}>
       {spotlight ? (
         <>
-          <div className="fixed z-50 bg-black/60 backdrop-blur-sm" style={{ top: 0, left: 0, right: 0, height: spotlight.top }} />
-          <div className="fixed z-50 bg-black/60 backdrop-blur-sm" style={{ top: spotlight.top + spotlight.height, left: 0, right: 0, bottom: 0 }} />
-          <div className="fixed z-50 bg-black/60 backdrop-blur-sm" style={{ top: spotlight.top, left: 0, width: spotlight.left, height: spotlight.height }} />
-          <div className="fixed z-50 bg-black/60 backdrop-blur-sm" style={{ top: spotlight.top, left: spotlight.left + spotlight.width, right: 0, height: spotlight.height }} />
+          <div className="fixed z-50 bg-black/40 backdrop-blur-[1px]" style={{ top: 0, left: 0, right: 0, height: spotlight.top }} />
+          <div className="fixed z-50 bg-black/40 backdrop-blur-[1px]" style={{ top: spotlight.top + spotlight.height, left: 0, right: 0, bottom: 0 }} />
+          <div className="fixed z-50 bg-black/40 backdrop-blur-[1px]" style={{ top: spotlight.top, left: 0, width: spotlight.left, height: spotlight.height }} />
+          <div className="fixed z-50 bg-black/40 backdrop-blur-[1px]" style={{ top: spotlight.top, left: spotlight.left + spotlight.width, right: 0, height: spotlight.height }} />
           <div className="fixed z-50 rounded-xl ring-2 ring-primary ring-offset-2 ring-offset-background transition-all duration-300" style={spotlight} />
         </>
       ) : (
-        <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" />
+        <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[1px]" />
       )}
       <div className="fixed z-50 transition-all duration-300" style={pos ?? { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
         {tipCard}
