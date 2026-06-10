@@ -390,11 +390,10 @@ export function TipsPanel() {
     <div className="fixed inset-0 z-50" onClick={(e) => { e.stopPropagation(); dismiss(); }}>
       {spotlight ? (
         <>
-          <div className="fixed inset-0 z-40 bg-black/40" />
-          <div className="fixed z-50" style={{ top: 0, left: 0, right: 0, height: spotlight.top }} />
-          <div className="fixed z-50" style={{ top: spotlight.top + spotlight.height, left: 0, right: 0, bottom: 0 }} />
-          <div className="fixed z-50" style={{ top: spotlight.top, left: 0, width: spotlight.left, height: spotlight.height }} />
-          <div className="fixed z-50" style={{ top: spotlight.top, left: spotlight.left + spotlight.width, right: 0, height: spotlight.height }} />
+          <div className="fixed z-50 bg-black/40" style={{ top: 0, left: 0, right: 0, height: spotlight.top }} />
+          <div className="fixed z-50 bg-black/40" style={{ top: spotlight.top + spotlight.height, left: 0, right: 0, bottom: 0 }} />
+          <div className="fixed z-50 bg-black/40" style={{ top: spotlight.top, left: 0, width: spotlight.left, height: spotlight.height }} />
+          <div className="fixed z-50 bg-black/40" style={{ top: spotlight.top, left: spotlight.left + spotlight.width, right: 0, height: spotlight.height }} />
           <div className="fixed z-50 rounded-xl ring-2 ring-primary ring-offset-2 ring-offset-background transition-all duration-300" style={spotlight} />
         </>
       ) : (
