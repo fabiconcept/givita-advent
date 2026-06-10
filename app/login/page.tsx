@@ -178,10 +178,10 @@ export default function LoginPage() {
         )}
       >
         <div className="pointer-events-auto max-lg:hidden" style={{ position: 'absolute', inset: 0 }}>
-          <HangingFlower size={240} ropeLength={130} delay={0} swayMultiplier={focused ? 2 : 1.2} />
+          <HangingFlower size={240} ropeLength={130} delay={0} />
         </div>
         <div className="pointer-events-auto lg:hidden" style={{ position: 'absolute', inset: 0 }}>
-          <HangingFlower size={80} ropeLength={50} delay={0} swayMultiplier={focused ? 2 : 1.2} />
+          <HangingFlower size={80} ropeLength={50} delay={0} />
         </div>
       </div>
 
@@ -194,35 +194,38 @@ export default function LoginPage() {
         )}
       >
         <div className="pointer-events-auto max-lg:hidden" style={{ position: 'absolute', inset: 0 }}>
-          <HangingFlower size={240} ropeLength={130} delay={0.5} flip swayMultiplier={focused ? 2 : 1.2} />
+          <HangingFlower size={240} ropeLength={130} delay={0.5} flip />
         </div>
         <div className="pointer-events-auto lg:hidden" style={{ position: 'absolute', inset: 0 }}>
-          <HangingFlower size={80} ropeLength={50} delay={0.5} flip swayMultiplier={focused ? 2 : 1.2} />
+          <HangingFlower size={80} ropeLength={50} delay={0.5} flip />
         </div>
       </div>
 
-      <div className="relative mx-auto flex min-h-screen max-w-md items-center justify-center px-5 py-12">
+      <div className="relative mx-auto flex min-h-screen max-w-lg items-center justify-center px-6 py-12">
         <div className="w-full">
           <div
             className="mb-10 flex flex-col items-center text-center"
             style={{ animation: 'formSlideUp 0.7s cubic-bezier(0.22,1,0.36,1) both' }}
           >
-            <Link href="/" className="group mb-4 block">
-              <span className="relative flex h-24 w-24 items-center justify-center sm:h-28 sm:w-28">
-                <span
-                  className="absolute inset-2 rounded-full bg-gradient-to-br from-primary/25 via-primary/10 to-transparent opacity-70 blur-2xl"
-                  style={{ animation: 'logoPulse 3s ease-in-out infinite' }}
-                />
-                <span className="absolute -inset-3 rounded-full border border-primary/10 opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-110" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="/assets/flower 2.png"
-                  alt="Givita"
-                  className="relative h-full w-full object-contain drop-shadow-[0_0_15px_rgba(81,46,248,0.3)] transition-all duration-500 group-hover:scale-110 group-hover:drop-shadow-[0_0_30px_rgba(81,46,248,0.5)]"
-                />
-              </span>
-            </Link>
-            <h1 className="text-3xl font-semibold tracking-tight">Welcome back</h1>
+            <div className="mb-3 flex items-center justify-center">
+              <Link href="/" className="group relative z-10 block shrink-0">
+                <span className="relative flex h-20 w-20 items-center justify-center sm:h-24 sm:w-24">
+                  <span
+                    className="absolute inset-2 rounded-full bg-gradient-to-br from-primary/25 via-primary/10 to-transparent opacity-70 blur-2xl"
+                    style={{ animation: 'logoPulse 3s ease-in-out infinite' }}
+                  />
+                  <span className="absolute -inset-3 rounded-full border border-primary/10 opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:scale-110" />
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src="/assets/flower 2.png"
+                    alt="Givita"
+                    className="relative h-full w-full object-contain drop-shadow-[0_0_12px_rgba(81,46,248,0.25)] transition-all duration-500 group-hover:scale-110 group-hover:drop-shadow-[0_0_25px_rgba(81,46,248,0.45)]"
+                  />
+                </span>
+              </Link>
+              <span className="-ml-2 text-4xl font-semibold tracking-tight text-foreground sm:-ml-3 sm:text-5xl">Givita</span>
+            </div>
+            <h1 className="mt-2 text-4xl font-semibold tracking-tight">Welcome back</h1>
             <p className="mt-1.5 text-sm text-muted-foreground">
               Sign in to manage surveys and review responses.
             </p>
@@ -233,7 +236,7 @@ export default function LoginPage() {
           >
             <form
               onSubmit={handleSubmit}
-              className="rounded-3xl bg-card/60 p-6 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.25)] backdrop-blur-xl sm:p-8"
+              className="rounded-3xl bg-card/60 p-7 shadow-[0_20px_60px_-30px_rgba(0,0,0,0.25)] backdrop-blur-xl dark:shadow-[0_0_40px_-15px_rgba(81,46,248,0.2)] sm:p-9"
             >
               <div aria-hidden className="absolute -left-[9999px]">
                 <label htmlFor="website">Website</label>
@@ -256,7 +259,7 @@ export default function LoginPage() {
                     disabled={isLoading}
                     autoComplete="current-password"
                     autoFocus
-                    className="h-11 rounded-xl pl-9 pr-10 transition-shadow duration-300 focus-visible:shadow-[0_0_0_2px_hsl(var(--primary))]"
+                    className="h-12 rounded-xl pl-10 pr-11 text-base transition-shadow duration-300 focus-visible:shadow-[0_0_0_2px_hsl(var(--primary))]"
                   />
                   <button
                     type="button"
@@ -279,7 +282,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 disabled={isLoading || !password}
-                className="mt-6 h-11 w-full rounded-xl transition-all duration-300 active:scale-[0.97]"
+                className="mt-7 h-12 w-full rounded-xl text-base transition-all duration-300 active:scale-[0.97]"
                 title={isLoading ? 'Signing in…' : 'Sign in'}
               >
                 {isLoading ? 'Signing in…' : 'Sign in'}

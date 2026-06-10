@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, memo } from 'react';
 import { cn } from '@/lib/utils';
 
 interface HangingFlowerProps {
@@ -65,7 +65,7 @@ function eulerRotY(angle: number, torque: number, inertia: number, damping: numb
   return angle + alpha * dt;
 }
 
-export function HangingFlower({
+export const HangingFlower = memo(function HangingFlower({
   className,
   size = 96,
   ropeLength = 70,
@@ -420,4 +420,4 @@ export function HangingFlower({
       </div>
     </div>
   );
-}
+});
