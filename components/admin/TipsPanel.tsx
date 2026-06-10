@@ -1,15 +1,16 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { usePathname } from 'next/navigation';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Kbd, KbdGroup } from '@/components/ui/kbd';
 
 type Ctx = 'dashboard' | 'editor-view' | 'editor-edit' | 'form' | 'landing' | 'not-found';
 
 interface Tip {
   title: string;
-  body: string;
+  body: string | ReactNode;
   pages: Ctx[];
   selector?: string;
   questionType?: string;
@@ -18,19 +19,19 @@ interface Tip {
 const ALL_TIPS: Tip[] = [
   {
     title: 'New survey',
-    body: 'Click "New survey" in the header or press N to create a survey from scratch.',
+    body: <>Click "New survey" in the header or press <Kbd>N</Kbd> to create a survey from scratch.</>,
     pages: ['dashboard'],
     selector: 'button[title="New survey"]',
   },
   {
     title: 'Log out',
-    body: 'Click the Logout button or press L to sign out of your account.',
+    body: <>Click the Logout button or press <Kbd>L</Kbd> to sign out of your account.</>,
     pages: ['dashboard'],
     selector: 'button[title="Logout"]',
   },
   {
     title: 'Keyboard shortcuts',
-    body: 'The ? button in the header shows all shortcuts. Most buttons display their shortcut key as a small badge — press instead of click.',
+    body: <>The <Kbd>?</Kbd> button in the header shows all shortcuts. Most buttons display their shortcut key as a small badge — press instead of click.</>,
     pages: ['dashboard'],
     selector: 'button[aria-label="Toggle shortcut guide"]',
   },
@@ -48,13 +49,13 @@ const ALL_TIPS: Tip[] = [
   },
   {
     title: 'Pick instantly',
-    body: 'Press 1-9 to select an option instantly. The number appears next to each choice.',
+    body: <>Press <Kbd>1</Kbd>–<Kbd>9</Kbd> to select an option instantly. The number appears next to each choice.</>,
     pages: ['form'],
     questionType: 'multiple-choice',
   },
   {
     title: 'Keyboard navigation',
-    body: 'Press J or ↓ to scroll down, K or ↑ to scroll up. Press T to toggle dark mode.',
+    body: <>Press <Kbd>J</Kbd> or <Kbd>↓</Kbd> to scroll down, <Kbd>K</Kbd> or <Kbd>↑</Kbd> to scroll up. Press <Kbd>T</Kbd> to toggle dark mode.</>,
     pages: ['landing'],
   },
   {
@@ -64,30 +65,30 @@ const ALL_TIPS: Tip[] = [
   },
   {
     title: 'Theme toggle',
-    body: 'Press T or click the floating sun/moon icon to switch between dark and light mode anytime.',
+    body: <>Press <Kbd>T</Kbd> or click the floating sun/moon icon to switch between dark and light mode anytime.</>,
     pages: ['landing'],
     selector: 'button[aria-label^="Switch to"]',
   },
   {
-    title: 'Lost?',
+    title: "Lost?",
     body: 'This page doesn\'t exist. Head back to the homepage or check the URL for typos.',
     pages: ['not-found'],
   },
   {
     title: 'Pick instantly',
-    body: 'Press 1-9 to toggle options — select as many as you like.',
+    body: <>Press <Kbd>1</Kbd>–<Kbd>9</Kbd> to toggle options — select as many as you like.</>,
     pages: ['form'],
     questionType: 'checkbox',
   },
   {
     title: 'Rate with arrows',
-    body: 'Use ← → arrow keys to move between columns, then press Enter to confirm.',
+    body: <>Use <Kbd>←</Kbd> <Kbd>→</Kbd> arrow keys to move between columns, then press <Kbd>Enter</Kbd> to confirm.</>,
     pages: ['form'],
     questionType: 'likert-scale',
   },
   {
     title: 'Slide with arrows',
-    body: 'Use ← → arrow keys to fine-tune the slider, then press Enter to confirm.',
+    body: <>Use <Kbd>←</Kbd> <Kbd>→</Kbd> arrow keys to fine-tune the slider, then press <Kbd>Enter</Kbd> to confirm.</>,
     pages: ['form'],
     questionType: 'rating',
   },
@@ -99,33 +100,39 @@ const ALL_TIPS: Tip[] = [
   },
   {
     title: 'Hit Enter',
-    body: 'Press Enter to submit your answer when you\'re done typing.',
+    body: <>Press <Kbd>Enter</Kbd> to submit your answer when you&apos;re done typing.</>,
     pages: ['form'],
     questionType: 'text',
   },
   {
     title: 'Hit Enter',
-    body: 'Press Enter to submit your answer when you\'re done typing.',
+    body: <>Press <Kbd>Enter</Kbd> to submit your answer when you&apos;re done typing.</>,
     pages: ['form'],
     questionType: 'textarea',
   },
   {
     title: 'Hit Enter',
-    body: 'Press Enter to submit your answer when you\'re done typing.',
+    body: <>Press <Kbd>Enter</Kbd> to submit your answer when you&apos;re done typing.</>,
     pages: ['form'],
     questionType: 'email',
   },
   {
     title: 'Adjust with arrows',
-    body: 'Use ↑ ↓ arrow keys to bump the value up or down.',
+    body: <>Use <Kbd>↑</Kbd> <Kbd>↓</Kbd> arrow keys to bump the value up or down.</>,
     pages: ['form'],
     questionType: 'number',
   },
   {
     title: 'Press 1 or 2',
-    body: 'Press 1 for Yes, 2 for No — quick as that.',
+    body: <>Press <Kbd>1</Kbd> for Yes, <Kbd>2</Kbd> for No — quick as that.</>,
     pages: ['form'],
     questionType: 'yes-no',
+  },
+  {
+    title: 'Edit mode',
+    body: <>Press <Kbd>E</Kbd> to enter edit mode. Click any question title or description to edit inline. Drag questions to reorder.</>,
+    pages: ['editor-view'],
+    selector: '[data-tip="edit-mode-btn"]',
   },
   {
     title: 'Open public form',
@@ -135,7 +142,7 @@ const ALL_TIPS: Tip[] = [
   },
   {
     title: 'Feature a survey',
-    body: 'Mark a survey as Featured with the star button or press F. Featured surveys appear on the landing page.',
+    body: <>Mark a survey as Featured with the star button or press <Kbd>F</Kbd>. Featured surveys appear on the landing page.</>,
     pages: ['editor-view'],
     selector: '[data-tip="featured-btn"]',
   },
@@ -146,14 +153,8 @@ const ALL_TIPS: Tip[] = [
     selector: '[data-tip="tab-analytics"]',
   },
   {
-    title: 'Edit mode',
-    body: 'Press E to enter edit mode. Click any question title or description to edit inline. Drag questions to reorder.',
-    pages: ['editor-view'],
-    selector: '[data-tip="edit-mode-btn"]',
-  },
-  {
     title: 'Publish a survey',
-    body: 'Toggle a survey Live with the P key or via the publish button. Live surveys can be shared with anyone.',
+    body: <>Toggle a survey Live with the <Kbd>P</Kbd> key or via the publish button. Live surveys can be shared with anyone.</>,
     pages: ['editor-view'],
     selector: '[data-tip="publish-btn"]',
   },
@@ -171,7 +172,7 @@ const ALL_TIPS: Tip[] = [
   },
   {
     title: 'Save & cancel',
-    body: 'Press ⌘S to save changes or Escape to cancel. Nothing is saved until you hit Save.',
+    body: <>Press <KbdGroup><Kbd>⌘</Kbd><Kbd>S</Kbd></KbdGroup> to save changes or <Kbd>Esc</Kbd> to cancel. Nothing is saved until you hit Save.</>,
     pages: ['editor-edit'],
     selector: '[data-tip="save-btn"]',
   },
@@ -183,7 +184,7 @@ const ALL_TIPS: Tip[] = [
   },
 ];
 
-const AUTO_INTERVAL = 14_000;
+const AUTO_INTERVAL = 8_000;
 
 function storageKey(ctx: Ctx) {
   return `givita:tips-dismissed:${ctx}`;
