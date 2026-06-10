@@ -153,11 +153,6 @@ const ALL_TIPS: Tip[] = [
   },
 ];
 
-const ESCAPE_TIP = {
-  title: 'Escape to close',
-  body: 'Press Escape to close dialogs, dismiss the shortcut guide, or cancel editing. It works everywhere.',
-};
-
 const AUTO_INTERVAL = 14_000;
 
 function storageKey(ctx: Ctx) {
@@ -191,10 +186,7 @@ export function TipsPanel() {
   const [mounted, setMounted] = useState(false);
   const [pageReady, setPageReady] = useState(false);
   const [currentQuestionType, setCurrentQuestionType] = useState<string | null>(null);
-  const [onboardingDone, setOnboardingDone] = useState(true);
-  const [showOnboardingTip, setShowOnboardingTip] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const onboardingDialogRef = useRef<Element | null>(null);
 
   useEffect(() => { setMounted(true); }, []);
 
@@ -219,32 +211,7 @@ export function TipsPanel() {
     setDismissed(d === '1');
     setIndex(0);
     setSpotlight(null);
-    setShowOnboardingTip(false);
-    onboardingDialogRef.current = null;
-    const onboardingKey = newCtx === 'form' ? 'givita:onboarding-form-seen' : 'givita:onboarding-seen';
-    try { setOnboardingDone(localStorage.getItem(onboardingKey) === '1'); } catch { setOnboardingDone(true); }
   }, [pathname]);
-
-  useEffect(() => {
-    if (pageReady && ctx !== 'landing' && ctx !== 'not-found') {
-      const onboardingKey = ctx === 'form' ? 'givita:onboarding-form-seen' : 'givita:onboarding-seen';
-      let disconnected = false;
-      const check = () => {
-        try {
-          const seen = localStorage.getItem(onboardingKey) === '1';
-          setOnboardingDone(seen);
-          const dialog = document.querySelector('[role="dialog"]');
-          onboardingDialogRef.current = dialog || null;
-          if (!seen && !showOnboardingTip && dialog) {
-            setShowOnboardingTip(true);
-          }
-        } catch { /* noop */ }
-      };
-      check();
-      const id = setInterval(check, 500);
-      return () => { clearInterval(id); disconnected = true; };
-    }
-  }, [pageReady, ctx, showOnboardingTip]);
 
   useEffect(() => {
     if (pathname === '/admin') return;
@@ -256,8 +223,6 @@ export function TipsPanel() {
         setDismissed(d === '1');
         setIndex(0);
         setSpotlight(null);
-        setShowOnboardingTip(false);
-        onboardingDialogRef.current = null;
       }
     };
     const id = setInterval(check, 1000);
@@ -305,20 +270,9 @@ export function TipsPanel() {
   }, []);
 
   useEffect(() => {
-    if (showOnboardingTip && onboardingDialogRef.current) {
-      const el = onboardingDialogRef.current as HTMLElement;
-      el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-      requestAnimationFrame(() => {
-        const rect = el.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0) {
-          setSpotlight({ top: rect.top, left: rect.left, width: rect.width, height: rect.height });
-        }
-      });
-    } else {
-      const s = tip?.selector || (ctx === 'form' ? '[data-tip="form-nav"]' : undefined);
-      if (s) updateSpotlight(s); else setSpotlight(null);
-    }
-  }, [showOnboardingTip, safeIndex, tip?.selector, updateSpotlight, ctx]);
+    const s = tip?.selector || (ctx === 'form' ? '[data-tip="form-nav"]' : undefined);
+    if (s) updateSpotlight(s); else setSpotlight(null);
+  }, [safeIndex, tip?.selector, updateSpotlight, ctx]);
 
   useEffect(() => {
     if (dismissed || tips.length === 0) return;
@@ -335,16 +289,12 @@ export function TipsPanel() {
   }, [ctx, tip?.questionType]);
 
   const dismiss = useCallback(() => {
-    if (showOnboardingTip) {
-      setShowOnboardingTip(false);
-      return;
-    }
     setDismissed(true);
     try { localStorage.setItem(storageKey(ctx), '1'); } catch { /* noop */ }
     if (ctx === 'form' && tip?.questionType) {
       try { localStorage.setItem(`givita:tip-qtype-seen:${tip.questionType}`, '1'); } catch { /* noop */ }
     }
-  }, [showOnboardingTip, ctx, tip?.questionType]);
+  }, [ctx, tip?.questionType]);
 
   const next = useCallback(() => {
     setIndex((i) => (i + 1) % tips.length);
@@ -362,13 +312,8 @@ export function TipsPanel() {
     }
   }, [tips.length]);
 
-  const currentTip = showOnboardingTip ? ESCAPE_TIP : tip;
-  const showDismissAll = !showOnboardingTip;
-
   if (!mounted || !pageReady) return null;
-  if (!showOnboardingTip && (dismissed || tips.length === 0 || (!onboardingDone && ctx !== 'landing' && ctx !== 'not-found'))) {
-    return null;
-  }
+  if (dismissed || tips.length === 0) return null;
 
   const tipCard = (
     <div
@@ -386,11 +331,11 @@ export function TipsPanel() {
           <X className="h-4 w-4" />
         </button>
       </div>
-      <h4 className="mt-1.5 text-sm font-semibold">{currentTip.title}</h4>
-      <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{currentTip.body}</p>
+      <h4 className="mt-1.5 text-sm font-semibold">{tip.title}</h4>
+      <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{tip.body}</p>
       <div className="mt-3 flex items-center justify-between">
         <div className="flex items-center gap-1">
-          {!showOnboardingTip && tips.map((_, i) => (
+          {tips.map((_, i) => (
             <span
               key={i}
               className={`block h-1 rounded-full transition-all duration-300 ${
@@ -400,33 +345,22 @@ export function TipsPanel() {
           ))}
         </div>
         <div className="flex items-center gap-1">
-          {showOnboardingTip ? (
-            <button
-              onClick={dismiss}
-              className="rounded-full bg-primary/10 px-4 py-2 text-xs font-medium text-primary hover:bg-primary/20"
-            >
-              Got it
-            </button>
-          ) : (
-            <>
-              <button
-                onClick={prev}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/50 hover:bg-muted hover:text-foreground"
-                aria-label="Previous tip"
-                title="Previous tip"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                onClick={next}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/50 hover:bg-muted hover:text-foreground"
-                aria-label="Next tip"
-                title="Next tip"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </>
-          )}
+          <button
+            onClick={prev}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/50 hover:bg-muted hover:text-foreground"
+            aria-label="Previous tip"
+            title="Previous tip"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            onClick={next}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/50 hover:bg-muted hover:text-foreground"
+            aria-label="Next tip"
+            title="Next tip"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </div>

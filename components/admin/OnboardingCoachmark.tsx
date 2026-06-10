@@ -9,7 +9,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { FileText, Keyboard, BarChart3, Lightbulb, ListChecks, BookOpen } from 'lucide-react';
+import { FileText, Keyboard, BarChart3, Lightbulb, X } from 'lucide-react';
 
 const ADMIN_STEPS = [
   {
@@ -49,6 +49,7 @@ export function OnboardingCoachmark({
 }) {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState(0);
+  const [showEscapeTip, setShowEscapeTip] = useState(false);
 
   useEffect(() => {
     const seen = localStorage.getItem(storageKey);
@@ -57,6 +58,14 @@ export function OnboardingCoachmark({
       return () => clearTimeout(t);
     }
   }, [storageKey]);
+
+  useEffect(() => {
+    if (open) {
+      const t = setTimeout(() => setShowEscapeTip(true), 800);
+      return () => clearTimeout(t);
+    }
+    setShowEscapeTip(false);
+  }, [open]);
 
   const finish = useCallback(() => {
     setOpen(false);
@@ -71,9 +80,41 @@ export function OnboardingCoachmark({
     }
   }, [step, finish, steps.length]);
 
+  const dismissEscapeTip = useCallback(() => {
+    setShowEscapeTip(false);
+  }, []);
+
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) finish(); setOpen(v); }}>
       <DialogContent className="mx-4 max-w-sm rounded-3xl sm:mx-auto sm:max-w-md">
+        {showEscapeTip && (
+          <div className="-mt-10 mb-4 rounded-2xl border border-border bg-background p-4 shadow-xl">
+            <div className="flex items-start justify-between gap-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary">Tip</span>
+              <button
+                onClick={dismissEscapeTip}
+                className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/40 hover:bg-muted hover:text-muted-foreground"
+                aria-label="Dismiss tip"
+                title="Dismiss tip"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <h4 className="mt-1.5 text-sm font-semibold">Escape to close</h4>
+            <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">
+              Press Escape to close dialogs, dismiss the shortcut guide, or cancel editing. It works everywhere.
+            </p>
+            <div className="mt-3 flex justify-end">
+              <button
+                onClick={dismissEscapeTip}
+                className="rounded-full bg-primary/10 px-4 py-2 text-xs font-medium text-primary hover:bg-primary/20"
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        )}
+
         <DialogHeader>
           <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-primary/5 text-primary sm:h-14 sm:w-14">
             {steps[step].icon}
