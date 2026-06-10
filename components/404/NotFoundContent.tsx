@@ -128,6 +128,7 @@ export function NotFoundContent({
               type="button"
               onClick={() => window.history.back()}
               className="btn-outline"
+              title="Go back"
             >
               <ArrowLeft className="h-4 w-4" />
               Go back

@@ -90,6 +90,7 @@ function SortableRow({ id, item, index }: { id: string; item: string; index: num
       <button
         type="button"
         aria-label={`Drag handle for ${item}`}
+        title={`Drag handle for ${item}`}
         className="flex h-9 w-9 shrink-0 cursor-grab items-center justify-center rounded-xl text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:cursor-grabbing"
         {...attributes}
         {...listeners}

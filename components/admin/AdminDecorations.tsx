@@ -1,10 +1,14 @@
 'use client';
 
 import { HangingFlower } from '@/components/landing/HangingFlower';
+import { OnboardingCoachmark } from '@/components/admin/OnboardingCoachmark';
+import { TipsPanel } from '@/components/admin/TipsPanel';
 
 export function AdminDecorations({ children }: { children: React.ReactNode }) {
   return (
     <div className="relative min-h-screen bg-background text-foreground">
+      <OnboardingCoachmark />
+      <TipsPanel />
       <HangingFlower
         className="right-4 top-16 hidden sm:block lg:right-10"
         side="right"

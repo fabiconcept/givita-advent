@@ -50,6 +50,7 @@ export function RatingInput({ value, onChange, maxScore = 5 }: RatingInputProps)
               role="radio"
               aria-checked={value === score}
               aria-label={`${score} out of ${maxScore}`}
+              title={`${score} out of ${maxScore}`}
               onMouseEnter={() => setHover(score)}
               onClick={() => onChange(score)}
               className={cn(

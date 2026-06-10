@@ -38,6 +38,7 @@ export function OdogwuWord({ className }: { className?: string }) {
         onMouseDown={() => setPressed(true)}
         onMouseUp={() => setPressed(false)}
         onClick={() => setVariantIndex((i) => (i + 1) % VARIANTS.length)}
+        title="Click to cycle pronunciation"
         className={cn(
           'relative inline-block text-primary transition-all duration-300',
           'hover:tracking-wider',

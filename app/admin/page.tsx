@@ -2,27 +2,17 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import useShortcuts from '@useverse/useshortcuts';
 import { useShortcutGuard } from '@/components/ShortcutGuard';
 import { Form } from '@/types';
 import { FlowerLogo } from '@/components/admin/FlowerLogo';
 import { ShortcutTooltip } from '@/components/admin/ShortcutTooltip';
+import { ShortcutHint } from '@/components/admin/ShortcutHint';
 import { ShortcutsGuide } from '@/components/admin/ShortcutsGuide';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,8 +24,10 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { LogOut, FileText, ChevronRight, Plus, ShieldCheck, Sparkles, Star, Trash2, Keyboard } from 'lucide-react';
+import { LogOut, FileText, Sparkles, Plus, Keyboard } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { CreateSurveyDialog } from '@/components/admin/dashboard/CreateSurveyDialog';
+import { SurveyCard } from '@/components/admin/dashboard/SurveyCard';
 
 interface FormsResponse {
   forms: Form[];
@@ -60,8 +52,8 @@ export default function AdminPage() {
         setForms(data.forms || []);
         setSource(data.source);
       }
-    } catch (error) {
-      console.error('[admin] Error fetching forms:', error);
+    } catch {
+      /* ignore */
     } finally {
       setIsLoading(false);
     }
@@ -78,6 +70,7 @@ export default function AdminPage() {
     if (shortcut.key === 'Escape') setShowCreate(false);
     if (shortcut.key === 'Slash' && shortcut.shiftKey) setShowGuide((v) => !v);
     if (shortcut.key === 'L') handleLogout();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useShortcuts({
@@ -96,8 +89,7 @@ export default function AdminPage() {
       await fetch('/api/admin/logout', { method: 'POST' });
       router.push('/login');
       router.refresh();
-    } catch (error) {
-      console.error('[admin] Logout error:', error);
+    } catch {
       setIsLoggingOut(false);
     }
   }
@@ -121,9 +113,9 @@ export default function AdminPage() {
     <TooltipProvider>
     <div className="min-h-screen bg-background text-foreground">
       <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-5 sm:px-8">
+        <div className="mx-auto flex min-h-16 w-full max-w-6xl items-center justify-between gap-2 px-5 py-4 sm:gap-4 sm:px-8">
           <FlowerLogo />
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-end gap-2" data-tip="dashboard-actions">
             <ThemeToggle />
             <ShortcutTooltip label="Keyboard shortcuts" shortcut="?">
               <Button
@@ -132,6 +124,7 @@ export default function AdminPage() {
                 className="h-9 w-9 rounded-full"
                 onClick={() => setShowGuide((v) => !v)}
                 aria-label="Toggle shortcut guide"
+                title="Toggle shortcut guide"
               >
                 <Keyboard className="h-4 w-4" />
               </Button>
@@ -140,11 +133,12 @@ export default function AdminPage() {
               <Button
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                variant="outline"
-                size="sm"
-                className="h-9 rounded-full"
-              >
-                <LogOut className="mr-2 h-3.5 w-3.5" /> Logout
+                  variant="outline"
+                  size="sm"
+                  className="h-9 rounded-full"
+                  title="Logout"
+                >
+                  <LogOut className="mr-2 h-3.5 w-3.5" /> <span className="hidden sm:inline">Logout</span> <ShortcutHint shortcut="L" className="hidden sm:inline-flex" />
               </Button>
             </ShortcutTooltip>
           </div>
@@ -183,8 +177,8 @@ export default function AdminPage() {
               {source === 'sheets' ? 'Google Sheets' : 'In-memory'}
             </span>
             <ShortcutTooltip label="New survey" shortcut="N">
-              <Button onClick={() => setShowCreate(true)} size="sm" className="h-9 rounded-full">
-                <Plus className="mr-1.5 h-3.5 w-3.5" /> New survey
+              <Button onClick={() => setShowCreate(true)} size="sm" className="h-9 rounded-full" title="New survey">
+                <Plus className="mr-1.5 h-3.5 w-3.5" /> New survey <ShortcutHint shortcut="N" />
               </Button>
             </ShortcutTooltip>
           </div>
@@ -212,75 +206,14 @@ export default function AdminPage() {
               <p className="mt-1 max-w-sm text-sm text-muted-foreground">
                 Create your first survey to start collecting responses.
               </p>
-              <Button onClick={() => setShowCreate(true)} className="mt-5 rounded-full" size="sm">
-                <Plus className="mr-1.5 h-3.5 w-3.5" /> Create a survey
+              <Button onClick={() => setShowCreate(true)} className="mt-5 rounded-full" size="sm" title="Create a survey">
+                <Plus className="mr-1.5 h-3.5 w-3.5" /> Create a survey <ShortcutHint shortcut="N" />
               </Button>
             </div>
           ) : (
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {forms.map((form) => (
-                <Card
-                  key={form.id}
-                  className={cn(
-                    'group relative flex flex-col rounded-3xl border bg-card/50 p-0 transition-all duration-200 hover:border-primary/50 hover:bg-card/80 hover:shadow-[0_10px_30px_-15px_rgba(81,46,248,0.4)]',
-                    form.isFeatured
-                      ? 'border-amber-400/60 dark:border-amber-500/40 shadow-[0_0_20px_-8px_rgba(251,191,36,0.5)]'
-                      : 'border-border'
-                  )}
-                >
-                  <CardContent className="flex flex-1 flex-col p-5">
-                    <Link href={`/admin/${form.id}`} className="flex flex-1 flex-col">
-                      <div className="flex items-center justify-between">
-                        <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                          <FileText className="h-5 w-5" />
-                          {form.isFeatured && (
-                            <span className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 text-[10px] text-amber-950 shadow-sm">
-                              <Star className="h-3 w-3 fill-current" />
-                            </span>
-                          )}
-                        </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
-                      </div>
-                      <h3 className="mt-4 line-clamp-2 text-base font-semibold">{form.title}</h3>
-                      {form.description && (
-                        <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
-                          {form.description}
-                        </p>
-                      )}
-                      <div className="mt-auto flex flex-wrap items-center gap-3 pt-5 text-xs text-muted-foreground">
-                        <span className="rounded-full border border-border bg-background/60 px-2 py-0.5">
-                          {form.questions.length} questions
-                        </span>
-                        <span>·</span>
-                        <span>{new Date(form.createdAt).toLocaleDateString()}</span>
-                        {form.isFeatured && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
-                            <Star className="h-2.5 w-2.5 fill-current" /> Featured
-                          </span>
-                        )}
-                        <span
-                          className={cn(
-                            'rounded-full px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider',
-                            form.isPublished
-                              ? 'bg-primary/10 text-primary'
-                              : 'bg-muted text-muted-foreground'
-                          )}
-                        >
-                          {form.isPublished ? 'Live' : 'Draft'}
-                        </span>
-                      </div>
-                    </Link>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setDeleting(form)}
-                      className="absolute right-3 top-3 h-7 rounded-full border border-border bg-background/70 px-2 text-[10px] font-medium uppercase tracking-wider text-muted-foreground opacity-0 backdrop-blur hover:border-destructive/40 hover:bg-destructive/10 hover:text-destructive group-hover:opacity-100"
-                      aria-label={`Delete ${form.title}`}
-                    >
-                      <Trash2 className="mr-1 h-3 w-3" /> Delete
-                    </Button>
-                  </CardContent>
-                </Card>
+                <SurveyCard key={form.id} form={form} onDelete={setDeleting} />
               ))}
             </div>
           )}
@@ -292,7 +225,7 @@ export default function AdminPage() {
       <AlertDialog open={!!deleting} onOpenChange={(o) => !o && setDeleting(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete “{deleting?.title}”?</AlertDialogTitle>
+            <AlertDialogTitle>Delete &ldquo;{deleting?.title}&rdquo;?</AlertDialogTitle>
             <AlertDialogDescription>
               This permanently removes the survey and every response it has collected. This cannot be undone.
             </AlertDialogDescription>
@@ -321,136 +254,5 @@ export default function AdminPage() {
       />
     </div>
     </TooltipProvider>
-  );
-}
-
-function slugify(input: string) {
-  return input
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/(^-|-$)/g, '')
-    .slice(0, 60);
-}
-
-function CreateSurveyDialog({
-  open,
-  onOpenChange,
-  onCreated,
-}: {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onCreated: (form: Form) => Promise<void> | void;
-}) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const slug = slugify(title) || `form-${Date.now()}`;
-
-  function reset() {
-    setTitle('');
-    setDescription('');
-    setError(null);
-    setIsSubmitting(false);
-  }
-
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!title.trim()) {
-      setError('Title is required');
-      return;
-    }
-    setIsSubmitting(true);
-    setError(null);
-    try {
-      const res = await fetch('/api/forms', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: slug,
-          title: title.trim(),
-          description: description.trim(),
-          questions: [
-            {
-              id: 'q1',
-              title: 'What would you like us to know?',
-              type: 'textarea',
-              required: false,
-              order: 1,
-            },
-          ],
-        }),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || 'Failed to create form');
-      }
-      const form = (await res.json()) as Form;
-      reset();
-      await onCreated(form);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to create form');
-      setIsSubmitting(false);
-    }
-  }
-
-  return (
-    <Dialog
-      open={open}
-      onOpenChange={(o) => {
-        if (!o) reset();
-        onOpenChange(o);
-      }}
-    >
-      <DialogContent className="rounded-3xl sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>New survey</DialogTitle>
-          <DialogDescription>Start with a title; you can edit questions next.</DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="text-xs font-medium text-muted-foreground" htmlFor="title">
-              Title
-            </label>
-            <Input
-              id="title"
-              autoFocus
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Community Fundraising Survey"
-              className="mt-1 rounded-xl"
-            />
-            <p className="mt-1 text-[11px] text-muted-foreground">id: {slug}</p>
-          </div>
-          <div>
-            <label className="text-xs font-medium text-muted-foreground" htmlFor="desc">
-              Description
-            </label>
-            <Textarea
-              id="desc"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              rows={3}
-              placeholder="What is this survey for?"
-              className="mt-1 resize-none rounded-xl"
-            />
-          </div>
-          {error && (
-            <p className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-xs text-destructive">
-              {error}
-            </p>
-          )}
-          <DialogFooter className="gap-2 pt-2">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} className="rounded-full">
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting} className="rounded-full">
-              {isSubmitting ? 'Creating…' : 'Create survey'}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
   );
 }

@@ -61,7 +61,9 @@ export function ImportQuestionsDialog({
         <Button
           type="button"
           variant="outline"
+          data-tip="import-btn"
           className="h-12 rounded-3xl border-dashed text-sm font-medium"
+          title="Import JSON / CSV"
         >
           <Upload className="mr-2 h-4 w-4" /> Import JSON / CSV
         </Button>
@@ -140,15 +142,15 @@ export function ImportQuestionsDialog({
 
         <div className="flex justify-end gap-2">
           {!preview ? (
-            <Button onClick={handleParse} className="rounded-full" size="sm">
+            <Button onClick={handleParse} className="rounded-full" size="sm" title="Parse">
               <Upload className="mr-1.5 h-3.5 w-3.5" /> Parse
             </Button>
           ) : (
             <>
-              <Button variant="ghost" onClick={reset} className="rounded-full" size="sm">
+              <Button variant="ghost" onClick={reset} className="rounded-full" size="sm" title="Clear">
                 <X className="mr-1.5 h-3.5 w-3.5" /> Clear
               </Button>
-              <Button onClick={handleConfirm} className="rounded-full" size="sm">
+              <Button onClick={handleConfirm} className="rounded-full" size="sm" title={`Add ${preview.length} question${preview.length !== 1 ? 's' : ''}`}>
                 Add {preview.length} question{preview.length !== 1 ? 's' : ''}
               </Button>
             </>

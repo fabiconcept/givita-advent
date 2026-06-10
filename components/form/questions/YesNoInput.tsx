@@ -43,6 +43,7 @@ export function YesNoInput({ value, onChange }: YesNoInputProps) {
               role="radio"
               aria-checked={selected}
               onClick={() => onChange(opt.value)}
+              title={opt.label}
               className={cn(
                 'group flex items-center gap-3 rounded-2xl border bg-card/40 p-4 text-left transition-all duration-200',
                 'hover:border-primary/50 hover:bg-card/70',

@@ -1,11 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { useTheme } from 'next-themes';
 import useShortcuts from '@useverse/useshortcuts';
 import { useShortcutGuard } from '@/components/ShortcutGuard';
 import { IntroReveal } from '@/components/landing/IntroReveal';
+import { TipsPanel } from '@/components/admin/TipsPanel';
 import { FloatingThemeToggle } from '@/components/landing/blocks/FloatingThemeToggle';
+import { KeyboardHints } from '@/components/landing/blocks/KeyboardHints';
 import { StoryGuide, StoryProgressBar, type StoryChapter } from '@/components/landing/StoryGuide';
 import { LiveActivity } from '@/components/landing/LiveActivity';
 import { ScrollShowcase } from '@/components/landing/ScrollShowcase';
@@ -37,6 +39,19 @@ export default function LandingPage() {
   const { setTheme, resolvedTheme } = useTheme();
   const { inputsFocused } = useShortcutGuard();
   const [contentOpacity, setContentOpacity] = useState(0);
+  const [footerVisible, setFooterVisible] = useState(false);
+  const footerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = footerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setFooterVisible(entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => setContentOpacity(1), 1800);
@@ -78,11 +93,15 @@ export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <IntroReveal />
+      <div className="hidden md:block" style={{ display: footerVisible ? 'none' : '' }}>
+        <TipsPanel />
+      </div>
       <div
         className="transition-opacity duration-500 ease-out"
         style={{ opacity: contentOpacity }}
       >
         <FloatingThemeToggle />
+        <KeyboardHints />
         <StoryProgressBar chapters={CHAPTERS} />
         <StoryGuide chapters={CHAPTERS} />
         <LiveActivity />
@@ -97,7 +116,9 @@ export default function LandingPage() {
         <Trust />
         <Diaspora />
         <Future />
-        <Footer />
+        <div ref={footerRef}>
+          <Footer />
+        </div>
       </div>
     </div>
   );

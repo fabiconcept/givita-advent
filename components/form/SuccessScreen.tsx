@@ -101,6 +101,7 @@ export function SuccessScreen({ form, responses, onRestart }: SuccessScreenProps
             type="button"
             onClick={() => setExpanded((v) => !v)}
             className="flex w-full items-center justify-center gap-2 border-t border-border/60 px-5 py-3 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            title={expanded ? 'Show less' : `Show all ${ordered.length} answers`}
           >
             {expanded ? 'Show less' : `Show all ${ordered.length} answers`}
             <ChevronDown
@@ -111,10 +112,10 @@ export function SuccessScreen({ form, responses, onRestart }: SuccessScreenProps
       </div>
 
       <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-        <Button onClick={onRestart} size="lg" className="h-11 rounded-full px-6">
+        <Button onClick={onRestart} size="lg" className="h-11 rounded-full px-6" title="Submit another response">
           <RefreshCcw className="mr-2 h-4 w-4" /> Submit another response
         </Button>
-        <Button asChild size="lg" variant="ghost" className="h-11 rounded-full px-6">
+        <Button asChild size="lg" variant="ghost" className="h-11 rounded-full px-6" title="Home">
           <Link href="/">
             <Home className="mr-2 h-4 w-4" /> Home
           </Link>

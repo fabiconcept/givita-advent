@@ -88,6 +88,7 @@ export function CookieConsent() {
               type="button"
               onClick={dismiss}
               className="rounded-full px-4 py-1.5 text-sm text-muted-foreground transition-all hover:text-foreground active:scale-95"
+              title="Decline"
             >
               Decline
             </button>
@@ -95,6 +96,7 @@ export function CookieConsent() {
               type="button"
               onClick={accept}
               className="rounded-full bg-foreground px-5 py-1.5 text-sm font-medium text-background transition-all hover:opacity-90 active:scale-95"
+              title="Accept"
             >
               Accept
             </button>

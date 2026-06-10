@@ -9,7 +9,7 @@ export function FlowerLogo() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/assets/flower 2.png" alt="Givita" className="h-full w-full object-contain" />
       </span>
-      <span className="text-lg text-foreground">Givita Admin</span>
+      <span className="text-xl text-foreground sm:text-lg">Givita <span className="text-muted-foreground">Admin</span></span>
     </Link>
   );
 }

@@ -75,6 +75,7 @@ export function MobileShowcase() {
               <button
                 type="button"
                 onClick={() => setActive(i)}
+                title={s.title}
                 className={cn(
                   'group flex w-full items-center gap-5 rounded-2xl border p-4 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
                   reduced ? '' : 'transition-all duration-300',

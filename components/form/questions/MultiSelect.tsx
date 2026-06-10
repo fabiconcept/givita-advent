@@ -62,6 +62,7 @@ export function MultiSelect({ options, value, onChange }: MultiSelectProps) {
               type="button"
               onClick={() => toggle(option)}
               onFocus={() => setFocusedIdx(i)}
+              title={option}
               className={cn(
                 'group relative flex w-full items-center gap-3 overflow-hidden rounded-2xl border bg-card/40 px-4 py-4 text-left transition-all duration-200 ease-out sm:py-5',
                 'hover:border-primary/50 hover:bg-card/70 hover:shadow-[0_8px_30px_-12px_rgba(81,46,248,0.4)]',
