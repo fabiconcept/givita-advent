@@ -4,6 +4,26 @@ import { ReactNode, useEffect, useState } from 'react';
 import { HangingFlower } from '@/components/landing/HangingFlower';
 import { LiveBackground } from '@/components/landing/LiveBackground';
 import { IntroReveal } from '@/components/landing/IntroReveal';
+import { OnboardingCoachmark } from '@/components/admin/OnboardingCoachmark';
+import { Keyboard, ListChecks, BookOpen } from 'lucide-react';
+
+const FORM_ONBOARDING_STEPS = [
+  {
+    icon: <ListChecks className="h-8 w-8 text-primary" />,
+    title: 'One question at a time',
+    description: 'Each question appears on its own screen. Just answer and click Continue — the progress bar at the top shows how far you are.',
+  },
+  {
+    icon: <Keyboard className="h-8 w-8 text-primary" />,
+    title: 'Keyboard-friendly',
+    description: 'Press Enter to continue or submit. Press Escape to go back. On choice questions, press 1-9 to select an option.',
+  },
+  {
+    icon: <BookOpen className="h-8 w-8 text-primary" />,
+    title: 'Auto-saved progress',
+    description: 'Your answers are saved automatically as you go. If you leave and come back, you can pick up where you left off.',
+  },
+];
 
 interface FormShellProps {
   children: ReactNode;
@@ -21,6 +41,7 @@ export function FormShell({ children, variant = 'aurora' }: FormShellProps) {
   return (
     <div className="relative min-h-screen overflow-hidden bg-background text-foreground">
       <IntroReveal />
+      <OnboardingCoachmark storageKey="givita:onboarding-form-seen" steps={FORM_ONBOARDING_STEPS} />
 
       <div
         aria-hidden
