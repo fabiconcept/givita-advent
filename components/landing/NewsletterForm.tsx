@@ -90,6 +90,7 @@ export function NewsletterForm({
         size="lg"
         disabled={status === 'loading'}
         className="h-12 rounded-full px-6"
+        title={status === 'loading' ? 'Subscribing…' : cta}
       >
         {status === 'loading' ? <><Loader2 className="h-4 w-4 animate-spin" /> Subscribing…</> : cta}
         {status !== 'loading' && <ArrowRight className="ml-1.5 h-4 w-4" />}

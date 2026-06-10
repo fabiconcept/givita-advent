@@ -105,6 +105,7 @@ export function Footer() {
               onClick={handleLogoClick}
               className="flex cursor-pointer items-center gap-2.5 text-left transition-opacity hover:opacity-80"
               aria-label="Givita — click for a surprise"
+              title="Givita — click for a surprise"
             >
               <span className="flex h-10 w-12 items-center justify-center">
                 <img src="/assets/flower 2.png" alt="Givita" className="h-full w-full object-contain" />
@@ -242,7 +243,7 @@ function NewsletterBlock() {
             className="h-11 rounded-full pl-9 text-sm"
           />
         </div>
-        <Button type="submit" disabled={status === 'loading'} className="h-11 rounded-full px-5 text-sm">
+        <Button type="submit" disabled={status === 'loading'} className="h-11 rounded-full px-5 text-sm" title="Subscribe">
           {status === 'loading' ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Subscribe'}
         </Button>
       </div>

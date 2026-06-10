@@ -103,6 +103,7 @@ export function Hero() {
                 )}
                 aria-disabled={!featuredLoaded}
                 tabIndex={featuredLoaded ? undefined : -1}
+                title="Take the survey"
               >
                 Add your voice <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
               </Link>

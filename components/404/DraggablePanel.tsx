@@ -69,6 +69,7 @@ export function DraggablePanel({
               onClick={(e) => { e.stopPropagation(); onClose(); }}
               className="flex h-4 w-4 items-center justify-center rounded text-muted-foreground/50 transition-colors hover:text-destructive"
               aria-label="Close game"
+              title="Close game"
             >
               <X className="h-3 w-3" />
             </button>

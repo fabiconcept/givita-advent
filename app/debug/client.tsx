@@ -81,6 +81,7 @@ export function DebugClient() {
         <button
           className="ml-auto bg-zinc-700 hover:bg-zinc-600 rounded px-3 py-1 text-xs"
           onClick={fetchLogs}
+          title="Refresh"
         >
           Refresh
         </button>

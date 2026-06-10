@@ -98,6 +98,7 @@ export default function LoginPage() {
                   type="button"
                   onClick={() => setShow((s) => !s)}
                   aria-label={show ? 'Hide password' : 'Show password'}
+                  title={show ? 'Hide password' : 'Show password'}
                   className="absolute right-2 top-1/2 flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >
                   {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -111,12 +112,15 @@ export default function LoginPage() {
               </div>
             )}
 
-            <Button
+                        <Button
               type="submit"
               disabled={isLoading || !password}
               className="mt-6 h-11 w-full rounded-xl"
+              title={isLoading ? 'Signing in…' : 'Sign in'}
             >
               {isLoading ? 'Signing in…' : 'Sign in'}
+
+
               {!isLoading && <ArrowRight className="ml-1.5 h-4 w-4" />}
             </Button>
           </form>

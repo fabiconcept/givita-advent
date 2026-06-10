@@ -53,6 +53,7 @@ export function SparkleMark({ className }: { className?: string }) {
         onMouseLeave={() => setHovered(false)}
         onClick={(e) => emit(7, e)}
         aria-label="A little easter egg"
+        title="A little easter egg"
         className={cn(
           'group relative inline-flex h-5 w-5 items-center justify-center rounded-full text-muted-foreground/50 transition-all duration-300',
           'hover:scale-125 hover:text-primary',

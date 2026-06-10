@@ -166,6 +166,7 @@ export function ScrollShowcase() {
                     <button
                       type="button"
                       onClick={() => setUserPinned(i)}
+                      title={s.title}
                       className={cn(
                         'group relative flex w-full items-center gap-5 rounded-2xl border p-4 text-left transition-all duration-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
                         isActive
