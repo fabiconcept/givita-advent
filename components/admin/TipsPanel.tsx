@@ -367,6 +367,10 @@ export function TipsPanel() {
   }, [tips.length]);
 
   if (!mounted || !pageReady) return null;
+  if (ctx !== 'landing' && ctx !== 'not-found') {
+    const onboardingKey = ctx === 'form' ? 'givita:onboarding-form-seen' : 'givita:onboarding-seen';
+    try { if (localStorage.getItem(onboardingKey) !== '1') return null; } catch { /* noop */ }
+  }
   if (dismissed || tips.length === 0) return null;
 
   const tipCard = (
