@@ -1,15 +1,16 @@
 'use client';
 
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { usePathname } from 'next/navigation';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Kbd, KbdGroup } from '@/components/ui/kbd';
 
 type Ctx = 'dashboard' | 'editor-view' | 'editor-edit' | 'form' | 'landing' | 'not-found';
 
 interface Tip {
   title: string;
-  body: string;
+  body: string | ReactNode;
   pages: Ctx[];
   selector?: string;
   questionType?: string;
@@ -17,8 +18,20 @@ interface Tip {
 
 const ALL_TIPS: Tip[] = [
   {
+    title: 'New survey',
+    body: <>Click "New survey" in the header or press <Kbd>N</Kbd> to create a survey from scratch.</>,
+    pages: ['dashboard'],
+    selector: 'button[title="New survey"]',
+  },
+  {
+    title: 'Log out',
+    body: <>Click the Logout button or press <Kbd>L</Kbd> to sign out of your account.</>,
+    pages: ['dashboard'],
+    selector: 'button[title="Logout"]',
+  },
+  {
     title: 'Keyboard shortcuts',
-    body: 'The ? button in the header shows all shortcuts. Most buttons display their shortcut key as a small badge — press instead of click.',
+    body: <>The <Kbd>?</Kbd> button in the header shows all shortcuts. Most buttons display their shortcut key as a small badge — press instead of click.</>,
     pages: ['dashboard'],
     selector: 'button[aria-label="Toggle shortcut guide"]',
   },
@@ -36,13 +49,13 @@ const ALL_TIPS: Tip[] = [
   },
   {
     title: 'Pick instantly',
-    body: 'Press 1-9 to select an option instantly. The number appears next to each choice.',
+    body: <>Press <Kbd>1</Kbd>–<Kbd>9</Kbd> to select an option instantly. The number appears next to each choice.</>,
     pages: ['form'],
     questionType: 'multiple-choice',
   },
   {
     title: 'Keyboard navigation',
-    body: 'Press J or ↓ to scroll down, K or ↑ to scroll up. Press T to toggle dark mode.',
+    body: <>Press <Kbd>J</Kbd> or <Kbd>↓</Kbd> to scroll down, <Kbd>K</Kbd> or <Kbd>↑</Kbd> to scroll up. Press <Kbd>T</Kbd> to toggle dark mode.</>,
     pages: ['landing'],
   },
   {
@@ -52,30 +65,30 @@ const ALL_TIPS: Tip[] = [
   },
   {
     title: 'Theme toggle',
-    body: 'Press T or click the floating sun/moon icon to switch between dark and light mode anytime.',
+    body: <>Press <Kbd>T</Kbd> or click the floating sun/moon icon to switch between dark and light mode anytime.</>,
     pages: ['landing'],
     selector: 'button[aria-label^="Switch to"]',
   },
   {
-    title: 'Lost?',
+    title: "Lost?",
     body: 'This page doesn\'t exist. Head back to the homepage or check the URL for typos.',
     pages: ['not-found'],
   },
   {
     title: 'Pick instantly',
-    body: 'Press 1-9 to toggle options — select as many as you like.',
+    body: <>Press <Kbd>1</Kbd>–<Kbd>9</Kbd> to toggle options — select as many as you like.</>,
     pages: ['form'],
     questionType: 'checkbox',
   },
   {
     title: 'Rate with arrows',
-    body: 'Use ← → arrow keys to move between columns, then press Enter to confirm.',
+    body: <>Use <Kbd>←</Kbd> <Kbd>→</Kbd> arrow keys to move between columns, then press <Kbd>Enter</Kbd> to confirm.</>,
     pages: ['form'],
     questionType: 'likert-scale',
   },
   {
     title: 'Slide with arrows',
-    body: 'Use ← → arrow keys to fine-tune the slider, then press Enter to confirm.',
+    body: <>Use <Kbd>←</Kbd> <Kbd>→</Kbd> arrow keys to fine-tune the slider, then press <Kbd>Enter</Kbd> to confirm.</>,
     pages: ['form'],
     questionType: 'rating',
   },
@@ -87,43 +100,61 @@ const ALL_TIPS: Tip[] = [
   },
   {
     title: 'Hit Enter',
-    body: 'Press Enter to submit your answer when you\'re done typing.',
+    body: <>Press <Kbd>Enter</Kbd> to submit your answer when you&apos;re done typing.</>,
     pages: ['form'],
     questionType: 'text',
   },
   {
     title: 'Hit Enter',
-    body: 'Press Enter to submit your answer when you\'re done typing.',
+    body: <>Press <Kbd>Enter</Kbd> to submit your answer when you&apos;re done typing.</>,
     pages: ['form'],
     questionType: 'textarea',
   },
   {
     title: 'Hit Enter',
-    body: 'Press Enter to submit your answer when you\'re done typing.',
+    body: <>Press <Kbd>Enter</Kbd> to submit your answer when you&apos;re done typing.</>,
     pages: ['form'],
     questionType: 'email',
   },
   {
     title: 'Adjust with arrows',
-    body: 'Use ↑ ↓ arrow keys to bump the value up or down.',
+    body: <>Use <Kbd>↑</Kbd> <Kbd>↓</Kbd> arrow keys to bump the value up or down.</>,
     pages: ['form'],
     questionType: 'number',
   },
   {
     title: 'Press 1 or 2',
-    body: 'Press 1 for Yes, 2 for No — quick as that.',
+    body: <>Press <Kbd>1</Kbd> for Yes, <Kbd>2</Kbd> for No — quick as that.</>,
     pages: ['form'],
     questionType: 'yes-no',
   },
   {
     title: 'Edit mode',
-    body: 'Press E to enter edit mode. Click any question title or description to edit inline. Drag questions to reorder.',
+    body: <>Press <Kbd>E</Kbd> to enter edit mode. Click any question title or description to edit inline. Drag questions to reorder.</>,
     pages: ['editor-view'],
     selector: '[data-tip="edit-mode-btn"]',
   },
   {
-    title: 'Publish & feature',
-    body: 'Toggle a survey Live with the P key or mark it Featured with F. Featured surveys appear on the landing page.',
+    title: 'Open public form',
+    body: 'Share the "Open form" link to let anyone respond to your survey. Opens in a new tab.',
+    pages: ['editor-view'],
+    selector: 'a[title="Open public form"]',
+  },
+  {
+    title: 'Feature a survey',
+    body: <>Mark a survey as Featured with the star button or press <Kbd>F</Kbd>. Featured surveys appear on the landing page.</>,
+    pages: ['editor-view'],
+    selector: '[data-tip="featured-btn"]',
+  },
+  {
+    title: 'Analytics & Editor tabs',
+    body: 'Switch between Analytics (charts, stats, responses) and Editor (questions, preview) using the tabs below the stats.',
+    pages: ['editor-view'],
+    selector: '[data-tip="tab-analytics"]',
+  },
+  {
+    title: 'Publish a survey',
+    body: <>Toggle a survey Live with the <Kbd>P</Kbd> key or via the publish button. Live surveys can be shared with anyone.</>,
     pages: ['editor-view'],
     selector: '[data-tip="publish-btn"]',
   },
@@ -141,7 +172,7 @@ const ALL_TIPS: Tip[] = [
   },
   {
     title: 'Save & cancel',
-    body: 'Press ⌘S to save changes or Escape to cancel. Nothing is saved until you hit Save.',
+    body: <>Press <KbdGroup><Kbd>⌘</Kbd><Kbd>S</Kbd></KbdGroup> to save changes or <Kbd>Esc</Kbd> to cancel. Nothing is saved until you hit Save.</>,
     pages: ['editor-edit'],
     selector: '[data-tip="save-btn"]',
   },
@@ -153,13 +184,7 @@ const ALL_TIPS: Tip[] = [
   },
 ];
 
-const ESCAPE_TIP = {
-  title: 'Escape to close',
-  body: 'Press Escape to close dialogs, dismiss the shortcut guide, or cancel editing. It works everywhere.',
-};
-const ESCAPE_TIP_KEY = 'givita:tip-escape-shown';
-
-const AUTO_INTERVAL = 14_000;
+const AUTO_INTERVAL = 8_000;
 
 function storageKey(ctx: Ctx) {
   return `givita:tips-dismissed:${ctx}`;
@@ -190,15 +215,31 @@ export function TipsPanel() {
   const [index, setIndex] = useState(0);
   const [spotlight, setSpotlight] = useState<SpotlightRect | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [escapeTipActive, setEscapeTipActive] = useState(false);
   const [pageReady, setPageReady] = useState(false);
   const [currentQuestionType, setCurrentQuestionType] = useState<string | null>(null);
+  const [onboardingSeen, setOnboardingSeen] = useState(true);
+  const [remaining, setRemaining] = useState(AUTO_INTERVAL);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
-    if (pathname === '/admin') { setPageReady(true); return; }
+    if (pathname === '/admin') {
+      const check = () => {
+        const hasCards = document.querySelector('button[aria-label^="Delete"]');
+        const emptyState = document.body.innerText.includes('No surveys yet');
+        if (hasCards || emptyState) {
+          setPageReady(true);
+          return true;
+        }
+        return false;
+      };
+      if (!check()) {
+        const id = setInterval(check, 200);
+        return () => clearInterval(id);
+      }
+      return;
+    }
     const selector = pathname.startsWith('/forms/') ? '[data-tip="form-nav"]' : '[data-mode]';
     if (document.querySelector(selector)) { setPageReady(true); return; }
     const observer = new MutationObserver(() => {
@@ -219,6 +260,17 @@ export function TipsPanel() {
     setIndex(0);
     setSpotlight(null);
   }, [pathname]);
+
+  useEffect(() => {
+    if (ctx === 'landing' || ctx === 'not-found') { setOnboardingSeen(true); return; }
+    const key = ctx === 'form' ? 'givita:onboarding-form-seen' : 'givita:onboarding-seen';
+    const check = () => {
+      try { setOnboardingSeen(localStorage.getItem(key) === '1'); } catch { /* noop */ }
+    };
+    check();
+    const id = setInterval(check, 500);
+    return () => clearInterval(id);
+  }, [ctx]);
 
   useEffect(() => {
     if (pathname === '/admin') return;
@@ -278,15 +330,33 @@ export function TipsPanel() {
 
   useEffect(() => {
     const s = tip?.selector || (ctx === 'form' ? '[data-tip="form-nav"]' : undefined);
-    updateSpotlight(s);
+    if (s) updateSpotlight(s); else setSpotlight(null);
+    setRemaining(AUTO_INTERVAL);
   }, [safeIndex, tip?.selector, updateSpotlight, ctx]);
+
+  const autodismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (dismissed || tips.length === 0) return;
     intervalRef.current = setInterval(() => {
       setIndex((i) => (i + 1) % tips.length);
     }, AUTO_INTERVAL);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
+    autodismissRef.current = setTimeout(() => {
+      setDismissed(true);
+      try { localStorage.setItem(storageKey(ctx), '1'); } catch { /* noop */ }
+    }, 60_000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (autodismissRef.current) clearTimeout(autodismissRef.current);
+    };
+  }, [dismissed, tips.length, ctx]);
+
+  useEffect(() => {
+    if (dismissed || tips.length === 0) return;
+    const id = setInterval(() => {
+      setRemaining((r) => Math.max(0, r - 100));
+    }, 100);
+    return () => clearInterval(id);
   }, [dismissed, tips.length]);
 
   useEffect(() => {
@@ -305,6 +375,7 @@ export function TipsPanel() {
 
   const next = useCallback(() => {
     setIndex((i) => (i + 1) % tips.length);
+    setRemaining(AUTO_INTERVAL);
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = setInterval(() => setIndex((i) => (i + 1) % tips.length), AUTO_INTERVAL);
@@ -313,57 +384,16 @@ export function TipsPanel() {
 
   const prev = useCallback(() => {
     setIndex((i) => (i - 1 + tips.length) % tips.length);
+    setRemaining(AUTO_INTERVAL);
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = setInterval(() => setIndex((i) => (i + 1) % tips.length), AUTO_INTERVAL);
     }
   }, [tips.length]);
 
-  const dismissEscapeTip = useCallback(() => {
-    setEscapeTipActive(false);
-    try { localStorage.setItem(ESCAPE_TIP_KEY, '1'); } catch { /* noop */ }
-  }, []);
-
-  useEffect(() => {
-    if (!mounted || !pageReady) return;
-    const alreadyShown = localStorage.getItem(ESCAPE_TIP_KEY) === '1';
-    if (alreadyShown) return;
-
-    let disconnected = false;
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        for (const node of mutation.addedNodes) {
-          if (!(node instanceof HTMLElement)) continue;
-          const dialog = node.getAttribute?.('role') === 'dialog' ? node : node.querySelector?.('[role="dialog"]');
-          if (dialog) {
-            dialog.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-            requestAnimationFrame(() => {
-              const rect = dialog.getBoundingClientRect();
-              if (rect.width > 0 && rect.height > 0) {
-                setSpotlight({ top: rect.top, left: rect.left, width: rect.width, height: rect.height });
-              }
-            });
-            setEscapeTipActive(true);
-            if (!disconnected) { observer.disconnect(); disconnected = true; }
-            return;
-          }
-        }
-      }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => { if (!disconnected) observer.disconnect(); };
-  }, [mounted, pageReady]);
-
-  const currentTip = escapeTipActive ? ESCAPE_TIP : tip;
-  const showDismissAll = !escapeTipActive;
-
   if (!mounted || !pageReady) return null;
-  if (escapeTipActive) {
-    // Dialog-triggered escape tip: show even if cycling tips are dismissed
-  } else if (dismissed || tips.length === 0) {
-    return null;
-  }
+  if (!onboardingSeen) return null;
+  if (dismissed || tips.length === 0) return null;
 
   const tipCard = (
     <div
@@ -373,7 +403,7 @@ export function TipsPanel() {
       <div className="flex items-start justify-between gap-2">
         <span className="text-xs font-semibold uppercase tracking-wider text-primary">Tip</span>
         <button
-          onClick={escapeTipActive ? dismissEscapeTip : dismiss}
+          onClick={dismiss}
           className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/40 hover:bg-muted hover:text-muted-foreground"
           aria-label="Dismiss tip"
           title="Dismiss tip"
@@ -381,11 +411,11 @@ export function TipsPanel() {
           <X className="h-4 w-4" />
         </button>
       </div>
-      <h4 className="mt-1.5 text-sm font-semibold">{currentTip.title}</h4>
-      <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{currentTip.body}</p>
+      <h4 className="mt-1.5 text-sm font-semibold">{tip.title}</h4>
+      <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{tip.body}</p>
       <div className="mt-3 flex items-center justify-between">
         <div className="flex items-center gap-1">
-          {!escapeTipActive && tips.map((_, i) => (
+          {tips.map((_, i) => (
             <span
               key={i}
               className={`block h-1 rounded-full transition-all duration-300 ${
@@ -395,34 +425,29 @@ export function TipsPanel() {
           ))}
         </div>
         <div className="flex items-center gap-1">
-          {escapeTipActive ? (
-              <button
-                onClick={dismissEscapeTip}
-                className="rounded-full bg-primary/10 px-4 py-2 text-xs font-medium text-primary hover:bg-primary/20"
-              >
-              Got it
-            </button>
-          ) : (
-            <>
-              <button
-                onClick={prev}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/50 hover:bg-muted hover:text-foreground"
-                aria-label="Previous tip"
-                title="Previous tip"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                onClick={next}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/50 hover:bg-muted hover:text-foreground"
-                aria-label="Next tip"
-                title="Next tip"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </>
-          )}
+          <button
+            onClick={prev}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/50 hover:bg-muted hover:text-foreground"
+            aria-label="Previous tip"
+            title="Previous tip"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            onClick={next}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/50 hover:bg-muted hover:text-foreground"
+            aria-label="Next tip"
+            title="Next tip"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
+      </div>
+      <div className="-mx-4 -mb-4 mt-3 h-1 overflow-hidden rounded-b-2xl bg-muted/30">
+        <div
+          className="h-full bg-primary/40 transition-all duration-100 ease-linear"
+          style={{ width: `${(remaining / AUTO_INTERVAL) * 100}%` }}
+        />
       </div>
     </div>
   );
@@ -448,18 +473,17 @@ export function TipsPanel() {
   const pos = spotlight ? positionTip(spotlight) : null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50" onClick={escapeTipActive ? dismissEscapeTip : dismiss}>
+    <div className="fixed inset-0 z-50" onClick={(e) => { e.stopPropagation(); dismiss(); }}>
       {spotlight ? (
         <>
-          <div className="fixed inset-0 z-40 bg-black/40" />
-          <div className="fixed z-50" style={{ top: 0, left: 0, right: 0, height: spotlight.top }} />
-          <div className="fixed z-50" style={{ top: spotlight.top + spotlight.height, left: 0, right: 0, bottom: 0 }} />
-          <div className="fixed z-50" style={{ top: spotlight.top, left: 0, width: spotlight.left, height: spotlight.height }} />
-          <div className="fixed z-50" style={{ top: spotlight.top, left: spotlight.left + spotlight.width, right: 0, height: spotlight.height }} />
+          <div className="fixed z-50 bg-black/40 backdrop-blur-[1px]" style={{ top: 0, left: 0, right: 0, height: spotlight.top }} />
+          <div className="fixed z-50 bg-black/40 backdrop-blur-[1px]" style={{ top: spotlight.top + spotlight.height, left: 0, right: 0, bottom: 0 }} />
+          <div className="fixed z-50 bg-black/40 backdrop-blur-[1px]" style={{ top: spotlight.top, left: 0, width: spotlight.left, height: spotlight.height }} />
+          <div className="fixed z-50 bg-black/40 backdrop-blur-[1px]" style={{ top: spotlight.top, left: spotlight.left + spotlight.width, right: 0, height: spotlight.height }} />
           <div className="fixed z-50 rounded-xl ring-2 ring-primary ring-offset-2 ring-offset-background transition-all duration-300" style={spotlight} />
         </>
       ) : (
-        <div className="fixed inset-0 z-40 bg-black/40" />
+        <div className="fixed inset-0 z-40 bg-black/40 backdrop-blur-[1px]" />
       )}
       <div className="fixed z-50 transition-all duration-300" style={pos ?? { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
         {tipCard}

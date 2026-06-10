@@ -9,7 +9,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { FileText, Keyboard, BarChart3, Lightbulb, ListChecks, BookOpen } from 'lucide-react';
+import { FileText, Keyboard, BarChart3, Lightbulb } from 'lucide-react';
 
 const ADMIN_STEPS = [
   {
@@ -73,9 +73,9 @@ export function OnboardingCoachmark({
 
   return (
     <Dialog open={open} onOpenChange={(v) => { if (!v) finish(); setOpen(v); }}>
-      <DialogContent className="mx-4 max-w-sm rounded-3xl sm:mx-auto sm:max-w-md">
+      <DialogContent className="mx-4 rounded-3xl sm:mx-auto sm:max-w-md">
         <DialogHeader>
-          <div className="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-primary/5 text-primary sm:h-14 sm:w-14">
+          <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-primary/5 text-primary sm:h-14 sm:w-14">
             {steps[step].icon}
           </div>
           <DialogTitle className="text-center text-lg sm:text-xl">
