@@ -17,6 +17,18 @@ interface Tip {
 
 const ALL_TIPS: Tip[] = [
   {
+    title: 'New survey',
+    body: 'Click "New survey" in the header or press N to create a survey from scratch.',
+    pages: ['dashboard'],
+    selector: 'button[title="New survey"]',
+  },
+  {
+    title: 'Log out',
+    body: 'Click the Logout button or press L to sign out of your account.',
+    pages: ['dashboard'],
+    selector: 'button[title="Logout"]',
+  },
+  {
     title: 'Keyboard shortcuts',
     body: 'The ? button in the header shows all shortcuts. Most buttons display their shortcut key as a small badge — press instead of click.',
     pages: ['dashboard'],
@@ -191,7 +203,22 @@ export function TipsPanel() {
   useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
-    if (pathname === '/admin') { setPageReady(true); return; }
+    if (pathname === '/admin') {
+      const check = () => {
+        const hasCards = document.querySelector('button[aria-label^="Delete"]');
+        const emptyState = document.body.innerText.includes('No surveys yet');
+        if (hasCards || emptyState) {
+          setPageReady(true);
+          return true;
+        }
+        return false;
+      };
+      if (!check()) {
+        const id = setInterval(check, 200);
+        return () => clearInterval(id);
+      }
+      return;
+    }
     const selector = pathname.startsWith('/forms/') ? '[data-tip="form-nav"]' : '[data-mode]';
     if (document.querySelector(selector)) { setPageReady(true); return; }
     const observer = new MutationObserver(() => {
