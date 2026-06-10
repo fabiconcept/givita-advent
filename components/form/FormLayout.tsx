@@ -111,6 +111,7 @@ export function FormLayout({
                     (e.currentTarget as HTMLButtonElement).style.background = colors.brand;
                   }
                 }}
+                title={isSubmitting ? 'Submitting...' : 'Submit'}
               >
                 {isSubmitting ? 'Submitting...' : 'Submit'}
               </button>

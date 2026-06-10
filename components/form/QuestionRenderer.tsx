@@ -201,6 +201,7 @@ function LikertScale({
           <button
             key={score}
             onClick={() => onChange(score)}
+            title={`${score} out of ${maxScore}`}
             style={{
               width: '40px',
               height: '40px',

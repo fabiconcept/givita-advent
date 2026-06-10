@@ -64,6 +64,7 @@ export function IntroScreen({ form, estimated, hasResumed, onStart, onRestart }:
           onClick={onStart}
           size="lg"
           className="group h-12 rounded-full px-7 text-base shadow-[0_10px_40px_-10px_rgba(81,46,248,0.6)]"
+          title={hasResumed ? 'Continue' : 'Start'}
         >
           {hasResumed ? 'Continue' : 'Start'} <ArrowRight className="ml-1.5 h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </Button>
@@ -72,12 +73,13 @@ export function IntroScreen({ form, estimated, hasResumed, onStart, onRestart }:
           <Link
             href="/"
             className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/50 px-4 py-2 text-sm text-muted-foreground transition-all hover:border-primary/40 hover:text-foreground hover:shadow-[0_4px_16px_-8px_rgba(81,46,248,0.3)]"
+            title="Home"
           >
             <Home className="h-3.5 w-3.5" /> Home
           </Link>
         </span>
         {hasResumed && (
-          <Button onClick={onRestart} variant="ghost" size="lg" className="h-12 rounded-full">
+          <Button onClick={onRestart} variant="ghost" size="lg" className="h-12 rounded-full" title="Start over">
             <RefreshCcw className="mr-2 h-4 w-4" /> Start over
           </Button>
         )}

@@ -21,6 +21,7 @@ export function NavControls({ isFirst, isLast, canAdvance, onBack, onNext }: Nav
         onClick={onBack}
         disabled={isFirst}
         className="h-11 rounded-full px-4 text-muted-foreground"
+        title="Back"
       >
         <ArrowLeft className="mr-2 h-4 w-4" /> Back
       </Button>
@@ -34,6 +35,7 @@ export function NavControls({ isFirst, isLast, canAdvance, onBack, onNext }: Nav
         onClick={onNext}
         disabled={!canAdvance}
         className="group h-11 rounded-full px-6 shadow-[0_10px_30px_-12px_rgba(81,46,248,0.6)]"
+        title={isLast ? 'Submit' : 'Continue'}
       >
         {isLast ? (
           <>

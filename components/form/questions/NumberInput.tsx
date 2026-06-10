@@ -79,6 +79,7 @@ export function NumberInput({ value, onChange, placeholder = '0', min, max, unit
             onClick={() => step(-1)}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             aria-label="Decrease"
+            title="Decrease"
           >
             <Minus className="h-4 w-4" />
           </button>
@@ -90,6 +91,7 @@ export function NumberInput({ value, onChange, placeholder = '0', min, max, unit
             onClick={() => step(1)}
             className="inline-flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             aria-label="Increase"
+            title="Increase"
           >
             <Plus className="h-4 w-4" />
           </button>

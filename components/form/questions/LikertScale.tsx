@@ -59,6 +59,7 @@ export function LikertScale({ value, onChange, minLabel, maxLabel, maxScore }: L
               role="radio"
               aria-checked={selected}
               onClick={() => onChange(score)}
+              title={`${score} out of ${maxScore}`}
               className={cn(
                 'group relative flex items-center justify-center rounded-2xl border text-2xl font-semibold transition-all duration-200 sm:text-3xl',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
