@@ -319,13 +319,22 @@ export function TipsPanel() {
     if (s) updateSpotlight(s); else setSpotlight(null);
   }, [safeIndex, tip?.selector, updateSpotlight, ctx]);
 
+  const autodismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => {
     if (dismissed || tips.length === 0) return;
     intervalRef.current = setInterval(() => {
       setIndex((i) => (i + 1) % tips.length);
     }, AUTO_INTERVAL);
-    return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [dismissed, tips.length]);
+    autodismissRef.current = setTimeout(() => {
+      setDismissed(true);
+      try { localStorage.setItem(storageKey(ctx), '1'); } catch { /* noop */ }
+    }, 60_000);
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (autodismissRef.current) clearTimeout(autodismissRef.current);
+    };
+  }, [dismissed, tips.length, ctx]);
 
   useEffect(() => {
     if (ctx !== 'form' || !tip?.questionType) return;
@@ -435,14 +444,14 @@ export function TipsPanel() {
     <div className="fixed inset-0 z-50" onClick={(e) => { e.stopPropagation(); dismiss(); }}>
       {spotlight ? (
         <>
-          <div className="fixed z-50 bg-black/40" style={{ top: 0, left: 0, right: 0, height: spotlight.top }} />
-          <div className="fixed z-50 bg-black/40" style={{ top: spotlight.top + spotlight.height, left: 0, right: 0, bottom: 0 }} />
-          <div className="fixed z-50 bg-black/40" style={{ top: spotlight.top, left: 0, width: spotlight.left, height: spotlight.height }} />
-          <div className="fixed z-50 bg-black/40" style={{ top: spotlight.top, left: spotlight.left + spotlight.width, right: 0, height: spotlight.height }} />
+          <div className="fixed z-50 bg-black/60 backdrop-blur-sm" style={{ top: 0, left: 0, right: 0, height: spotlight.top }} />
+          <div className="fixed z-50 bg-black/60 backdrop-blur-sm" style={{ top: spotlight.top + spotlight.height, left: 0, right: 0, bottom: 0 }} />
+          <div className="fixed z-50 bg-black/60 backdrop-blur-sm" style={{ top: spotlight.top, left: 0, width: spotlight.left, height: spotlight.height }} />
+          <div className="fixed z-50 bg-black/60 backdrop-blur-sm" style={{ top: spotlight.top, left: spotlight.left + spotlight.width, right: 0, height: spotlight.height }} />
           <div className="fixed z-50 rounded-xl ring-2 ring-primary ring-offset-2 ring-offset-background transition-all duration-300" style={spotlight} />
         </>
       ) : (
-        <div className="fixed inset-0 z-40 bg-black/40" />
+        <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" />
       )}
       <div className="fixed z-50 transition-all duration-300" style={pos ?? { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
         {tipCard}
