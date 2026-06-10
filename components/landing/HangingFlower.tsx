@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, memo } from 'react';
 import { cn } from '@/lib/utils';
 
 interface HangingFlowerProps {
@@ -24,7 +24,48 @@ function roundTo(n: number, d: number) {
   return Math.round(n * d) / d;
 }
 
-export function HangingFlower({
+function hash1D(i: number): number {
+  let h = (i ^ (i << 15)) * 374761393 + 668265263;
+  h = ((h ^ (h >> 13)) * 1274126177) & 0x7fffffff;
+  return (h & 0xffff) / 65536;
+}
+
+function perlin1D(x: number): number {
+  const ix = Math.floor(x);
+  const fx = x - ix;
+  const sx = fx * fx * (3 - 2 * fx);
+  const g1 = hash1D(ix) * 2 - 1;
+  const g2 = hash1D(ix + 1) * 2 - 1;
+  return g1 + sx * (g2 - g1);
+}
+
+function sampleTerminalV(): number {
+  const r = Math.random();
+  if (r < 0.45) return 60 + Math.random() * 180;
+  if (r > 0.55) return 420 + Math.random() * 630;
+  return 240 + Math.random() * 180;
+}
+
+function sampleReCl(vy: number, r: number): { Cd: number; Cl: number; isLowRe: boolean } {
+  const Re = 1.2 * Math.abs(vy) * r / 2.5;
+  const result = { Cd: 0, Cl: 0, isLowRe: Re < 100 };
+  if (result.isLowRe) {
+    result.Cd = 24 / Math.max(Re, 1);
+    result.Cl = 0.4 + Math.random() * 0.3;
+    if (Re < 1) console.log('[HangingFlower] sampleReCl near-zero vy —', { vy, Re, Cd: result.Cd });
+  } else {
+    result.Cd = 0.5 + Math.random() * 0.15;
+    result.Cl = 0.04 + Math.random() * 0.04;
+  }
+  return result;
+}
+
+function eulerRotY(angle: number, torque: number, inertia: number, damping: number, dt: number) {
+  const alpha = (torque - damping * angle) / inertia;
+  return angle + alpha * dt;
+}
+
+export const HangingFlower = memo(function HangingFlower({
   className,
   size = 96,
   ropeLength = 70,
@@ -101,6 +142,7 @@ export function HangingFlower({
 
   const startHoverSpin = useCallback(() => {
     if (hoverRef.current) return;
+    console.log('[HangingFlower] hover start');
     hoverRef.current = true;
     if (hoverRafRef.current) cancelAnimationFrame(hoverRafRef.current);
 
@@ -124,6 +166,7 @@ export function HangingFlower({
   }, []);
 
   const stopHoverSpin = useCallback(() => {
+    console.log('[HangingFlower] hover stop');
     hoverRef.current = false;
     if (hoverRafRef.current) {
       cancelAnimationFrame(hoverRafRef.current);
@@ -137,6 +180,7 @@ export function HangingFlower({
   }, []);
 
   const animateRespawn = useCallback(() => {
+    console.log('[HangingFlower] respawn');
     const img = imgRef.current;
     if (!img) return;
     const duration = 500;
@@ -167,15 +211,38 @@ export function HangingFlower({
     stopHoverSpin();
 
     const rect = img.getBoundingClientRect();
-    const currentTransform = window.getComputedStyle(swayEl).transform;
     const w = rect.width;
     const h = rect.height;
     const startX = rect.left;
     const startY = rect.top;
 
-    const drift = randomBetween(-140, 140) * swayMultiplier;
-    const spin = randomBetween(-180, 360) * swayMultiplier;
-    const duration = randomBetween(2400, 4000) / Math.max(swayMultiplier, 0.5);
+    const terminalV = sampleTerminalV();
+    const isSlow = terminalV < 250;
+    const r = Math.max(w, h) / 100;
+    const gravity = 980;
+    const mass = r * r * 10;
+    const area = (w / 100) * (h / 100);
+
+    const windStrength = isSlow ? 140 + Math.random() * 100 : 25 + Math.random() * 40;
+    const windFreq = isSlow ? 0.4 + Math.random() * 0.6 : 0.2 + Math.random() * 0.3;
+    const gustFreq = 1.2 + Math.random() * 0.8;
+    const gustStrength = isSlow ? 60 + Math.random() * 40 : 10 + Math.random() * 20;
+
+    const flutterFreq = isSlow ? 7 + Math.random() * 5 : 2.5 + Math.random() * 2;
+    const flutterAmp = isSlow ? 1.5 + Math.random() * 2 : 4 + Math.random() * 8;
+    const spinTorque = (Math.random() > 0.5 ? 1 : -1) * (isSlow ? 0.3 + Math.random() * 0.4 : 0.8 + Math.random() * 1.2);
+    const inertia = isSlow ? 0.6 + Math.random() * 0.4 : 1.2 + Math.random() * 0.8;
+
+    const stallProb = isSlow ? 0.008 : 0;
+    const stallDuration = isSlow ? 0.08 + Math.random() * 0.18 : 0;
+    let stallTimer = 0;
+
+    const skewPhaseX = Math.random() * Math.PI * 2;
+    const skewPhaseY = Math.random() * Math.PI * 2;
+    const skewAmpX = 0.15 + Math.random() * 0.25;
+    const skewAmpY = 0.1 + Math.random() * 0.2;
+
+    console.log('[HangingFlower] click —', { terminalV, isSlow, spinTorque, inertia, flutterFreq, flutterAmp, w, h, startX, startY });
 
     const leaf = document.createElement('span');
     leaf.className = 'pointer-events-none fixed z-50';
@@ -190,35 +257,104 @@ export function HangingFlower({
 
     swayEl.style.display = 'none';
 
-    const totalFall = window.innerHeight + 80 - startY;
+    const totalFallDist = window.innerHeight + 80 - startY;
     let startTime: number | null = null;
+    let lastFrameTime: number | null = null;
+    let x = 0, y = 0, vx = 0, vy = 0;
+    let angle = 0, angularVel = 0;
+    let frameLogCount = 0;
 
     function fallTick(now: number) {
       if (!startTime) startTime = now;
+      if (!lastFrameTime) lastFrameTime = now;
       const elapsed = now - startTime;
-      const progress = Math.min(elapsed / duration, 1);
+      const dt = Math.min((now - lastFrameTime) / 1000, 0.04);
+      lastFrameTime = now;
+      const t = elapsed / 1000;
+      if (frameLogCount < 10) {
+        console.log(`[HangingFlower] frame ${frameLogCount} —`, { t, dt, vy, vx, angle, angularVel, spinTorque, inertia, stallTimer });
+        frameLogCount++;
+      }
 
-      const ease = 1 - Math.pow(1 - progress, 1.5);
-      const tx = drift * ease;
-      const ty = totalFall * ease;
-      const r = spin * ease;
-      const s = 1 - ease * 0.35;
-      const opacity = 1 - ease * 0.85;
+      const { Cd, Cl, isLowRe } = sampleReCl(vy, r);
 
-      const base = currentTransform === 'none' ? '' : currentTransform;
-      leaf.style.transform = `${base} translate(${tx}px, ${ty}px) rotate(${r}deg) scale(${s})`;
-      leaf.style.opacity = String(opacity);
+      const spinRamp = Math.min(t / 0.5, 1);
+      const spinSmooth = spinRamp * spinRamp * (3 - 2 * spinRamp);
 
-      if (progress < 1) {
-        fallAnimRef.current = requestAnimationFrame(fallTick);
+      const windBase = perlin1D(t * windFreq) * windStrength;
+      const gustEnvelope = Math.max(0, perlin1D(t * gustFreq + 100)) ** 3;
+      const windVx = windBase + gustEnvelope * gustStrength;
+
+      const dragFactor = isLowRe ? 6 * Math.PI * 2.5 * r : 0.5 * 1.2 * Cd * area;
+      const Fd = isLowRe
+        ? dragFactor * vy
+        : dragFactor * vy * Math.abs(vy);
+
+      const windRelV = windVx - vx;
+      const FdWind = isLowRe
+        ? 6 * Math.PI * 2.5 * r * windRelV
+        : 0.5 * 1.2 * Cd * area * windRelV * Math.abs(windRelV);
+
+      const Fl = isLowRe
+        ? 0.5 * 1.2 * Cl * area * windRelV * Math.abs(windRelV) * 0.25
+        : 0;
+
+      let ay = (gravity * mass - Fd) / mass;
+      if (stallTimer > 0) {
+        ay -= vy * 4;
+        stallTimer -= dt;
+      }
+      if (stallTimer <= 0 && stallProb > 0 && Math.random() < stallProb) {
+        console.log('[HangingFlower] stall —', { t, vy });
+        stallTimer = stallDuration;
+        vy *= 0.25;
+      }
+
+      const ax = (FdWind + Fl) / mass;
+
+      vy += ay * dt;
+      vx += ax * dt;
+
+      if (Math.abs(vy) > terminalV * 1.4) {
+        vy = Math.sign(vy) * Math.min(Math.abs(vy), terminalV * 1.4);
+      }
+      const maxLateral = isSlow ? terminalV * 0.8 : terminalV * 0.15;
+      if (Math.abs(vx) > maxLateral) vx = Math.sign(vx) * maxLateral;
+
+      x += vx * dt;
+      y += vy * dt;
+
+      const torque = spinSmooth * spinTorque + vx * 0.002 * (isLowRe ? 2 : 1);
+      if (isSlow) {
+        angularVel = Math.sin(t * flutterFreq) * flutterAmp * 0.5 + torque * 0.3;
+        angle += angularVel * dt * 60;
       } else {
+        angularVel = eulerRotY(angularVel, torque, inertia, 0.3, dt * 60);
+        angle += angularVel * dt * 60;
+      }
+
+      const totalY = startY + y;
+      if (totalY > window.innerHeight + 80) {
+        console.log('[HangingFlower] fall ended —', { totalY, angle, terminalV });
         leaf.remove();
         setTimeout(() => {
           hiddenRef.current = false;
           swayEl.style.display = '';
           animateRespawn();
         }, 1500);
+        return;
       }
+
+      const fallProgress = Math.min(y / totalFallDist, 1);
+      const fade = 1 - Math.pow(Math.max(0, totalY - window.innerHeight * 0.5) / (window.innerHeight * 0.5 + 80), 1.5);
+      const scale = 1 - fallProgress * 0.35;
+      const skewMag = Math.max(-10, Math.min(10, angularVel * skewAmpX));
+      const skewX = Math.sin(angle * 0.7 + skewPhaseX) * skewMag;
+      const skewY = Math.cos(angle * 0.5 + skewPhaseY) * skewMag * 0.6;
+      leaf.style.transform = `perspective(500px) translate(${x}px, ${y}px) rotate(${angle}deg) rotateX(${skewY}deg) rotateY(${skewX}deg) scale(${scale})`;
+      leaf.style.opacity = String(Math.max(0, fade));
+
+      fallAnimRef.current = requestAnimationFrame(fallTick);
     }
 
     requestAnimationFrame(fallTick);
@@ -284,4 +420,4 @@ export function HangingFlower({
       </div>
     </div>
   );
-}
+});

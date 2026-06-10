@@ -443,6 +443,31 @@
   opacity: 0.25;
 }
 
+.aurora-login::before {
+  width: 700px;
+  height: 700px;
+  opacity: 0.7;
+  top: -200px;
+  left: -200px;
+  background: radial-gradient(closest-side, rgba(81, 46, 248, 0.5), rgba(81, 46, 248, 0.1) 40%, transparent 70%);
+}
+
+.aurora-login::after {
+  width: 600px;
+  height: 600px;
+  opacity: 0.55;
+  bottom: -250px;
+  right: -150px;
+  background: radial-gradient(closest-side, rgba(214, 255, 93, 0.4), rgba(214, 255, 93, 0.08) 40%, transparent 70%);
+}
+
+.dark .aurora-login::before {
+  opacity: 0.5;
+}
+.dark .aurora-login::after {
+  opacity: 0.3;
+}
+
 @keyframes scrollPulse {
   0%, 100% { opacity: 0.15; }
   50% { opacity: 0.6; }

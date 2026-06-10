@@ -103,14 +103,14 @@ export function Footer() {
             <button
               type="button"
               onClick={handleLogoClick}
-              className="flex cursor-pointer items-center gap-2.5 text-left transition-opacity hover:opacity-80"
+              className="relative z-10 flex cursor-pointer items-center text-left transition-opacity hover:opacity-80"
               aria-label="Givita — click for a surprise"
               title="Givita — click for a surprise"
             >
-              <span className="flex h-10 w-12 items-center justify-center">
+              <span className="flex h-10 w-12 shrink-0 items-center justify-center">
                 <img src="/assets/flower 2.png" alt="Givita" className="h-full w-full object-contain" />
               </span>
-              <span className="text-base font-semibold text-foreground">Givita</span>
+              <span className="-ml-2 text-base font-semibold text-foreground">Givita</span>
             </button>
             <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
               A community-powered fundraising platform built for the way African communities already support each other.
