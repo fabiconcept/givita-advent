@@ -573,10 +573,10 @@ export default function AdminResponsesPage() {
         </div>
 
         <div className="mt-10 flex gap-1 rounded-full border border-border bg-muted/30 p-1 text-sm">
-          <TabButton active={activeTab === 'analytics'} onClick={() => setActiveTab('analytics')}>
+          <TabButton active={activeTab === 'analytics'} onClick={() => setActiveTab('analytics')} data-tip="tab-analytics">
             <BarChart3 className="mr-1.5 h-3.5 w-3.5" /> Analytics
           </TabButton>
-          <TabButton active={activeTab === 'editor'} onClick={() => setActiveTab('editor')}>
+          <TabButton active={activeTab === 'editor'} onClick={() => setActiveTab('editor')} data-tip="tab-editor">
             <Edit3 className="mr-1.5 h-3.5 w-3.5" /> Editor
           </TabButton>
         </div>
