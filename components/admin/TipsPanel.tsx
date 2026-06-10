@@ -218,7 +218,7 @@ export function TipsPanel() {
   const [pageReady, setPageReady] = useState(false);
   const [currentQuestionType, setCurrentQuestionType] = useState<string | null>(null);
   const [onboardingSeen, setOnboardingSeen] = useState(true);
-  // Will be corrected by polling effect once ctx is known
+  const [remaining, setRemaining] = useState(AUTO_INTERVAL);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => { setMounted(true); }, []);
@@ -331,6 +331,7 @@ export function TipsPanel() {
   useEffect(() => {
     const s = tip?.selector || (ctx === 'form' ? '[data-tip="form-nav"]' : undefined);
     if (s) updateSpotlight(s); else setSpotlight(null);
+    setRemaining(AUTO_INTERVAL);
   }, [safeIndex, tip?.selector, updateSpotlight, ctx]);
 
   const autodismissRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -351,6 +352,14 @@ export function TipsPanel() {
   }, [dismissed, tips.length, ctx]);
 
   useEffect(() => {
+    if (dismissed || tips.length === 0) return;
+    const id = setInterval(() => {
+      setRemaining((r) => Math.max(0, r - 100));
+    }, 100);
+    return () => clearInterval(id);
+  }, [dismissed, tips.length]);
+
+  useEffect(() => {
     if (ctx !== 'form' || !tip?.questionType) return;
     const key = `givita:tip-qtype-seen:${tip.questionType}`;
     try { if (localStorage.getItem(key) !== '1') { localStorage.setItem(key, '1'); } } catch { /* noop */ }
@@ -366,6 +375,7 @@ export function TipsPanel() {
 
   const next = useCallback(() => {
     setIndex((i) => (i + 1) % tips.length);
+    setRemaining(AUTO_INTERVAL);
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = setInterval(() => setIndex((i) => (i + 1) % tips.length), AUTO_INTERVAL);
@@ -374,6 +384,7 @@ export function TipsPanel() {
 
   const prev = useCallback(() => {
     setIndex((i) => (i - 1 + tips.length) % tips.length);
+    setRemaining(AUTO_INTERVAL);
     if (intervalRef.current) {
       clearInterval(intervalRef.current);
       intervalRef.current = setInterval(() => setIndex((i) => (i + 1) % tips.length), AUTO_INTERVAL);
@@ -431,6 +442,12 @@ export function TipsPanel() {
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>
+      </div>
+      <div className="-mx-4 -mb-4 mt-3 h-1 overflow-hidden rounded-b-2xl bg-muted/30">
+        <div
+          className="h-full bg-primary/40 transition-all duration-100 ease-linear"
+          style={{ width: `${(remaining / AUTO_INTERVAL) * 100}%` }}
+        />
       </div>
     </div>
   );
