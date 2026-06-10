@@ -153,12 +153,6 @@ const ALL_TIPS: Tip[] = [
   },
 ];
 
-const ESCAPE_TIP = {
-  title: 'Escape to close',
-  body: 'Press Escape to close dialogs, dismiss the shortcut guide, or cancel editing. It works everywhere.',
-};
-const ESCAPE_TIP_KEY = 'givita:tip-escape-shown';
-
 const AUTO_INTERVAL = 14_000;
 
 function storageKey(ctx: Ctx) {
@@ -190,7 +184,6 @@ export function TipsPanel() {
   const [index, setIndex] = useState(0);
   const [spotlight, setSpotlight] = useState<SpotlightRect | null>(null);
   const [mounted, setMounted] = useState(false);
-  const [escapeTipActive, setEscapeTipActive] = useState(false);
   const [pageReady, setPageReady] = useState(false);
   const [currentQuestionType, setCurrentQuestionType] = useState<string | null>(null);
   const [onboardingDone, setOnboardingDone] = useState(true);
@@ -324,49 +317,11 @@ export function TipsPanel() {
     }
   }, [tips.length]);
 
-  const dismissEscapeTip = useCallback(() => {
-    setEscapeTipActive(false);
-    try { localStorage.setItem(ESCAPE_TIP_KEY, '1'); } catch { /* noop */ }
-  }, []);
-
-  useEffect(() => {
-    if (!mounted || !pageReady) return;
-    const alreadyShown = localStorage.getItem(ESCAPE_TIP_KEY) === '1';
-    if (alreadyShown) return;
-
-    let disconnected = false;
-    const observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        for (const node of mutation.addedNodes) {
-          if (!(node instanceof HTMLElement)) continue;
-          const dialog = node.getAttribute?.('role') === 'dialog' ? node : node.querySelector?.('[role="dialog"]');
-          if (dialog) {
-            dialog.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-            requestAnimationFrame(() => {
-              const rect = dialog.getBoundingClientRect();
-              if (rect.width > 0 && rect.height > 0) {
-                setSpotlight({ top: rect.top, left: rect.left, width: rect.width, height: rect.height });
-              }
-            });
-            setEscapeTipActive(true);
-            if (!disconnected) { observer.disconnect(); disconnected = true; }
-            return;
-          }
-        }
-      }
-    });
-
-    observer.observe(document.body, { childList: true, subtree: true });
-    return () => { if (!disconnected) observer.disconnect(); };
-  }, [mounted, pageReady]);
-
-  const currentTip = escapeTipActive ? ESCAPE_TIP : tip;
-  const showDismissAll = !escapeTipActive;
+  const currentTip = tip;
+  const showDismissAll = true;
 
   if (!mounted || !pageReady) return null;
-  if (escapeTipActive) {
-    // Dialog-triggered escape tip: show even if cycling tips are dismissed
-  } else if (dismissed || tips.length === 0 || (!onboardingDone && ctx !== 'landing' && ctx !== 'not-found')) {
+  if (dismissed || tips.length === 0 || (!onboardingDone && ctx !== 'landing' && ctx !== 'not-found')) {
     return null;
   }
 
@@ -378,7 +333,7 @@ export function TipsPanel() {
       <div className="flex items-start justify-between gap-2">
         <span className="text-xs font-semibold uppercase tracking-wider text-primary">Tip</span>
         <button
-          onClick={escapeTipActive ? dismissEscapeTip : dismiss}
+          onClick={dismiss}
           className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/40 hover:bg-muted hover:text-muted-foreground"
           aria-label="Dismiss tip"
           title="Dismiss tip"
@@ -390,7 +345,7 @@ export function TipsPanel() {
       <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">{currentTip.body}</p>
       <div className="mt-3 flex items-center justify-between">
         <div className="flex items-center gap-1">
-          {!escapeTipActive && tips.map((_, i) => (
+          {tips.map((_, i) => (
             <span
               key={i}
               className={`block h-1 rounded-full transition-all duration-300 ${
@@ -400,33 +355,22 @@ export function TipsPanel() {
           ))}
         </div>
         <div className="flex items-center gap-1">
-          {escapeTipActive ? (
-              <button
-                onClick={dismissEscapeTip}
-                className="rounded-full bg-primary/10 px-4 py-2 text-xs font-medium text-primary hover:bg-primary/20"
-              >
-              Got it
-            </button>
-          ) : (
-            <>
-              <button
-                onClick={prev}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/50 hover:bg-muted hover:text-foreground"
-                aria-label="Previous tip"
-                title="Previous tip"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </button>
-              <button
-                onClick={next}
-                className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/50 hover:bg-muted hover:text-foreground"
-                aria-label="Next tip"
-                title="Next tip"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </button>
-            </>
-          )}
+          <button
+            onClick={prev}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/50 hover:bg-muted hover:text-foreground"
+            aria-label="Previous tip"
+            title="Previous tip"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <button
+            onClick={next}
+            className="flex h-9 w-9 items-center justify-center rounded-full text-muted-foreground/50 hover:bg-muted hover:text-foreground"
+            aria-label="Next tip"
+            title="Next tip"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
       </div>
     </div>
@@ -453,7 +397,7 @@ export function TipsPanel() {
   const pos = spotlight ? positionTip(spotlight) : null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50" onClick={escapeTipActive ? dismissEscapeTip : dismiss}>
+    <div className="fixed inset-0 z-50" onClick={dismiss}>
       {spotlight ? (
         <>
           <div className="fixed inset-0 z-40 bg-black/40" />

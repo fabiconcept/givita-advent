@@ -85,6 +85,9 @@ export function OnboardingCoachmark({
             {steps[step].description}
           </DialogDescription>
         </DialogHeader>
+        <p className="-mt-1 text-center text-[11px] text-muted-foreground/60">
+          Press <kbd className="rounded border border-border bg-muted px-1 font-mono text-[10px]">Esc</kbd> to close
+        </p>
 
         <div className="flex items-center justify-between pt-2">
           <div className="flex gap-1.5">
