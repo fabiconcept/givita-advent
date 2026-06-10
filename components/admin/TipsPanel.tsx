@@ -453,7 +453,7 @@ export function TipsPanel() {
   const pos = spotlight ? positionTip(spotlight) : null;
 
   return createPortal(
-    <div className="fixed inset-0 z-50" onClick={dismiss}>
+    <div className="fixed inset-0 z-50" onClick={(e) => { e.stopPropagation(); dismiss(); }}>
       {spotlight ? (
         <>
           <div className="fixed inset-0 z-40 bg-black/40" />
