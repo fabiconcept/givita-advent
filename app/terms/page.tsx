@@ -49,8 +49,6 @@ export default function TermsPage() {
     <div className="relative min-h-screen bg-background text-foreground overflow-x-clip">
       <HangingFlower className="left-4 -top-10 sm:left-8 lg:left-12" side="left" size={140} ropeLength={80} delay={0} tone="primary" />
       <HangingFlower className="right-4 -top-8 sm:right-8 lg:right-12" side="right" size={100} ropeLength={60} delay={1.2} tone="muted" />
-      <HangingFlower className="left-2 -bottom-10 hidden sm:left-6 sm:block lg:left-10" side="left" size={72} ropeLength={50} delay={0.8} tone="foreground" flip />
-      <HangingFlower className="right-2 -bottom-8 sm:right-6 lg:right-10" side="right" size={60} ropeLength={44} delay={0.4} tone="primary" flip />
 
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <div className="absolute left-1/4 top-1/4 h-72 w-72 rounded-full bg-primary/[0.02] blur-3xl" />
