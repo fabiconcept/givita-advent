@@ -44,8 +44,6 @@ export function NotFoundContent({
       <FlowerRain active={active} />
       <div className="aurora" aria-hidden />
       <HangingFlower className="right-4 top-0 lg:right-10" side="right" size={172} ropeLength={100} delay={0.1} tone="muted" swayMultiplier={sway} />
-      <HangingFlower className="left-4 top-0 hidden lg:block" side="left" size={96} ropeLength={70} delay={0.6} tone="muted" swayMultiplier={sway} />
-      <HangingFlower className="bottom-0 right-8 hidden sm:block" side="right" size={72} ropeLength={80} delay={0.4} tone="muted" flip swayMultiplier={sway} />
 
       <div className="absolute right-6 top-6 z-10 flex items-center gap-2">
         <button

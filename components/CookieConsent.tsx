@@ -52,14 +52,6 @@ export function CookieConsent() {
           delay={0.4}
           tone="primary"
         />
-        <HangingFlower
-          className="left-8 -top-6 hidden sm:block"
-          side="left"
-          size={36}
-          ropeLength={22}
-          delay={0.8}
-          tone="muted"
-        />
 
         <div className="mx-auto flex w-full max-w-6xl flex-col items-start gap-3 px-5 py-4 sm:flex-row sm:items-center sm:gap-6 sm:px-8">
           <div className="flex items-center gap-3">

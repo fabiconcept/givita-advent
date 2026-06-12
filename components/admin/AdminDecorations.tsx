@@ -25,24 +25,6 @@ export function AdminDecorations({ children }: { children: React.ReactNode }) {
         delay={1.0}
         tone="muted"
       />
-      <HangingFlower
-        className="bottom-0 right-8 hidden sm:block"
-        side="right"
-        size={64}
-        ropeLength={70}
-        delay={0.6}
-        tone="muted"
-        flip
-      />
-      <HangingFlower
-        className="bottom-0 left-8 hidden lg:block"
-        side="left"
-        size={56}
-        ropeLength={60}
-        delay={1.3}
-        tone="muted"
-        flip
-      />
       {children}
     </div>
   );
