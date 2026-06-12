@@ -3,6 +3,7 @@ import { Analytics } from '@vercel/analytics/next'
 import { ThemeProvider } from '@/components/theme-provider'
 import { ShortcutGuardProvider } from '@/components/ShortcutGuard'
 import { CookieConsent } from '@/components/CookieConsent'
+import { OfflineDetector } from '@/components/offline/OfflineDetector'
 import { createMetadata } from '@/lib/metadata'
 import './globals.css'
 
@@ -38,9 +39,11 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ShortcutGuardProvider>
-            <main id="main-content">{children}</main>
-            {process.env.NODE_ENV === 'production' && <Analytics />}
-            <CookieConsent />
+            <OfflineDetector>
+              <main id="main-content">{children}</main>
+              {process.env.NODE_ENV === 'production' && <Analytics />}
+              <CookieConsent />
+            </OfflineDetector>
           </ShortcutGuardProvider>
         </ThemeProvider>
       </body>
