@@ -1,12 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getAllForms, updateForm } from '@/lib/formStore';
 import { requireAdmin } from '@/lib/auth';
-import { checkRateLimit, apiLimiter } from '@/lib/rateLimit';
+import { checkRateLimit, apiLimiter, publicLimiter } from '@/lib/rateLimit';
 import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const { allowed, remaining } = checkRateLimit(publicLimiter, request);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests.' },
+      { status: 429, headers: { 'X-RateLimit-Remaining': String(remaining) } }
+    );
+  }
+
   logger.debug('featured', 'GET /api/forms/featured — fetching all forms');
   const all = await getAllForms();
   logger.debug('featured', `getAllForms returned ${all.length} forms`);

@@ -47,6 +47,12 @@ export interface Form {
   isFeatured?: boolean;
   sheetId?: string;
   sheetRange?: string;
+  // Access control
+  passwordHash?: string;
+  passwordSalt?: string;
+  // Expiry + limits
+  expiresAt?: string;
+  maxResponses?: number;
 }
 
 export interface FormResponse {

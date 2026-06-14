@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getLogs, logger } from '@/lib/logger';
 import { requireAdmin } from '@/lib/auth';
+import { checkRateLimit, apiLimiter } from '@/lib/rateLimit';
 
 export const dynamic = 'force-dynamic';
 
@@ -15,6 +16,14 @@ export async function GET(request: NextRequest) {
 
   const authError = requireAdmin(request);
   if (authError) return authError;
+
+  const { allowed, remaining } = checkRateLimit(apiLimiter, request);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests.' },
+      { status: 429, headers: { 'X-RateLimit-Remaining': String(remaining) } }
+    );
+  }
 
   const url = new URL(request.url);
   const limit = Math.min(Math.max(parseInt(url.searchParams.get('limit') || '200', 10) || 200, 1), 500);

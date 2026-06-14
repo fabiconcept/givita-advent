@@ -1,5 +1,6 @@
 'use client';
 
+import { ReactNode } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -10,7 +11,7 @@ import {
 import { Keyboard } from 'lucide-react';
 
 interface ShortcutEntry {
-  keys: string;
+  keys: ReactNode;
   label: string;
 }
 
@@ -43,13 +44,13 @@ export function ShortcutsGuide({
               <div className="space-y-1.5">
                 {section.shortcuts.map((sc) => (
                   <div
-                    key={sc.keys}
+                    key={String(sc.keys)}
                     className="flex items-center justify-between rounded-lg bg-muted/50 px-3 py-1.5"
                   >
                     <span className="text-sm">{sc.label}</span>
-                    <kbd className="rounded border border-border bg-background px-2 py-0.5 font-mono text-xs font-medium">
+                    <span className="flex items-center gap-1 rounded border border-border bg-background px-2 py-0.5 font-mono text-xs font-medium">
                       {sc.keys}
-                    </kbd>
+                    </span>
                   </div>
                 ))}
               </div>

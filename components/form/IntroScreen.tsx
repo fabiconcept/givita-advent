@@ -6,6 +6,7 @@ import { Form } from '@/types';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clock, Sparkles, ArrowRight, RefreshCcw, Home } from 'lucide-react';
+import { ExpiryCountdown } from '@/components/form/ExpiryCountdown';
 
 interface IntroScreenProps {
   form: Form;
@@ -13,9 +14,12 @@ interface IntroScreenProps {
   hasResumed: boolean;
   onStart: () => void;
   onRestart: () => void;
+  expiresAt?: string;
+  serverNow?: string;
+  onExpired?: () => void;
 }
 
-export function IntroScreen({ form, estimated, hasResumed, onStart, onRestart }: IntroScreenProps) {
+export function IntroScreen({ form, estimated, hasResumed, onStart, onRestart, expiresAt, serverNow, onExpired }: IntroScreenProps) {
   const total = form.questions.length;
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -57,6 +61,9 @@ export function IntroScreen({ form, estimated, hasResumed, onStart, onRestart }:
         <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/50 px-3 py-1.5">
           {total} {total === 1 ? 'question' : 'questions'}
         </span>
+        {expiresAt && serverNow && (
+          <ExpiryCountdown expiresAt={expiresAt} serverNow={serverNow} onExpired={onExpired} />
+        )}
       </div>
 
       <div className="mt-10 flex flex-wrap items-center gap-3">

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { FileText, ChevronRight, Star, Trash2 } from 'lucide-react';
+import { FileText, ChevronRight, Star, Trash2, Lock, Clock, Inbox } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Form } from '@/types';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,6 +14,10 @@ export function SurveyCard({
   form: Form;
   onDelete: (form: Form) => void;
 }) {
+  const isPasswordProtected = !!(form as Form & { isPasswordProtected?: boolean }).isPasswordProtected || !!form.passwordHash;
+  const hasExpiry = !!form.expiresAt;
+  const hasMaxResponses = !!form.maxResponses && form.maxResponses > 0;
+
   return (
     <Card
       className={cn(
@@ -48,6 +52,21 @@ export function SurveyCard({
             </span>
             <span>·</span>
             <span>{new Date(form.createdAt).toLocaleDateString()}</span>
+            {isPasswordProtected && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-primary">
+                <Lock className="h-2.5 w-2.5" /> Locked
+              </span>
+            )}
+            {hasExpiry && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                <Clock className="h-2.5 w-2.5" /> Expires
+              </span>
+            )}
+            {hasMaxResponses && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                <Inbox className="h-2.5 w-2.5" /> Max {form.maxResponses}
+              </span>
+            )}
             {form.isFeatured && (
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wider text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
                 <Star className="h-2.5 w-2.5 fill-current" /> Featured

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { isSheetsAvailable, getSheetsClient, readRows } from '@/lib/google-sheets';
 import { getAllForms } from '@/lib/formStore';
 import { requireAdmin } from '@/lib/auth';
+import { checkRateLimit, apiLimiter } from '@/lib/rateLimit';
 import { logger } from '@/lib/logger';
 
 export const dynamic = 'force-dynamic';
@@ -9,6 +10,14 @@ export const dynamic = 'force-dynamic';
 export async function GET(request: NextRequest) {
   const authError = requireAdmin(request);
   if (authError) return authError;
+
+  const { allowed, remaining } = checkRateLimit(apiLimiter, request);
+  if (!allowed) {
+    return NextResponse.json(
+      { error: 'Too many requests.' },
+      { status: 429, headers: { 'X-RateLimit-Remaining': String(remaining) } }
+    );
+  }
 
   logger.info('debug', 'GET /api/debug — starting diagnostics');
 

@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { NextRequest, NextResponse } from 'next/server';
-import { createHmac, randomUUID, createHash } from 'crypto';
+import { createHmac, randomUUID, createHash, randomBytes } from 'crypto';
 
 const COOKIE_NAME = 'admin_session';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
@@ -74,4 +74,27 @@ export function setSessionCookie(response: NextResponse, token: string) {
 
 export function clearSessionCookie(response: NextResponse) {
   response.cookies.delete(COOKIE_NAME);
+}
+
+// ----- Form password hashing (SHA-256 + salt) -----
+
+export function hashPassword(password: string): { hash: string; salt: string } {
+  const salt = randomBytes(16).toString('hex');
+  const hash = createHash('sha256')
+    .update(salt + password)
+    .digest('hex');
+  return { hash, salt };
+}
+
+export function verifyPassword(password: string, storedHash: string, salt: string): boolean {
+  const hash = createHash('sha256')
+    .update(salt + password)
+    .digest('hex');
+  // Constant-time comparison
+  const a = Buffer.from(hash, 'hex');
+  const b = Buffer.from(storedHash, 'hex');
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) result |= a[i] ^ b[i];
+  return result === 0;
 }

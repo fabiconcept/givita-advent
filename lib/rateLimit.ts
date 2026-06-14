@@ -76,6 +76,9 @@ apiLimiter.startCleanup();
 export const publicLimiter = new TokenBucketLimiter(30, 1);
 publicLimiter.startCleanup();
 
+export const passwordLimiter = new TokenBucketLimiter(5, 1 / 12);
+passwordLimiter.startCleanup();
+
 export function checkRateLimit(
   limiter: TokenBucketLimiter,
   request: Request,

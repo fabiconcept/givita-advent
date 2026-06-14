@@ -10,22 +10,26 @@ export interface QuestionFieldSchema {
   max: boolean;
   unit: boolean;
   description: boolean;
+  minLength: boolean;
+  maxLength: boolean;
+  pattern: boolean;
+  patternMessage: boolean;
 }
 
 export const QUESTION_SCHEMA: Record<QuestionType, QuestionFieldSchema> = {
-  'multiple-choice': { options: true, minLabel: false, maxLabel: false, maxScore: false, placeholder: false, min: false, max: false, unit: false, description: true },
-  'checkbox':        { options: true, minLabel: false, maxLabel: false, maxScore: false, placeholder: false, min: false, max: false, unit: false, description: true },
-  'ranking':         { options: true, minLabel: false, maxLabel: false, maxScore: false, placeholder: false, min: false, max: false, unit: false, description: true },
-  'yes-no':          { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: false, min: false, max: false, unit: false, description: true },
-  'likert-scale':    { options: false, minLabel: true,  maxLabel: true,  maxScore: true,  placeholder: false, min: false, max: false, unit: false, description: true },
-  'rating':          { options: false, minLabel: false, maxLabel: false, maxScore: true,  placeholder: true,  min: false, max: false, unit: false, description: true },
-  'text':            { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: true,  min: false, max: false, unit: false, description: true },
-  'textarea':        { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: true,  min: false, max: false, unit: false, description: true },
-  'email':           { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: true,  min: false, max: false, unit: false, description: true },
-  'number':          { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: true,  min: true,  max: true,  unit: true,  description: true },
-  'url':             { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: true,  min: false, max: false, unit: false, description: true },
-  'phone':           { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: true,  min: false, max: false, unit: false, description: true },
-  'date':            { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: true,  min: false, max: false, unit: false, description: true },
+  'multiple-choice': { options: true,  minLabel: false, maxLabel: false, maxScore: false, placeholder: false, min: false, max: false, unit: false, description: true,  minLength: false, maxLength: false, pattern: false, patternMessage: false },
+  'checkbox':        { options: true,  minLabel: false, maxLabel: false, maxScore: false, placeholder: false, min: false, max: false, unit: false, description: true,  minLength: false, maxLength: false, pattern: false, patternMessage: false },
+  'ranking':         { options: true,  minLabel: false, maxLabel: false, maxScore: false, placeholder: false, min: false, max: false, unit: false, description: true,  minLength: false, maxLength: false, pattern: false, patternMessage: false },
+  'yes-no':          { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: false, min: false, max: false, unit: false, description: true,  minLength: false, maxLength: false, pattern: false, patternMessage: false },
+  'likert-scale':    { options: false, minLabel: true,  maxLabel: true,  maxScore: true,  placeholder: false, min: false, max: false, unit: false, description: true,  minLength: false, maxLength: false, pattern: false, patternMessage: false },
+  'rating':          { options: false, minLabel: false, maxLabel: false, maxScore: true,  placeholder: true,  min: false, max: false, unit: false, description: true,  minLength: false, maxLength: false, pattern: false, patternMessage: false },
+  'text':            { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: true,  min: false, max: false, unit: false, description: true,  minLength: true,  maxLength: true,  pattern: true,  patternMessage: true  },
+  'textarea':        { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: true,  min: false, max: false, unit: false, description: true,  minLength: true,  maxLength: true,  pattern: true,  patternMessage: true  },
+  'email':           { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: true,  min: false, max: false, unit: false, description: true,  minLength: false, maxLength: false, pattern: true,  patternMessage: true  },
+  'number':          { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: true,  min: true,  max: true,  unit: true,  description: true,  minLength: false, maxLength: false, pattern: false, patternMessage: false },
+  'url':             { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: true,  min: false, max: false, unit: false, description: true,  minLength: false, maxLength: false, pattern: false, patternMessage: false },
+  'phone':           { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: true,  min: false, max: false, unit: false, description: true,  minLength: false, maxLength: false, pattern: true,  patternMessage: true  },
+  'date':            { options: false, minLabel: false, maxLabel: false, maxScore: false, placeholder: true,  min: false, max: false, unit: false, description: true,  minLength: false, maxLength: false, pattern: false, patternMessage: false },
 };
 
 const VALID_TYPES = new Set(Object.keys(QUESTION_SCHEMA));
@@ -44,6 +48,10 @@ export interface ImportRow {
   max?: number;
   unit?: string;
   repeat?: number;
+  minLength?: number;
+  maxLength?: number;
+  pattern?: string;
+  patternMessage?: string;
 }
 
 export type ImportResult = {
@@ -93,6 +101,10 @@ export function parseJSONImport(text: string): ImportResult {
     if (schema.min && row.min != null) q.min = Number(row.min);
     if (schema.max && row.max != null) q.max = Number(row.max);
     if (schema.unit && row.unit) q.unit = String(row.unit);
+    if (schema.minLength && row.minLength != null) q.minLength = Number(row.minLength);
+    if (schema.maxLength && row.maxLength != null) q.maxLength = Number(row.maxLength);
+    if (schema.pattern && row.pattern) q.pattern = String(row.pattern);
+    if (schema.patternMessage && row.patternMessage) q.patternMessage = String(row.patternMessage);
     if (row.repeat != null) q.repeat = Math.max(1, Number(row.repeat));
     questions.push(q);
   }
@@ -136,6 +148,10 @@ export function parseCSVImport(text: string): ImportResult {
     if (schema.min && row.min) q.min = Number(row.min);
     if (schema.max && row.max) q.max = Number(row.max);
     if (schema.unit && row.unit) q.unit = row.unit;
+    if (schema.minLength && row.minlength) q.minLength = Number(row.minlength);
+    if (schema.maxLength && row.maxlength) q.maxLength = Number(row.maxlength);
+    if (schema.pattern && row.pattern) q.pattern = row.pattern;
+    if (schema.patternMessage && row.patternmessage) q.patternMessage = row.patternmessage;
     if (row.repeat) q.repeat = Math.max(1, Number(row.repeat));
     questions.push(q);
   }
@@ -209,5 +225,9 @@ export function importRowsToQuestions(rows: ImportRow[]): FormQuestion[] {
     ...(r.min != null ? { min: r.min } : {}),
     ...(r.max != null ? { max: r.max } : {}),
     ...(r.unit ? { unit: r.unit } : {}),
+    ...(r.minLength != null ? { minLength: r.minLength } : {}),
+    ...(r.maxLength != null ? { maxLength: r.maxLength } : {}),
+    ...(r.pattern ? { pattern: r.pattern } : {}),
+    ...(r.patternMessage ? { patternMessage: r.patternMessage } : {}),
   }));
 }

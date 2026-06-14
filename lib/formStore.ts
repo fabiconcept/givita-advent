@@ -47,6 +47,13 @@ function parseResponses(json: string | undefined): Record<string, string | strin
 }
 
 function rowToForm(row: Record<string, string | number | boolean | null | undefined>): Form {
+  const rawMaxResponses = row.maxresponses;
+  const parsedMaxResponses = typeof rawMaxResponses === 'number'
+    ? rawMaxResponses
+    : typeof rawMaxResponses === 'string' && rawMaxResponses
+      ? Number(rawMaxResponses)
+      : undefined;
+
   return {
     id: String(row.id ?? ''),
     title: String(row.title ?? ''),
@@ -56,6 +63,10 @@ function rowToForm(row: Record<string, string | number | boolean | null | undefi
     createdAt: String(row.createdat ?? ''),
     updatedAt: String(row.updatedat ?? ''),
     questions: parseQuestions(typeof row.questionsjson === 'string' ? row.questionsjson : undefined),
+    passwordHash: typeof row.passwordhash === 'string' && row.passwordhash ? row.passwordhash : undefined,
+    passwordSalt: typeof row.passwordsalt === 'string' && row.passwordsalt ? row.passwordsalt : undefined,
+    expiresAt: typeof row.expiresat === 'string' && row.expiresat ? row.expiresat : undefined,
+    maxResponses: parsedMaxResponses && parsedMaxResponses > 0 ? parsedMaxResponses : undefined,
   };
 }
 
@@ -78,6 +89,10 @@ function formToRow(form: Form) {
     createdAt: form.createdAt,
     updatedAt: form.updatedAt,
     questionsJson: JSON.stringify(form.questions ?? []),
+    passwordHash: form.passwordHash ?? '',
+    passwordSalt: form.passwordSalt ?? '',
+    expiresAt: form.expiresAt ?? '',
+    maxResponses: form.maxResponses ?? '',
   };
 }
 
@@ -338,6 +353,15 @@ export async function getResponses(formId: string): Promise<FormResponse[]> {
     .filter((r) => !isEmptyRow(r) && r.formid === formId)
     .map(rowToResponse)
     .sort((a, b) => (a.submittedAt < b.submittedAt ? 1 : -1));
+}
+
+export async function getResponseCount(formId: string): Promise<number> {
+  await ensureSeed();
+  if (!isSheetsAvailable()) {
+    return (memoryResponses.get(formId) || []).length;
+  }
+  const { rows } = await sheetsRead(RESPONSES_TAB);
+  return rows.filter((r) => !isEmptyRow(r) && r.formid === formId).length;
 }
 
 export async function getResponseStats(formId: string) {

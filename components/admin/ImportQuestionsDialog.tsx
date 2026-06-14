@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
-import { Upload, FileJson, FileSpreadsheet, X } from 'lucide-react';
+import { Upload, FileJson, FileSpreadsheet, X, Download } from 'lucide-react';
 import { parseJSONImport, parseCSVImport, expandRepeatRows, importRowsToQuestions, type ImportRow } from '@/types/dto';
 import type { FormQuestion } from '@/types';
 
@@ -55,6 +55,15 @@ export function ImportQuestionsDialog({
     setError(null);
   }
 
+  function downloadGuide() {
+    const link = document.createElement('a');
+    link.href = '/question-import-guide.md';
+    link.download = 'givita-question-import-guide.md';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
   return (
     <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) reset(); }}>
       <DialogTrigger asChild>
@@ -70,7 +79,18 @@ export function ImportQuestionsDialog({
       </DialogTrigger>
       <DialogContent className="max-h-[80vh] w-[95vw] max-w-2xl overflow-y-auto sm:w-full">
         <DialogHeader>
-          <DialogTitle>Import questions</DialogTitle>
+          <DialogTitle className="flex items-center justify-between">
+            Import questions
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={downloadGuide}
+              className="h-7 gap-1.5 rounded-full text-xs text-muted-foreground hover:text-foreground"
+            >
+              <Download className="h-3 w-3" /> JSON Guide
+            </Button>
+          </DialogTitle>
         </DialogHeader>
 
         <div className="flex gap-1 rounded-full border border-border bg-muted/30 p-1 text-sm">

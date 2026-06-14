@@ -62,7 +62,12 @@ import {
   Plus,
   Keyboard,
   LogOut,
+  Lock,
+  Clock,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { cn } from '@/lib/utils';
 import { ResponseStats } from '@/components/admin/editor/questionTypes';
 import { TabButton } from '@/components/admin/editor/TabButton';
@@ -81,6 +86,7 @@ export default function AdminResponsesPage() {
   const formId = params.id as string;
   const focusedQuestionRef = useRef<string | null>(null);
   const editQuestionsRef = useRef<FormQuestion[]>([]);
+  const handleSaveRef = useRef<() => void>(() => {});
 
   const [form, setForm] = useState<Form | null>(null);
   const [stats, setStats] = useState<ResponseStats | null>(null);
@@ -95,6 +101,13 @@ export default function AdminResponsesPage() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
   const [activeTab, setActiveTab] = useState<'analytics' | 'editor'>('analytics');
+  const [editPassword, setEditPassword] = useState('');
+  const [editPasswordEnabled, setEditPasswordEnabled] = useState(false);
+  const [editExpiresAt, setEditExpiresAt] = useState('');
+  const [editExpiresAtEnabled, setEditExpiresAtEnabled] = useState(false);
+  const [editMaxResponses, setEditMaxResponses] = useState('');
+  const [editMaxResponsesEnabled, setEditMaxResponsesEnabled] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
@@ -117,6 +130,14 @@ export default function AdminResponsesPage() {
             .sort((a, b) => a.order - b.order)
             .map((q, i) => ({ ...q, order: i + 1 }))
         );
+        // Settings fields
+        setEditPassword('');
+        setEditPasswordEnabled(!!(data as Form & { isPasswordProtected?: boolean }).isPasswordProtected);
+        setShowPassword(false);
+        setEditExpiresAt(data.expiresAt ? new Date(data.expiresAt).toISOString().slice(0, 16) : '');
+        setEditExpiresAtEnabled(!!data.expiresAt);
+        setEditMaxResponses(data.maxResponses && data.maxResponses > 0 ? String(data.maxResponses) : '');
+        setEditMaxResponsesEnabled(!!(data.maxResponses && data.maxResponses > 0));
       }
       if (statsRes.ok) setStats(await statsRes.json());
     } catch {
@@ -156,10 +177,14 @@ export default function AdminResponsesPage() {
     editQuestionsRef.current = editQuestions;
   }, [editQuestions]);
 
+  useEffect(() => {
+    handleSaveRef.current = () => handleSave();
+  });
+
   const handleShortcut = useCallback((shortcut: { key: string; shiftKey?: boolean }) => {
     switch (shortcut.key) {
       case 'S':
-        if (editing) handleSave();
+        if (editing) handleSaveRef.current();
         break;
       case 'Escape':
         if (editing) { setEditing(false); return; }
@@ -236,24 +261,51 @@ export default function AdminResponsesPage() {
     setIsSaving(true);
     setError(null);
     try {
+      const payload: Record<string, unknown> = {
+        title: editTitle.trim(),
+        description: editDescription,
+        questions: editQuestionsRef.current.map((q, i) => ({ ...q, order: i + 1 })),
+      };
+      // Password — only send if user changed it
+      const wasPasswordProtected = !!(form as Form & { isPasswordProtected?: boolean })?.isPasswordProtected;
+      if (editPasswordEnabled !== wasPasswordProtected || editPassword) {
+        payload.password = editPasswordEnabled ? editPassword : '';
+      }
+      // Expiry — only send if user changed it
+      const origExpiresAt = form?.expiresAt ? new Date(form.expiresAt).toISOString() : '';
+      const newExpiresAt = editExpiresAt ? new Date(editExpiresAt).toISOString() : '';
+      if (newExpiresAt !== origExpiresAt || editExpiresAtEnabled !== !!form?.expiresAt) {
+        payload.expiresAt = newExpiresAt;
+      }
+      // Max responses — only send if user changed it
+      const origMax = form?.maxResponses && form.maxResponses > 0 ? form.maxResponses : 0;
+      const newMax = editMaxResponsesEnabled && editMaxResponses ? parseInt(editMaxResponses) : 0;
+      if (newMax !== origMax || editMaxResponsesEnabled !== (origMax > 0)) {
+        payload.maxResponses = newMax > 0 ? newMax : '';
+      }
+
       const res = await fetch(`/api/forms/${formId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: editTitle.trim(),
-          description: editDescription,
-          questions: editQuestionsRef.current.map((q, i) => ({ ...q, order: i + 1 })),
-        }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error || 'Save failed');
       }
-      const updated = (await res.json()) as Form;
+      const updated = (await res.json()) as Form & { isPasswordProtected?: boolean };
       setForm(updated);
       setEditTitle(updated.title);
       setEditDescription(updated.description);
       setEditQuestions([...updated.questions].sort((a, b) => a.order - b.order));
+      // Reset settings state
+      setEditPassword('');
+      setEditPasswordEnabled(false);
+      setShowPassword(false);
+      setEditExpiresAt(updated.expiresAt ? new Date(updated.expiresAt).toISOString().slice(0, 16) : '');
+      setEditExpiresAtEnabled(!!updated.expiresAt);
+      setEditMaxResponses(updated.maxResponses && updated.maxResponses > 0 ? String(updated.maxResponses) : '');
+      setEditMaxResponsesEnabled(!!(updated.maxResponses && updated.maxResponses > 0));
       setEditing(false);
       setActiveTab('analytics');
     } catch (err) {
@@ -409,6 +461,11 @@ export default function AdminResponsesPage() {
                       setEditTitle(form.title);
                       setEditDescription(form.description);
                       setEditQuestions([...form.questions].sort((a, b) => a.order - b.order));
+                      setEditPassword('');
+                      setEditPasswordEnabled(false);
+                      setShowPassword(false);
+                      setEditExpiresAt(form.expiresAt ? new Date(form.expiresAt).toISOString().slice(0, 16) : '');
+                      setEditMaxResponses(form.maxResponses ? String(form.maxResponses) : '');
                       setError(null);
                       setActiveTab('analytics');
                     }}
@@ -419,7 +476,7 @@ export default function AdminResponsesPage() {
                   </Button>
                 </ShortcutTooltip>
                 <ShortcutTooltip label="Save changes" shortcut="⌘S">
-                  <Button size="sm" className="h-9 rounded-full" data-tip="save-btn" onClick={handleSave} disabled={isSaving} title={isSaving ? 'Saving…' : 'Save changes'}>
+                  <Button size="sm" className="h-9 rounded-full" data-tip="save-btn" onClick={() => handleSaveRef.current()} disabled={isSaving} title={isSaving ? 'Saving…' : 'Save changes'}>
                     <Save className="mr-1.5 h-3.5 w-3.5" /> {isSaving ? 'Saving…' : 'Save'} <ShortcutHint shortcut="⌘S" />
                   </Button>
                 </ShortcutTooltip>
@@ -494,6 +551,21 @@ export default function AdminResponsesPage() {
               />
               {form.isPublished ? 'Live' : 'Draft'}
             </span>
+            {(form as Form & { isPasswordProtected?: boolean }).isPasswordProtected && (
+              <Badge variant="secondary" className="rounded-full border-0 bg-primary/10 text-primary">
+                <Lock className="mr-1 h-3 w-3" /> Locked
+              </Badge>
+            )}
+            {form.expiresAt && (
+              <Badge variant="secondary" className="rounded-full border-0 bg-amber-500/10 text-amber-600 dark:text-amber-400">
+                <Clock className="mr-1 h-3 w-3" /> Expires {new Date(form.expiresAt).toLocaleDateString()}
+              </Badge>
+            )}
+            {form.maxResponses && form.maxResponses > 0 && (
+              <Badge variant="secondary" className="rounded-full border-0 bg-muted text-muted-foreground">
+                <Inbox className="mr-1 h-3 w-3" /> Max {form.maxResponses}
+              </Badge>
+            )}
           </div>
           {editing ? (
             <div className="mt-4 space-y-3">
@@ -583,6 +655,203 @@ export default function AdminResponsesPage() {
 
         {activeTab === 'editor' ? (
           <div className="mt-6 grid gap-4">
+            {editing && (
+              <div className="rounded-3xl border border-border bg-card/40 p-4 backdrop-blur sm:p-6 space-y-5">
+                <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider">Settings</h3>
+
+                {/* Password Protection */}
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5">
+                    <Switch
+                      checked={editPasswordEnabled}
+                      onCheckedChange={(checked) => {
+                        setEditPasswordEnabled(checked);
+                        if (!checked) {
+                          setEditPassword('');
+                          setShowPassword(false);
+                        } else {
+                          setShowPassword(true);
+                        }
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium">Password protection</label>
+                      {editPasswordEnabled && editPassword && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                          <Lock className="h-2.5 w-2.5" /> New
+                        </span>
+                      )}
+                      {!editPasswordEnabled && (form as Form & { isPasswordProtected?: boolean })?.isPasswordProtected && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
+                          <Lock className="h-2.5 w-2.5" /> Will be removed on save
+                        </span>
+                      )}
+                      {editPasswordEnabled && !editPassword && (form as Form & { isPasswordProtected?: boolean })?.isPasswordProtected && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                          <Lock className="h-2.5 w-2.5" /> Active
+                        </span>
+                      )}
+                    </div>
+                    {editPasswordEnabled && (
+                      <div className="flex gap-2">
+                        <Input
+                          type={showPassword ? 'text' : 'password'}
+                          value={editPassword}
+                          onChange={(e) => setEditPassword(e.target.value)}
+                          placeholder={(form as Form & { isPasswordProtected?: boolean })?.isPasswordProtected && !editPassword ? 'Enter new password to change...' : 'Set password...'}
+                          className="h-9 rounded-xl text-sm flex-1"
+                        />
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-9 px-3"
+                          onClick={() => setShowPassword((v) => !v)}
+                          title={showPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                        </Button>
+                        {(form as Form & { isPasswordProtected?: boolean })?.isPasswordProtected && !editPassword && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-9 px-3 text-destructive hover:text-destructive"
+                            onClick={() => {
+                              setEditPasswordEnabled(false);
+                              setEditPassword('');
+                              setShowPassword(false);
+                            }}
+                            title="Remove password protection"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                    <p className="text-[11px] text-muted-foreground">
+                      {editPasswordEnabled
+                        ? (form as Form & { isPasswordProtected?: boolean })?.isPasswordProtected && !editPassword
+                          ? 'Currently protected. Type a new password to change, or toggle off to remove.'
+                          : 'Respondents must enter a password before accessing this form.'
+                        : (form as Form & { isPasswordProtected?: boolean })?.isPasswordProtected
+                          ? 'Currently protected. Toggle off and save to remove password.'
+                          : 'Toggle on to require a password for this form.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="h-px bg-border" />
+
+                {/* Expiry */}
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5">
+                    <Switch
+                      checked={editExpiresAtEnabled}
+                      onCheckedChange={(checked) => {
+                        setEditExpiresAtEnabled(checked);
+                        if (!checked) setEditExpiresAt('');
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium">Expiry date &amp; time</label>
+                      {editExpiresAtEnabled && editExpiresAt && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                          <Clock className="h-2.5 w-2.5" /> Active
+                        </span>
+                      )}
+                      {!editExpiresAtEnabled && form?.expiresAt && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
+                          <Clock className="h-2.5 w-2.5" /> Will be removed on save
+                        </span>
+                      )}
+                    </div>
+                    {editExpiresAtEnabled && (
+                      <div className="flex gap-2">
+                        <Input
+                          type="datetime-local"
+                          value={editExpiresAt}
+                          onChange={(e) => setEditExpiresAt(e.target.value)}
+                          className="h-9 rounded-xl text-sm flex-1"
+                        />
+                        {editExpiresAt && (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-9 px-3 text-destructive hover:text-destructive"
+                            onClick={() => setEditExpiresAt('')}
+                            title="Remove expiry"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                    <p className="text-[11px] text-muted-foreground">
+                      {editExpiresAtEnabled
+                        ? 'Form stops accepting responses after this date & time.'
+                        : form?.expiresAt
+                          ? `Currently expires: ${new Date(form.expiresAt).toLocaleString()}. Toggle off and save to remove.`
+                          : 'Turn on to set an expiry date & time.'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="h-px bg-border" />
+
+                {/* Max Responses */}
+                <div className="flex items-start gap-3">
+                  <div className="mt-0.5">
+                    <Switch
+                      checked={editMaxResponsesEnabled}
+                      onCheckedChange={(checked) => {
+                        setEditMaxResponsesEnabled(checked);
+                        if (!checked) setEditMaxResponses('');
+                      }}
+                    />
+                  </div>
+                  <div className="flex-1 space-y-1.5">
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm font-medium">Max responses</label>
+                      {editMaxResponsesEnabled && editMaxResponses && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary">
+                          <Inbox className="h-2.5 w-2.5" /> {editMaxResponses} {parseInt(editMaxResponses) === 1 ? 'response' : 'responses'} limit
+                        </span>
+                      )}
+                      {!editMaxResponsesEnabled && form?.maxResponses && form.maxResponses > 0 && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-600 dark:text-amber-400">
+                          <Inbox className="h-2.5 w-2.5" /> Will be removed on save
+                        </span>
+                      )}
+                    </div>
+                    {editMaxResponsesEnabled && (
+                      <div className="flex gap-2">
+                        <Input
+                          type="number"
+                          min={1}
+                          value={editMaxResponses}
+                          onChange={(e) => setEditMaxResponses(e.target.value)}
+                          placeholder="e.g. 100"
+                          className="h-9 rounded-xl text-sm flex-1"
+                        />
+                      </div>
+                    )}
+                    <p className="text-[11px] text-muted-foreground">
+                      {editMaxResponsesEnabled
+                        ? 'Form stops accepting after this many responses.'
+                        : form?.maxResponses && form.maxResponses > 0
+                          ? `Currently limited to ${form.maxResponses} ${form.maxResponses === 1 ? 'response' : 'responses'}. Toggle off and save to remove.`
+                          : 'Turn on to cap the number of responses.'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
             {editing ? (
               <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onQuestionsDragEnd}>
                 <SortableContext items={editQuestions.map((q) => q.id)} strategy={verticalListSortingStrategy}>
@@ -676,6 +945,15 @@ export default function AdminResponsesPage() {
               { keys: '⌘S', label: 'Save changes' },
               { keys: 'Esc', label: 'Cancel editing' },
               { keys: 'N', label: 'Add question' },
+            ],
+          },
+          {
+            title: 'Settings',
+            shortcuts: [
+              { keys: <Lock className="h-3 w-3" />, label: 'Password — toggle on, set password, use eye icon to see it' },
+              { keys: <Clock className="h-3 w-3" />, label: 'Expiry — toggle on, pick date & time, form auto-expires' },
+              { keys: <Inbox className="h-3 w-3" />, label: 'Max responses — toggle on, set limit, or leave off for unlimited' },
+              { keys: <X className="h-3 w-3" />, label: 'Clear — click ✕ next to any setting to remove it' },
             ],
           },
           {

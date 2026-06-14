@@ -25,8 +25,20 @@ import {
 import { LoadingShell } from '@/components/form/FormPage/LoadingShell';
 import { NotFoundShell } from '@/components/form/FormPage/NotFoundShell';
 import { AlreadyFilled } from '@/components/form/FormPage/AlreadyFilled';
+import { PasswordEntry } from '@/components/form/FormPage/PasswordEntry';
+import { ExpiredScreen } from '@/components/form/FormPage/ExpiredScreen';
+import { MaxResponsesScreen } from '@/components/form/FormPage/MaxResponsesScreen';
 
-type Stage = 'intro' | 'questions' | 'submitting' | 'success' | 'already-filled' | 'not-found' | 'loading' | 'error';
+type Stage = 'intro' | 'questions' | 'submitting' | 'success' | 'already-filled' | 'not-found' | 'loading' | 'error' | 'password-entry' | 'expired' | 'max-responses';
+
+// Response shape from the API
+type FormApiResponse = Form & {
+  passwordRequired?: boolean;
+  isPasswordProtected?: boolean;
+  serverNow?: string;
+  reason?: string;
+  error?: string;
+};
 
 export default function FormPage() {
   const params = useParams();
@@ -40,32 +52,80 @@ export default function FormPage() {
   const [filledAt, setFilledAt] = useState<string | null>(null);
   const [startedAt] = useState(() => new Date().toISOString());
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [serverNow, setServerNow] = useState<string | undefined>(undefined);
+  const [isPasswordProtected, setIsPasswordProtected] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [passwordLoading, setPasswordLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     async function load() {
       try {
+        // Check for stored password
+        const storedPassword = typeof window !== 'undefined'
+          ? sessionStorage.getItem(`givita:form-pw:${formId}`)
+          : null;
+
+        const headers: Record<string, string> = {};
+        if (storedPassword) headers['X-Form-Password'] = storedPassword;
+
         const [formRes, sessionRes] = await Promise.all([
-          fetch(`/api/forms/${formId}`, { cache: 'no-store' }),
+          fetch(`/api/forms/${formId}`, { headers, cache: 'no-store' }),
           fetch('/api/admin/session', { cache: 'no-store' }),
         ]);
-        if (!formRes.ok) throw new Error('Form not found');
-        const data: Form = await formRes.json();
+
+        const formData: FormApiResponse = await formRes.json();
         const session = sessionRes.ok ? ((await sessionRes.json()) as { isAdmin: boolean }) : { isAdmin: false };
+
         if (cancelled) return;
 
-        if (!data.isPublished && !session.isAdmin) {
+        // 410 — expired or max responses
+        if (formRes.status === 410) {
+          if (formData.reason === 'expired') {
+            setServerNow(formData.serverNow);
+            setStage('expired');
+          } else if (formData.reason === 'max_responses') {
+            setServerNow(formData.serverNow);
+            setStage('max-responses');
+          } else {
+            setError(formData.error || 'This form is no longer available.');
+            setStage('not-found');
+          }
+          return;
+        }
+
+        // Password required
+        if (formData.passwordRequired) {
+          setIsPasswordProtected(true);
+          setServerNow(formData.serverNow);
+          setStage('password-entry');
+          return;
+        }
+
+        // 401 — wrong password
+        if (formRes.status === 401) {
+          setIsPasswordProtected(true);
+          setPasswordError(formData.error || 'Incorrect password.');
+          setStage('password-entry');
+          return;
+        }
+
+        if (!formRes.ok) throw new Error('Form not found');
+
+        if (!formData.isPublished && !session.isAdmin) {
           setError('This form is no longer accepting responses.');
           setStage('not-found');
           return;
         }
 
-        setForm(data);
+        setForm(formData);
+        setIsPasswordProtected(!!formData.isPasswordProtected);
+        setServerNow(formData.serverNow);
 
         const parsed = loadProgress(formId);
         if (parsed && parsed.stage === 'questions' && parsed.responses) {
           setResponses(parsed.responses);
-          setIndex(Math.min(parsed.index || 0, Math.max(0, data.questions.length - 1)));
+          setIndex(Math.min(parsed.index || 0, Math.max(0, formData.questions.length - 1)));
           setStage('intro');
           return;
         }
@@ -174,13 +234,24 @@ export default function FormPage() {
     if (!form) return;
     setStage('submitting');
     try {
+      const storedPassword = typeof window !== 'undefined'
+        ? sessionStorage.getItem(`givita:form-pw:${formId}`)
+        : null;
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (storedPassword) headers['X-Form-Password'] = storedPassword;
+
       const res = await fetch(`/api/forms/${formId}/submit`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ responses }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
+        // Handle 410 on submit
+        if (res.status === 410) {
+          if (data.reason === 'expired') { setStage('expired'); return; }
+          if (data.reason === 'max_responses') { setStage('max-responses'); return; }
+        }
         throw new Error(data.error || 'Submission failed');
       }
       markFilled(formId);
@@ -201,12 +272,99 @@ export default function FormPage() {
     clearProgress(formId);
   };
 
+  const handlePasswordSubmit = async (password: string) => {
+    setPasswordLoading(true);
+    setPasswordError(null);
+    try {
+      const res = await fetch(`/api/forms/${formId}`, {
+        headers: { 'X-Form-Password': password, 'Cache-Control': 'no-store' },
+      });
+      const data: FormApiResponse = await res.json();
+
+      if (res.status === 401) {
+        setPasswordError(data.error || 'Incorrect password.');
+        setPasswordLoading(false);
+        return;
+      }
+
+      if (res.status === 410) {
+        if (data.reason === 'expired') setStage('expired');
+        else if (data.reason === 'max_responses') setStage('max-responses');
+        setPasswordLoading(false);
+        return;
+      }
+
+      if (!res.ok) {
+        setPasswordError(data.error || 'Failed to verify password.');
+        setPasswordLoading(false);
+        return;
+      }
+
+      // Success — store password and load form
+      sessionStorage.setItem(`givita:form-pw:${formId}`, password);
+      setForm(data);
+      setIsPasswordProtected(true);
+      setServerNow(data.serverNow);
+
+      const filledRaw = getFilledDate(formId);
+      if (filledRaw) {
+        setFilledAt(filledRaw);
+        setStage('already-filled');
+      } else {
+        setStage('intro');
+      }
+    } catch {
+      setPasswordError('Something went wrong. Please try again.');
+    } finally {
+      setPasswordLoading(false);
+    }
+  };
+
+  const handleExpired = () => {
+    setStage('expired');
+  };
+
   if (stage === 'loading') {
     return <LoadingShell />;
   }
 
   if (stage === 'not-found') {
     return <NotFoundShell message={error || 'This form is no longer accepting responses.'} />;
+  }
+
+  if (stage === 'password-entry') {
+    return (
+      <FormShell>
+        <main className="mx-auto w-full max-w-3xl px-5 pt-24 pb-32 sm:pt-28 sm:pb-40">
+          <PasswordEntry
+            formTitle={form?.title || 'this form'}
+            onSubmit={handlePasswordSubmit}
+            error={passwordError}
+            isLoading={passwordLoading}
+          />
+        </main>
+      </FormShell>
+    );
+  }
+
+  if (stage === 'expired') {
+    return (
+      <FormShell>
+        <main className="mx-auto w-full max-w-3xl px-5 pt-24 pb-32 sm:pt-28 sm:pb-40">
+          <ExpiredScreen />
+        </main>
+      </FormShell>
+    );
+  }
+
+  if (stage === 'max-responses') {
+    return (
+      <FormShell>
+        <main className="mx-auto w-full max-w-3xl px-5 pt-24 pb-32 sm:pt-28 sm:pb-40">
+          <MaxResponsesScreen />
+        </main>
+      </FormShell>
+    );
   }
 
   if (!form) {
@@ -227,6 +385,9 @@ export default function FormPage() {
             hasResumed={Object.keys(responses).length > 0}
             onStart={() => setStage('questions')}
             onRestart={restart}
+            expiresAt={form.expiresAt}
+            serverNow={serverNow}
+            onExpired={handleExpired}
           />
         )}
 
@@ -272,7 +433,6 @@ export default function FormPage() {
           />
         )}
 
-        {stage === 'not-found' && null}
         {stage === 'error' && error && (
           <div className="mt-6 rounded-2xl border border-destructive/40 bg-destructive/10 p-5 text-sm text-destructive">
             {error}
