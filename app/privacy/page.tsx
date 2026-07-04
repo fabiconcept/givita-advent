@@ -4,6 +4,12 @@ import Link from 'next/link';
 import { HangingFlower } from '@/components/landing/HangingFlower';
 import { ScrollInView } from '@/components/landing/ScrollInView';
 import { ArrowLeft, Leaf } from 'lucide-react';
+import { buildBreadcrumbs } from '@/lib/structured-data';
+
+const breadcrumbSchema = buildBreadcrumbs([
+  { name: 'Home', path: '/' },
+  { name: 'Privacy Policy' },
+]);
 
 const SECTIONS = [
   {
@@ -35,6 +41,10 @@ const SECTIONS = [
 export default function PrivacyPage() {
   return (
     <div className="relative min-h-screen bg-background text-foreground overflow-x-clip">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <HangingFlower className="left-4 -top-10 sm:left-8 lg:left-12" side="left" size={140} ropeLength={80} delay={0} tone="primary" />
       <HangingFlower className="right-4 -top-8 sm:right-8 lg:right-12" side="right" size={100} ropeLength={60} delay={1.2} tone="muted" />
 

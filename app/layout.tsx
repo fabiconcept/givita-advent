@@ -4,6 +4,7 @@ import { ThemeProvider } from '@/components/theme-provider'
 import { ShortcutGuardProvider } from '@/components/ShortcutGuard'
 import { CookieConsent } from '@/components/CookieConsent'
 import { OfflineDetector } from '@/components/offline/OfflineDetector'
+import { StructuredData } from '@/components/structured-data'
 import { createMetadata } from '@/lib/metadata'
 import './globals.css'
 
@@ -24,6 +25,7 @@ export default function RootLayout({
             __html: `(function(){try{var t=localStorage.getItem('theme')||(matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light');if(t==='dark')document.documentElement.classList.add('dark')}catch(e){}})()`,
           }}
         />
+        <StructuredData />
       </head>
       <body className={`${onest.className} antialiased`}>
         <a
